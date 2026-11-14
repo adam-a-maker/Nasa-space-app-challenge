@@ -43,3 +43,7 @@ Continuer de midi à ~19h-20h en présentiel, puis sur Discord le soir
 Rédiger un prompt complet décrivant l'interface et le game design
 
 Mettre tout le concept à l'écrit sur PC pour pouvoir le partager facilement.
+
+# lore du jeu
+
+un scientifique indépendant, contacté par la nasa se fait remettre la mission d'aller sur mars afin de collecter des information sur les missions précédentes à partir des débrits.
