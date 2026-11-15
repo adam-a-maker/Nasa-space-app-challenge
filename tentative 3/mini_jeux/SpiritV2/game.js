@@ -13,7 +13,7 @@ try {
   renderer.setQuality('low');
   renderer.domElement.id = 'world';
   renderer.domElement.setAttribute('role', 'img');
-  renderer.domElement.setAttribute('aria-label', 'Martian landscape in 3D');
+  renderer.domElement.setAttribute('aria-label', 'Paysage martien en 3D');
   canvas.replaceWith(renderer.domElement);
   canvas = renderer.domElement;
 }
@@ -31,7 +31,7 @@ function start() {
     renderer.shadowMap.type = T.PCFSoftShadowMap;
   }
 
-  const sky = new T.Color(0xba9b86);
+  const sky = new T.Color();
   scene.background = sky;
   scene.fog = new T.FogExp2(sky, .012);
   const ambient = new T.HemisphereLight(0xffebdb, 0x66473f, 1.24);
@@ -88,11 +88,11 @@ function start() {
   ];
   const craters=[{x:38,z:-39,r:7},{x:-39,z:0,r:6}];
   const stations = [
-    {name:'Starting plain',action:'Observe the eroded deposits',era:'present',x:-24,z:94},
-    {name:'Southern bench',action:'Survey the deposit layers',era:'past',x:23,z:48},
-    {name:'Impact basin', action:'Survey the sediments', era:'present', x:38,z:-39},
-    {name:'Ancient buttress', action:'Measure the erosion', era:'past', x:-36,z:-48},
-    {name:'Plateau scree', action:'Survey the strata', era:'present', x:7,z:-58}
+    {name:'Plaine de départ',action:'Observer les dépôts érodés',era:'present',x:-24,z:94},
+    {name:'Replat du sud',action:'Relever les niveaux de dépôt',era:'past',x:23,z:48},
+    {name:'Cuvette d’impact', action:'Relever les sédiments', era:'present', x:38,z:-39},
+    {name:'Contrefort ancien', action:'Mesurer l’érosion', era:'past', x:-36,z:-48},
+    {name:'Éboulis du plateau', action:'Relever les strates', era:'present', x:7,z:-58}
   ];
   const gully={x:-3,z:-51};
   function gullyDepth(x,z) {
@@ -107,7 +107,7 @@ function start() {
       (1-T.MathUtils.smoothstep(radius,14.2,17));
     const erosion=(.23*Math.sin(dx*.62+dz*.27)+.14*Math.cos(dz*1.1-dx*.41))*slopeZone;
     let h=6.8 * (1 - T.MathUtils.smoothstep(radius+erosion,11,16));
-    if (period==='past' && dz>9) {
+    if (dz>9) {
       const ramp = (1-T.MathUtils.smoothstep(Math.abs(dx+8),3,7))
         * (1-T.MathUtils.smoothstep(dz,10,31));
       h=Math.max(h,6.8*ramp);
@@ -510,6 +510,7 @@ function start() {
   });
   const exposed = new T.Group();
   exposed.position.copy(deposit);
+  exposed.visible=true;
   worlds.present.add(exposed);
   for (let i=0;i<100;i++) {
     const angle=random()*Math.PI*2,radius=Math.sqrt(random());
@@ -562,9 +563,6 @@ function start() {
   antennaRod.rotation.z=.1;
   placeholder.traverse(part=>{if(part.isMesh){part.castShadow=true;part.receiveShadow=true;}});
   let modelWheels = [];
-  rover.visible = false;
-  // Safety net: if the detailed model is slow, never leave the player without a rover.
-  setTimeout(() => { rover.visible = true; }, 3000);
   if (typeof window.fetch === 'function') {
     import('./rover-model.js?v=spirit').then(({loadSpiritModel}) => loadSpiritModel(software))
       .then(({body, rollingWheels}) => {
@@ -572,14 +570,12 @@ function start() {
         rover.add(body);
         modelWheels = rollingWheels;
         canvas.dataset.rover = software ? 'light' : 'full';
-        rover.visible = true;
       })
       .catch(error => {
         canvas.dataset.rover = 'placeholder';
-        console.warn('Detailed Spirit model unavailable.', error);
-        rover.visible = true;
+        console.warn('Modèle détaillé de Spirit indisponible.', error);
       });
-  } else rover.visible = true;
+  }
   const shadow=new T.Mesh(new T.CircleGeometry(1.45,22),new T.MeshBasicMaterial({color:0x231811,transparent:true,opacity:.25,depthWrite:false}));
   shadow.rotation.x=-Math.PI/2;
   scene.add(shadow);
@@ -612,9 +608,8 @@ function start() {
   let cameraReady=false;
   let finished=false;
   const guide=el('guide');
-  const report=el('report');
   const victory=el('victory');
-  const objectiveText='Uncover the white deposit, analyze it and transmit to Earth what it reveals about ancient water on Mars.';
+  const objectiveText='Rejoins le dépôt blanc sur le plateau, cadre-le et prends une photographie.';
   let lastCheckpoint=0;
   let orbit=0;
   let pitch=.55;
@@ -625,10 +620,10 @@ function start() {
   let safeSurvey=null;
   let cameraDrag=null;
   const cameraPresets=[
-    {name:'Follow',pitch:.55,distance:13},
-    {name:'Close to the ground',pitch:.23,distance:11},
-    {name:'High view',pitch:1.09,distance:21},
-    {name:'Spirit’s mast',mast:true}
+    {name:'Première personne',mast:true},
+    {name:'Suivi',pitch:.55,distance:13},
+    {name:'Près du sol',pitch:.23,distance:11},
+    {name:'Vue haute',pitch:1.09,distance:21}
   ];
   // Eye of the Pancam mast, expressed in the rover's own space.
   const mastLocal=new T.Vector3(.55,2.13,-.62);
@@ -652,9 +647,8 @@ function start() {
     scene.fog.density=isPast?.006:.0036;
     ambient.color.setHex(isPast?0xd0e2e2:0xffebdb);
     sunlight.color.setHex(palettes[era].light);
-    el('era').textContent=isPast?'Past':'Present';
-    el('era-caption').textContent=isPast?'Possible reconstruction':'Spirit era';
-    el('switch-label').textContent=isPast?'Back to the present':'Switch to the past';
+    el('era').textContent=isPast?'Passé':'Présent';
+    el('era-caption').textContent=isPast?'Reconstitution possible':'Époque de Spirit';
     document.body.dataset.era=era;
   }
 
@@ -669,38 +663,16 @@ function start() {
       y<rock.y+rock.h && Math.hypot(x-rock.x,z-rock.z)<rock.r+.65);
   }
 
-  function toggleEra() {
-    if (finished || scraping || guide.open || report.open) return;
-    const next=era==='past'?'present':'past';
-    if (blocked(pos.x,pos.z,pos.y,next) ||
-        elevation(pos.x,pos.z,next)>pos.y+.5) {
-      message('This era’s terrain occupies this spot. Move Spirit aside.');
-      return;
-    }
-    era=next;
-    applyEra();
-  }
-
   function updateProgress() {
     if (lastCheckpoint===0 && Math.hypot(pos.x-mesa.x,pos.z-mesa.z)<32 && grounded) {
       lastCheckpoint=1;
-      message('Plateau spotted. Look for the ancient ramp on the left or the geyser at the foot of the relief.');
+      message('Plateau repéré. Cherche la rampe rocheuse pour atteindre le dépôt blanc.');
     }
     if (era==='present' && grounded && Math.hypot(pos.x-mesa.x,pos.z-mesa.z)<11 && pos.y>5.7) {
       lastCheckpoint=2;
     }
-    const step=surveyed.size+action;
-    if (progress!==step || el('progress').value!==step || !el('progress-text').textContent.includes('MISSION')) {
-      progress=step;
-      el('progress').value=step;
-      el('progress-text').textContent=action?'MISSION · ANALYZE':`MISSION · SURVEYS ${surveyed.size}/${stations.length}`;
-    }
-    const pending=stations.findIndex((_,index)=>!surveyed.has(index));
-    const next=stations[pending];
-    const text=next ? (surveyed.size===0 ? objectiveText+' Start with the survey of the plain to the south.' :
-      `Next survey · ${next.name} (${next.era==='past'?'Past':'Present'}).`) : action===1?'The deposit is uncovered. Analyze the white material.':lastCheckpoint===2?
-      'Approach the marker and scrape the ground.':lastCheckpoint===1?
-      'Find a way up to the plateau. In the past, a rocky ramp and a geyser are still visible.':objectiveText;
+    const text=lastCheckpoint===2?'Cadre le dépôt blanc au centre de la caméra et appuie sur Espace pour le photographier.':lastCheckpoint===1?
+      'Monte sur le plateau par la rampe rocheuse, puis photographie le dépôt blanc.':objectiveText;
     if (el('instruction').textContent!==text) el('instruction').textContent=text;
   }
 
@@ -711,21 +683,22 @@ function start() {
       safeSurvey=null;
       finished=false;
       lastCheckpoint=0;
-      report.close();
       victory.close();
-      el('report-form').reset();
-      el('report-feedback').textContent='';
       el('notice').hidden=true;
+      el('photo-preview').hidden=true;
     }
     scraping=0;
     const safe=lastCheckpoint===2?waypoints[2]:safeSurvey??waypoints[lastCheckpoint];
-    era=safe.era??'present';
+    era='present';
     pos.set(safe.x,elevation(safe.x,safe.z,era),safe.z);
     velocity.set(0,0,0);
     grounded=true;
     flight=false;
     yaw=0;
     orbit=0;
+    cameraPreset=0;
+    el('camera-angle').textContent='Caméra · Première personne';
+    document.body.dataset.camera='mast';
     applyEra();
     updateProgress();
     rover.position.copy(pos);
@@ -736,7 +709,7 @@ function start() {
     grounded=false;
     flight=true;
     velocity.set((mesa.x-pos.x)*.55,12.9,-8.4);
-    message('In flight · aim your trajectory at the plateau to land there.');
+    message('En vol · oriente la trajectoire vers le plateau pour t’y poser.');
   }
 
   function tick(dt) {
@@ -749,10 +722,7 @@ function start() {
     if (!reduced.matches) {
       for (const drop of particles) drop.position.y=(drop.userData.height+ventCycle*4.4)%6.5;
     }
-    if (era==='past' && nearVent && grounded) {
-      if (active || (el('assist').checked && ventCycle>4.1)) launch();
-      else if (warning && el('notice').hidden) message('Steam visible · the jet is about to erupt.');
-    }
+    // No era switching or geyser jump: the present-day rocky ramp is the route.
     const held=new Set(touch.values());
     const down=key=>keys.has(key)||held.has(key);
     const steer=Number(down('right'))-Number(down('left'));
@@ -765,7 +735,7 @@ function start() {
       pos.z+=(deposit.z-pos.z)*dt*.5;
       if (scraping===0) {
         action=1;
-        message('White material uncovered. Start the analysis.');
+        message('Matière blanche dégagée. Lance l’analyse.');
       }
     } else if (!flight) {
       yaw -= steer * dt * 1.85;
@@ -822,23 +792,18 @@ function start() {
   }
 
   function currentSurvey() {
-    if (!grounded) return -1;
-    return stations.findIndex((station,index)=>!surveyed.has(index) && station.era===era &&
-      Math.hypot(pos.x-station.x,pos.z-station.z)<3.2);
+    return -1;
   }
 
   function updateInteraction() {
     const station=currentSurvey();
     const nearDeposit=era==='present' && grounded && Math.abs(pos.y-deposit.y)<1.25 &&
       Math.hypot(pos.x-deposit.x,pos.z-deposit.z)<3.2 && !scraping;
-    const ready=nearDeposit && surveyed.size===stations.length;
-    el('interact').hidden=finished || !(ready || station>=0);
-    const label=station>=0?stations[station].action:action===0?'Scrape the ground':'Analyze';
-    if (el('interact').textContent!==label) el('interact').textContent=label;
-    el('survey-hint').hidden=!(nearDeposit && !ready);
-    exposed.visible=action>0;
-    surveyMarkers.forEach((marker,index)=>{marker.visible=!surveyed.has(index);});
-    const goal=ready?(action===0?'Uncover the deposit':'Analyze the deposit'):'Find the white deposit';
+    el('interact').hidden=finished;
+    el('survey-hint').hidden=true;
+    exposed.visible=true;
+    surveyMarkers.forEach(marker=>{marker.visible=false;});
+    const goal=nearDeposit?'Cadre le dépôt et prends la photo':'Photographie le dépôt blanc';
     if (el('goal').textContent!==goal) el('goal').textContent=goal;
   }
 
@@ -852,7 +817,7 @@ function start() {
       cameraDistance=view.distance;
     }
     document.body.dataset.camera=view.mast?'mast':'orbit';
-    el('camera-angle').textContent='Camera · '+view.name;
+    el('camera-angle').textContent='Caméra · '+view.name;
     cameraReady=false;
     resize();
   }
@@ -863,18 +828,17 @@ function start() {
     ArrowRight:'right',KeyD:'right'
   };
   window.addEventListener('keydown',event=>{
-    if (guide.open || report.open || victory.open || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (guide.open || victory.open || event.ctrlKey || event.metaKey || event.altKey) return;
     if (keymap[event.code]) {
       event.preventDefault();
       keys.add(keymap[event.code]);
     }
-    if (event.code==='KeyE' && !event.repeat) toggleEra();
     if(event.code==='KeyC' && !event.repeat) changeCamera();
     if(event.code==='KeyJ') orbit-=.12;
     if(event.code==='KeyL') orbit+=.12;
     if (event.code==='Space' && !event.repeat && !event.target.closest?.('button,a')) {
       event.preventDefault();
-      toggleEra();
+      takePhoto();
     }
   });
   window.addEventListener('keyup',event=>keys.delete(keymap[event.code]));
@@ -903,7 +867,8 @@ function start() {
   canvas.addEventListener('pointermove',event=>{
     if (cameraDrag?.id!==event.pointerId) return;
     orbit-=(event.clientX-cameraDrag.x)*.008;
-    pitch=T.MathUtils.clamp(pitch+(event.clientY-cameraDrag.y)*.006,.16,1.23);
+    if (useMastView()) lookPitch=T.MathUtils.clamp(lookPitch-(event.clientY-cameraDrag.y)*.006,-1.0,.8);
+    else pitch=T.MathUtils.clamp(pitch+(event.clientY-cameraDrag.y)*.006,.16,1.23);
     cameraDrag.x=event.clientX;
     cameraDrag.y=event.clientY;
   });
@@ -913,46 +878,40 @@ function start() {
     cameraDistance=T.MathUtils.clamp(cameraDistance+event.deltaY*.017,7,32);
   },{passive:false});
   el('camera-angle').addEventListener('click',changeCamera);
-  el('switch').addEventListener('click',toggleEra);
-  el('reset').addEventListener('click',()=>{reset();message('Back at the last safe point.');});
+  el('reset').addEventListener('click',()=>{reset();message('Retour au dernier point sûr.');});
   document.addEventListener('visibilitychange',()=>{keys.clear();touch.clear();});
   el('help').addEventListener('click',()=>{keys.clear();touch.clear();guide.showModal();});
-  el('interact').addEventListener('click',()=>{
-    if (el('interact').hidden) return;
-    const station=currentSurvey();
-    if (station>=0) {
-      surveyed.add(station);
-      safeSurvey=stations[station];
-      updateProgress();
-      updateInteraction();
-      message(stations[station].name+' · survey recorded.');
+  el('interact').addEventListener('click',takePhoto);
+  function takePhoto() {
+    if (finished || guide.open || victory.open) return;
+    const range=Math.hypot(pos.x-deposit.x,pos.z-deposit.z);
+    if (range>17 || !grounded || pos.y<deposit.y-2) {
+      message('Approche-toi du dépôt blanc sur le plateau pour le photographier.');
       return;
     }
-    if (surveyed.size!==stations.length) return;
-    if (action===0) {
-      scraping=reduced.matches?.1:1.2;
-      message('The stuck wheel scrapes the ground.');
-    } else {
-      keys.clear();
-      touch.clear();
-      el('report-feedback').textContent='';
-      report.showModal();
-    }
-  });
-  el('report-form').addEventListener('submit',event=>{
-    event.preventDefault();
-    if (new FormData(event.currentTarget).get('answer')!=='ancient') {
-      el('report-feedback').textContent='Silica is a clue to how the deposit formed. Re-read what this analysis lets you conclude.';
+    const target=new T.Vector3(deposit.x,deposit.y+.25,deposit.z).project(camera);
+    if (target.z<0 || target.z>1 || Math.abs(target.x)>.43 || Math.abs(target.y)>.43) {
+      message('Centre le dépôt blanc dans le viseur avant de déclencher.');
       return;
     }
+    renderer.render(scene,camera);
+    let image='';
+    try { image=canvas.toDataURL('image/png'); } catch { /* SVG fallback: flash still works */ }
+    if (image) {
+      el('photo-image').src=image;
+      el('victory-photo').src=image;
+      el('photo-preview').hidden=false;
+    }
+    const flash=el('shutter-flash');
+    flash.classList.remove('captured');
+    void flash.offsetWidth;
+    flash.classList.add('captured');
     finished=true;
-    el('progress').value=5;
-    el('progress-text').textContent='MISSION · REPORT TRANSMITTED';
-    report.close();
-    // Tick the Spirit quest in Atlas Mars (same key the atlas reads).
-    try { const q = JSON.parse(localStorage.getItem('atlasMarsQuests') || '{}') || {}; q.spirit = true; localStorage.setItem('atlasMarsQuests', JSON.stringify(q)); } catch {}
-    victory.showModal();
-  });
+    el('progress').value=1;
+    el('progress-text').textContent='MISSION · PHOTO TRANSMISE ✓';
+    message('Clic ! Photo capturée et transmise à la Terre.');
+    window.setTimeout(()=>victory.showModal(),1150);
+  }
   el('replay').addEventListener('click',()=>reset(true));
   victory.addEventListener('cancel',event=>event.preventDefault());
 
@@ -970,7 +929,7 @@ function start() {
   function animate(now) {
     const dt=Math.min(.045,(now-(last||now))/1000);
     last=now;
-    if (!guide.open && !report.open && !finished) {
+    if (!guide.open && !finished) {
       const steps = Math.max(1,Math.ceil(dt/.016));
       for (let i=0;i<steps;i++) tick(dt/steps);
     }
@@ -980,9 +939,17 @@ function start() {
     const radius=cameraDistance+(portrait?1.4:0);
     const distance=Math.cos(pitch)*radius;
     const heading=yaw+orbit;
-    cameraTarget.set(pos.x+Math.sin(heading)*distance,pos.y+Math.sin(pitch)*radius,pos.z+Math.cos(heading)*distance);
-    cameraLook.set(pos.x-Math.sin(heading)*4.9,pos.y+.9,pos.z-Math.cos(heading)*4.9);
-    cameraTarget.y=Math.max(cameraTarget.y,elevation(cameraTarget.x,cameraTarget.z,era)+2.1);
+    if (useMastView()) {
+      rover.updateMatrixWorld(true);
+      mastWorld.copy(mastLocal);
+      rover.localToWorld(mastWorld);
+      cameraTarget.copy(mastWorld);
+      cameraLook.set(mastWorld.x-Math.sin(heading)*12,mastWorld.y+Math.tan(lookPitch)*12,mastWorld.z-Math.cos(heading)*12);
+    } else {
+      cameraTarget.set(pos.x+Math.sin(heading)*distance,pos.y+Math.sin(pitch)*radius,pos.z+Math.cos(heading)*distance);
+      cameraLook.set(pos.x-Math.sin(heading)*4.9,pos.y+.9,pos.z-Math.cos(heading)*4.9);
+      cameraTarget.y=Math.max(cameraTarget.y,elevation(cameraTarget.x,cameraTarget.z,era)+2.1);
+    }
     if (!cameraReady || reduced.matches) camera.position.copy(cameraTarget);
     else camera.position.lerp(cameraTarget,1-Math.exp(-dt*9));
     camera.lookAt(cameraLook);
@@ -992,10 +959,9 @@ function start() {
     }
     cameraReady=true;
     camera.updateMatrixWorld();
-    const next=stations.find((_,index)=>!surveyed.has(index));
-    const target=next??deposit;
-    const targetName=next?next.name:'White deposit';
-    const targetY=next?elevation(next.x,next.z,era):deposit.y;
+    const target=deposit;
+    const targetName='Dépôt blanc · photo';
+    const targetY=deposit.y;
     screen.set(target.x,targetY+2,target.z).project(camera);
     const visible=screen.z<1 && screen.z>-1 && Math.abs(screen.x)<.84 && Math.abs(screen.y)<.87 && !finished;
     const marker=el('destination');
@@ -1016,9 +982,9 @@ function start() {
     const sandy=softSoil(pos.x,pos.z,era);
     const nearbySlab=slabs[era].some(s=>Math.hypot(pos.x-s.x,pos.z-s.z)<s.rx+3);
     const nearbyCrater=craters.some(c=>Math.hypot(pos.x-c.x,pos.z-c.z)<c.r+2);
-    hazard.textContent=sandy?'Loose sand · progress slowed. Go around the area or back up.':
-      nearbySlab?'Rock slabs · look for a way around the edges.':
-      nearbyCrater?'Basin · avoid the steep slopes and look for a gentle way out.':'';
+    hazard.textContent=sandy?'Sable meuble · progression ralentie. Contourne la zone ou recule.':
+      nearbySlab?'Dalles rocheuses · cherche un passage autour des rebords.':
+      nearbyCrater?'Cuvette · évite les pentes raides et cherche une sortie douce.':'';
     hazard.hidden=!hazard.textContent;
     if (!software || now-lastRender>42) {
       renderer.render(scene,camera);
