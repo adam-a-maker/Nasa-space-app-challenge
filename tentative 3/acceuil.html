@@ -123,6 +123,8 @@ canvas:active { cursor: grabbing; }
 #rotation { border: 1px solid #6b4c47; border-radius: 5px; background: #181216; min-height: 44px; min-width: 82px; padding: .25rem .65rem; font-size: .75rem; }
 #rotation:hover { border-color: var(--accent); }
 .credit { color: var(--muted); justify-self: end; font-size: .68rem; }
+.credit-wrap { justify-self: end; display: grid; gap: .15rem; text-align: right; }
+.credit-extra { margin: 0; color: var(--muted); font-size: .6rem; line-height: 1.3; opacity: .8; }
 
 .surface {
   position: relative;
@@ -197,6 +199,7 @@ canvas:active { cursor: grabbing; }
   .orbit-footer { grid-area: 3 / 1; justify-content: center; grid-template-columns: 1fr auto; }
   .controls { justify-self: end; }
   .credit { grid-column: 1 / -1; justify-self: start; }
+  .credit-wrap { grid-column: 1 / -1; justify-self: start; text-align: left; }
   .missions { grid-area: 4 / 1; }
   .missions ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .9rem; }
   .quests { grid-area: 5 / 1; align-self: start; max-width: none; }
@@ -311,13 +314,16 @@ canvas:active { cursor: grabbing; }
 .timeline time { display: block; margin-bottom: .25rem; font: 600 .74rem/1.6 var(--mono); letter-spacing: .06em; color: var(--accent); }
 
 /* 3D model, in the space left free */
-.model-stage { flex: 1; min-height: 14rem; display: grid; grid-template-rows: 1fr auto auto; background: radial-gradient(ellipse at 50% 46%, #ff9c7624, transparent 66%); }
+.model-stage { flex: 1; min-height: 14rem; display: grid; grid-template-rows: 1fr auto auto auto; background: radial-gradient(ellipse at 50% 46%, #ff9c7624, transparent 66%); }
 #model-canvas { min-height: 0; border-radius: 0; background: none; box-shadow: none; cursor: grab; touch-action: pan-y; }
 #model-canvas:active { cursor: grabbing; }
 .model-switch { display: flex; justify-content: center; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
 .model-btn { min-height: 40px; padding: .4rem .95rem; border: 1px solid var(--line); border-radius: 4px; background: #150f13cc; color: var(--muted); font: .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; }
 .model-btn:hover { border-color: var(--accent); color: var(--ink); }
 .model-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); background: #a94f3566; }
+.model-credit { margin: .3rem 0 0; text-align: center; font: .55rem var(--mono); letter-spacing: .04em; color: var(--muted); opacity: .75; }
+.model-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.model-credit a:hover { color: var(--ink); }
 .model-hint { margin: .4rem 0 0; text-align: center; font: .68rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 
 @media (max-width: 1199px) {
@@ -401,7 +407,10 @@ canvas:active { cursor: grabbing; }
           <p>Drag to rotate Mars</p>
           <button id="rotation" type="button">Pause</button>
         </div>
-        <a class="credit" href="https://www.solarsystemscope.com/textures/">Texture · Solar System Scope (CC BY 4.0)</a>
+        <div class="credit-wrap">
+          <a class="credit" href="https://www.solarsystemscope.com/textures/">Texture · Solar System Scope (CC BY 4.0)</a>
+          <p class="credit-extra">appart from the 3d models of each rovers and ingenuity</p>
+        </div>
       </div>
     </section>
 
@@ -429,6 +438,7 @@ canvas:active { cursor: grabbing; }
             <canvas id="model-canvas" aria-label="3D model of the mission vehicle. Drag to rotate it." role="img"></canvas>
             <div class="model-switch" id="model-switch" role="group" aria-label="Choose a 3D model" hidden></div>
             <p class="model-hint" id="model-hint">Loading the 3D model…</p>
+            <p class="model-credit" id="model-credit" hidden><a href="https://sketchfab.com/3d-models/mars-sojourner-rover-model-8b3810e7cd804bd6b0009520c67984c6" target="_blank" rel="noopener">https://sketchfab.com/3d-models/mars-sojourner-rover-model-8b3810e7cd804bd6b0009520c67984c6<span class="sr-only"> (new tab)</span></a></p>
           </div>
           <aside class="timeline-rail" id="timeline-rail" aria-label="Mission timeline" hidden></aside>
         </div>
@@ -1326,6 +1336,7 @@ const modelStage = document.querySelector("#model-stage");
 const modelCanvas = document.querySelector("#model-canvas");
 const modelHint = document.querySelector("#model-hint");
 const modelSwitch = document.querySelector("#model-switch");
+const modelCredit = document.querySelector("#model-credit");
 const THREE_CDNS = ["https://cdn.jsdelivr.net/npm/three@0.128.0/", "https://unpkg.com/three@0.128.0/"];
 const THREE_FILES = ["build/three.min.js", "examples/js/loaders/GLTFLoader.js", "examples/js/controls/OrbitControls.js"];
 // Each model lives in models/<key>.js (the .glb file as base64), so it also works when the page is opened from a file.
@@ -1831,6 +1842,7 @@ function syncModel(mission) {
   const models = mission && mission.models;
   modelWanted = Boolean(models);
   modelStage.hidden = !modelWanted;
+  modelCredit.hidden = !(modelWanted && models.some(choice => String(choice.key).startsWith("pathfinder")));
   modelPick++;
   if (!modelWanted) { cancelAnimationFrame(modelFrame); modelFrame = 0; return; }
   modelSwitch.replaceChildren();
