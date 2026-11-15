@@ -1,7 +1,7 @@
 const missions = [
+  {name:"Sojourner", year:1997, site:"Ares Vallis", lat:19.13, lon:-33.22, title:"Le premier rover sur Mars", story:"Déployé par l’atterrisseur Pathfinder dans Ares Vallis, Sojourner examine des roches et des sols d’une ancienne plaine d’inondation. Ses observations contribuent à étudier l’histoire géologique et climatique de Mars."},
   {name:"Spirit", year:2004, site:"Cratère Gusev", lat:-14.57, lon:175.47, title:"Une roue révèle un sol riche en silice", story:"En 2007, une roue bloquée creuse une tranchée près de Home Plate. Spirit y met au jour un sol presque composé de silice pure, probablement formé dans un environnement où l’eau était présente."},
   {name:"Phoenix", year:2008, site:"Vastitas Borealis", lat:68.22, lon:-125.75, title:"De la glace sous la surface arctique", story:"Le bras robotique de Phoenix creuse le sol près du pôle nord martien. La mission confirme la présence de glace d’eau sous la surface et détecte aussi du perchlorate dans le sol."},
-  {name:"Sojourner", year:1997, site:"Ares Vallis", lat:19.13, lon:-33.22, title:"Le premier rover sur Mars", story:"Déployé par l’atterrisseur Pathfinder dans Ares Vallis, Sojourner examine des roches et des sols d’une ancienne plaine d’inondation. Ses observations contribuent à étudier l’histoire géologique et climatique de Mars."},
   {name:"Ingenuity", year:2021, site:"Cratère Jezero", lat:18.44, lon:77.45, title:"Le premier vol motorisé sur une autre planète", story:"Transporté sous le rover Perseverance, Ingenuity réalise en 2021 le premier vol motorisé et contrôlé sur une autre planète. Prévu pour cinq vols, l’hélicoptère en effectue 72 avant la fin de sa mission en 2024."}
 ];
 
