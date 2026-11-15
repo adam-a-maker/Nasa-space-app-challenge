@@ -206,7 +206,7 @@ canvas:active { cursor: grabbing; }
 .dossier {
   --shift-x: 0px; --shift-y: 0px;
   position: absolute; z-index: 4;
-  width: 252px;
+  width: 268px;
   font-family: var(--mono);
   color: var(--ink);
   background: linear-gradient(180deg, #1c1216f4, #120c10f4);
@@ -228,7 +228,7 @@ canvas:active { cursor: grabbing; }
 .dossier-head { display: flex; justify-content: space-between; gap: .6rem; padding: .45rem .7rem; font-size: .64rem; letter-spacing: .13em; color: var(--accent); border-bottom: 1px solid #ff9c7640; background: repeating-linear-gradient(135deg, #ff9c7620 0 6px, transparent 6px 12px); }
 .dossier-head span:last-child { color: var(--muted); }
 .dossier h3 { margin: .75rem .7rem .25rem; font: 600 1.05rem/1.25 var(--sans); letter-spacing: .01em; }
-.dossier dl { display: grid; grid-template-columns: auto 1fr; gap: .35rem .85rem; margin: .6rem .7rem .8rem; font-size: .7rem; }
+.dossier dl { display: grid; grid-template-columns: auto 1fr; gap: .3rem .85rem; margin: .6rem .7rem .8rem; font-size: .7rem; }
 .dossier dt { color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
 .dossier dd { margin: 0; }
 .dossier-status { display: inline-flex; align-items: center; gap: .45rem; text-transform: uppercase; letter-spacing: .06em; color: #ff8d6e; }
@@ -1053,10 +1053,10 @@ reducedMotion.addEventListener("change", event => {
 /* ---------- Fiche d'identification au survol d'un point ---------- */
 // Données de la fiche, par mission. state : "abandoned" (matériel abandonné) ou "active".
 const dossierData = {
-  "spirit":     { object: "Spirit (MER-A)",         program: "Mars Exploration Rover", state: "abandoned" },
-  "phoenix":    { object: "Phoenix Mars Lander",    program: "Phoenix Scout Mission",  state: "abandoned" },
-  "sojourner":  { object: "Sojourner Rover",        program: "Mars Pathfinder",        state: "abandoned" },
-  "ingenuity":  { object: "Ingenuity Mars Helicopter", program: "Mars 2020",           state: "abandoned" }
+  "spirit":     { object: "Spirit (MER-A)",         program: "Mars Exploration Rover", state: "abandoned", type: "Rover",      landing: "Jan 2004",    mass: "185 kg",  end: "22 Mar 2010" },
+  "phoenix":    { object: "Phoenix Mars Lander",    program: "Phoenix Scout Mission",  state: "abandoned", type: "Lander",     landing: "25 May 2008", mass: "≈ 350 kg", end: "2 Nov 2008" },
+  "sojourner":  { object: "Sojourner Rover",        program: "Mars Pathfinder",        state: "abandoned", type: "Rover",      landing: "4 Jul 1997",  mass: "10.6 kg", end: "27 Sep 1997" },
+  "ingenuity":  { object: "Ingenuity Mars Helicopter", program: "Mars 2020",           state: "abandoned", type: "Helicopter", landing: "18 Feb 2021", mass: "1.8 kg",  end: "Jan 2024" }
 };
 const statusLabels = { abandoned: "Abandoned hardware", active: "Active" };
 
@@ -1079,7 +1079,12 @@ dossier.innerHTML = `
   <div class="dossier-head"><span data-field="id"></span><span>ARCHIVE · MARS</span></div>
   <h3 data-field="object"></h3>
   <dl>
+    <dt>Type</dt><dd data-field="type"></dd>
     <dt>Mission</dt><dd data-field="program"></dd>
+    <dt>Landing</dt><dd data-field="landing"></dd>
+    <dt>Site</dt><dd data-field="site"></dd>
+    <dt>Mass</dt><dd data-field="mass"></dd>
+    <dt>End</dt><dd data-field="end"></dd>
     <dt>Status</dt><dd class="dossier-status"><i></i><span data-field="status"></span></dd>
   </dl>`;
 const dossierFields = Object.fromEntries([...dossier.querySelectorAll("[data-field]")].map(el => [el.dataset.field, el]));
@@ -1195,6 +1200,11 @@ function showDossier(index) {
   dossierFields.id.textContent = "MARS-OBJ-" + String(index + 1).padStart(3, "0");
   dossierFields.object.textContent = info.object;
   dossierFields.program.textContent = info.program;
+  dossierFields.type.textContent = info.type;
+  dossierFields.landing.textContent = info.landing;
+  dossierFields.site.textContent = mission.site;
+  dossierFields.mass.textContent = info.mass;
+  dossierFields.end.textContent = info.end;
   dossierFields.status.textContent = statusLabels[info.state];
   dossier.dataset.state = info.state;
 
