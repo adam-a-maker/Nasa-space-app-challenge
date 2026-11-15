@@ -28,12 +28,12 @@ body[data-s=play] #hud{display:flex}
 .hide{display:none!important}
 .scr h1{margin:0;font-size:clamp(28px,7vw,64px);font-weight:800;letter-spacing:.12em;background:linear-gradient(90deg,var(--o),#ffd27a,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
 .scr p{max-width:520px;margin:0;line-height:1.7;color:#cfd8ee;font-size:14px;letter-spacing:.05em;font-family:"Segoe UI",system-ui,sans-serif}
-.scr button.b{background:transparent;color:var(--tx);border:2px solid var(--o);padding:16px 34px;font:800 16px Orbitron,sans-serif;letter-spacing:.18em;cursor:pointer;border-radius:6px;box-shadow:0 0 18px #ff6a2b88;transition:.2s}
+.scr button.b{position:relative;z-index:2;background:transparent;color:var(--tx);border:2px solid var(--o);padding:16px 34px;font:800 16px Orbitron,sans-serif;letter-spacing:.18em;cursor:pointer;border-radius:6px;box-shadow:0 0 18px #ff6a2b88;transition:.2s}
 .scr button.b:hover{background:var(--o);transform:scale(1.05)}
 #lose h1{background:linear-gradient(90deg,#ff3b3b,#ff9a5a);-webkit-background-clip:text;background-clip:text}
 #win h1{animation:pop .9s cubic-bezier(.2,1.6,.4,1) both,glow 1.6s ease-in-out infinite alternate}
 @keyframes pop{from{transform:scale(.2);opacity:0}}@keyframes glow{to{filter:drop-shadow(0 0 22px #ffd27a)}}
-.ring{position:absolute;width:20px;height:20px;border:3px solid var(--c);border-radius:50%;animation:rg 2.4s ease-out infinite;opacity:0}
+.ring{position:absolute;pointer-events:none;width:20px;height:20px;border:3px solid var(--c);border-radius:50%;animation:rg 2.4s ease-out infinite;opacity:0}
 @keyframes rg{from{transform:scale(1);opacity:.9}to{transform:scale(60);opacity:0}}
 .cf{position:absolute;left:50%;top:42%;width:8px;height:14px;animation:cf 2.2s ease-out forwards;pointer-events:none}
 @keyframes cf{to{transform:translate(var(--dx),var(--dy)) rotate(720deg);opacity:0}}
@@ -54,7 +54,7 @@ body[data-s=play] #hud{display:flex}
 <button class="b" id="go">START MISSION</button></div>
 <div class="scr hide" id="lose"><h1>MISSION FAILED</h1><p id="lp"></p><button class="b" id="retry">RETRY</button></div>
 <div class="scr hide" id="win"><div class="ring"></div><div class="ring" style="animation-delay:.8s"></div><div class="ring" style="animation-delay:1.6s"></div>
-<h1>MISSION SUCCESSFUL!</h1><p>Ingenuity survived the 90 seconds. Flawless flight, pilot.</p><button class="b" id="again">PLAY AGAIN</button><button class="b" id="back">BACK TO ATLAS MARS</button></div>
+<h1>MISSION SUCCESSFUL!</h1><p>Ingenuity survived the 90 seconds. Flawless flight, pilot.</p><button class="b" id="again">RETRY</button><button class="b" id="back">BACK TO THE GLOBE</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -182,12 +182,12 @@ if(Math.random()<.5){vx2=rnd(-1,1)*(2+8*p);vy2=rnd(-1,1)*(1+4*p)}
 let x,y;if(Math.random()<.4+.35*p){x=hx+rnd(-2.5,2.5)-vx2*T;y=clamp(hy+1+rnd(-2,2)-vy2*T,r*.7,16)}else{x=rnd(-18,18);y=rnd(r*.8,15)}
 const m=new THREE.Mesh(AG[Math.random()*6|0],rockMat);m.scale.setScalar(r);m.position.set(clamp(x,-45,45),y,z);m.castShadow=m.receiveShadow=true;S.add(m);
 ast.push({m,r:r*.9,sp,vx:vx2,vy:vy2,sx:rnd(-1.2,1.2),sy:rnd(-1.2,1.2),passed:0,warned:0})}
-function start(){initAudio();clearAst();clearInterval(cfT);t=0;hx=0;hy=5;vx=vy=0;spawnT=1.5;heli.visible=true;state='play';$('fl').style.opacity=0;show(null)}
+function start(){initAudio();clearAst();clearInterval(cfT);document.querySelectorAll('.cf').forEach(e=>e.remove());t=0;hx=0;hy=5;vx=vy=0;spawnT=1.5;heli.visible=true;state='play';$('fl').style.opacity=0;show(null)}
 function lose(){state='over';shake=1.2;heli.visible=false;boom();$('fl').style.opacity=.55;
 for(let i=0;i<90;i++){const a=rnd(0,6.28),s=rnd(3,14);emit(hx,hy+1,0,Math.cos(a)*s,rnd(-3,9),Math.sin(a)*s,rnd(.8,1.6))}
 state_ui();setTimeout(()=>{if(state==='over'){$('lp').textContent='Collision after '+t.toFixed(1)+' s out of 90. Try again!';show('lose')}},1000)}
 function win(){state='win';atlasQuest('ingenuity');clearAst();fanfare();wA=0;state_ui();setTimeout(()=>{if(state==='win'){show('win');const b=()=>{for(let i=0;i<46;i++){const e=document.createElement('span'),a=rnd(0,6.28),d=rnd(150,520);e.className='cf';e.style.cssText=`--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d+120}px;background:hsl(${rnd(0,60)|0},100%,60%)`;$('win').appendChild(e);setTimeout(()=>e.remove(),2300)}};b();cfT=setInterval(b,900)}},500)}
-$('go').onclick=start;$('retry').onclick=start;$('again').onclick=start;$('back').onclick=()=>{location.href='../index.html?done=ingenuity'};
+$('go').onclick=start;$('retry').onclick=start;$('again').onclick=start;$('back').onclick=()=>{clearInterval(cfT);location.href=(/\/mini_jeux\//i.test(location.pathname)?'../index.html':'index.html')+'?done=ingenuity'};
 
 function update(dt,now){
 const w=state==='over'?dt*.3:dt,T=now/1000;

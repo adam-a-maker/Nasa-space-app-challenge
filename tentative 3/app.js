@@ -117,11 +117,11 @@ function showRoute() {
     surfaceTitle.textContent = mission.name;
     storyTitle.textContent = mission.title;
     storyText.textContent = mission.story;
-    document.title = mission.name + " — Atlas Mars";
+    document.title = mission.name + " — Mars Rovers";
     window.scrollTo(0, 0);
     surfaceTitle.focus({ preventScroll: true });
   } else {
-    document.title = "Atlas Mars — Traces of Exploration";
+    document.title = "Mars Rovers — Traces of Exploration";
     dirty = true;
     if (wasOnSurface) {
       window.scrollTo(0, lastEntry?.scroll ?? 0);

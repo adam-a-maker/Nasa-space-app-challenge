@@ -1,4 +1,4 @@
-DIALOGUES RADIO — ATLAS MARS
+DIALOGUES RADIO — Mars Rovers
 Tentative 3 · NASA Space Apps Challenge
 ============================================================
 
@@ -367,7 +367,7 @@ Voix : Contrôle mission (Terre)
 « Le globe tourne encore. Rien ne t'oblige à partir tout de suite. »
 
 [FIN-05] · Moment : coupure de la radio · Ton : fin de transmission
-« Fin de transmission. Atlas Mars reste en orbite, au cas où. »
+« Fin de transmission. Mars Rovers reste en orbite, au cas où. »
 
 
 ============================================================

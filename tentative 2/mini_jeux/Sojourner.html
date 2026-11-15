@@ -196,7 +196,7 @@ if(mode!=='menu')hud();
 if(mode==='end'){s.end+=dt;if(!s.shown&&s.end>1.6){s.shown=1;showEnd()}}}
 function showEnd(){const r=S.res,o=$('ov');o.className=r.win?'win':'lose';o.style.display='flex';$('h1').textContent=r.win?'MISSION ACCOMPLISHED!':'MISSION FAILED';$('h2').style.display='none';
 $('msg').innerHTML=r.win?`“The Sojourner rover has landed successfully on Mars.”<br><br>Distance from center: ${r.dist.toFixed(2)} m · Vertical speed: ${r.vv.toFixed(1)} m/s · Tilt: ${r.deg.toFixed(1)}°`:`${r.crash?'CRASH':'DEFEAT'} — ${r.why}`;
-$('go').textContent='RESTART';if(r.win){atlasQuest('pathfinder');if(!$('bkm')){const b=document.createElement('button');b.className='bt';b.id='bkm';b.textContent='BACK TO ATLAS MARS';b.onclick=()=>{location.href='../index-avec-les-boutons-launch.html?done=pathfinder'};$('ov').appendChild(b)}}else if($('bkm'))$('bkm').remove();$('ov').querySelector('small').style.display='none'}
+$('go').textContent='RESTART';if(r.win){atlasQuest('pathfinder');if(!$('bkm')){const b=document.createElement('button');b.className='bt';b.id='bkm';b.textContent='BACK TO Mars Rovers';b.onclick=()=>{location.href='../index-avec-les-boutons-launch.html?done=pathfinder'};$('ov').appendChild(b)}}else if($('bkm'))$('bkm').remove();$('ov').querySelector('small').style.display='none'}
 function start(){audio();if(AC&&AC.state==='suspended')AC.resume();if(mode!=='menu'||S.t>0)newGame();$('ov').style.display='none';$('hud').style.display='block';mode='fly'}
 /* ---------- entrées & boucle ---------- */
 $('go').onclick=start;$('rs2').onclick=start;$('mu').onclick=mute;

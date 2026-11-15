@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#181713">
+<meta name="google" content="notranslate">
 <title>Spirit — Traces of Water</title>
 <link rel="stylesheet" href="./style.css?v=gusev">
 <script type="module" src="./game.js?v=expedition"></script>
@@ -32,7 +33,7 @@
       <button data-move="right" aria-label="Turn right">→</button>
     </div>
     <div class="switcher">
-      <button id="switch" class="primary" type="button"><span aria-hidden="true">◈</span> <span id="switch-label">Switch to the past</span> <kbd>Espace</kbd></button>
+      <button id="switch" class="primary" type="button"><span aria-hidden="true">◈</span> <span id="switch-label">Switch to the past</span> <kbd>Space</kbd></button>
       <button id="interact" class="primary" type="button" hidden>Scrape the ground</button>
     </div>
     <div class="tools">
@@ -71,8 +72,8 @@
     <h2 id="victory-title">Mission successful</h2>
     <p>Spirit’s stuck wheel really did reveal a silica-rich deposit. An ancient hot spring or volcanic steam vents could explain its formation.</p>
     <p>The past terrain is a possible reconstruction. The geyser jump was imagined for the game.</p>
-    <a href="https://science.nasa.gov/resource/rovers-wheel-churns-up-bright-martian-soil/" target="_blank" rel="noopener">Discover Spirit’s real trench · NASA</a>
     <button id="replay" class="primary" type="button">Replay</button>
+    <a id="back-atlas" class="primary" href="../../index.html?done=spirit">Back to Atlas Mars</a>
   </dialog>
   <p id="failure" hidden>The 3D game requires a browser compatible with WebGL 2.</p>
 </main>
