@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d0b0d">
+  <meta name="description" content="Explore NASA landing sites by descending from orbit to the surface of Mars.">
+  <title>Atlas Mars — The traces of exploration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Instrument+Serif&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+:root {
+  color-scheme: dark;
+  --background: #0e0b0e;
+  --ink: #f7eee6;
+  --muted: #c2afaa;
+  --accent: #ff9c76;
+  --line: #54413f;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --sans: Inter, system-ui, sans-serif;
+  --serif: "Instrument Serif", Georgia, serif;
+  --gutter: clamp(1.15rem, 3.4vw, 4rem);
+  --header: 64px;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--background); color: var(--ink); font: 1rem/1.5 var(--sans); }
+a { color: inherit; text-underline-offset: .25em; }
+a:hover { color: var(--accent); }
+button { color: inherit; font: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid #ffcaab; outline-offset: 4px; }
+.sr-only, .skip-link:not(:focus) { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip-link:focus { position: fixed; inset: .75rem auto auto .75rem; z-index: 20; padding: .6rem 1rem; color: #201012; background: #fff0e7; }
+
+.top {
+  min-height: var(--header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .4rem var(--gutter);
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  border-bottom: 1px solid #b298872e;
+}
+.brand { display: inline-flex; align-items: center; gap: .45em; text-decoration: none; font: 650 .85rem var(--mono); letter-spacing: .15em; padding-block: .55rem; }
+.brand strong, .eyebrow { color: var(--accent); }
+.brand-icon { width: 21px; height: 21px; margin: 0 .55rem 0 .25rem; position: relative; border: 1px solid var(--accent); border-radius: 50%; }
+.brand-icon::after { content: ""; position: absolute; inset: 5px -5px; border: 1px solid var(--accent); border-radius: 50%; transform: rotate(-35deg); }
+.edition, .eyebrow { font: 500 .7rem/1.5 var(--mono); letter-spacing: .11em; }
+.edition { color: var(--muted); }
+
+.orbit-view {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(11rem, .85fr) minmax(0, 2.35fr) minmax(11rem, .84fr);
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  gap: 1.25rem;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: calc(var(--header) + 1rem) var(--gutter) 1.2rem;
+  background: radial-gradient(ellipse at 52% 46%, #271419 0%, #100c10 56%, #0a090d 100%);
+  overflow: clip;
+}
+.stars { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.stars i { position: absolute; border-radius: 50%; background: #ffe9d6; }
+
+.intro { grid-area: 1 / 1; align-self: start; pointer-events: none; z-index: 1; transition: opacity 220ms ease; }
+.peeking .intro { opacity: .12; }
+.eyebrow { margin: 0 0 .8rem; text-transform: uppercase; }
+.eyebrow i { display: inline-block; width: .43rem; height: .43rem; background: var(--accent); border-radius: 50%; margin-right: .45rem; vertical-align: .08em; box-shadow: 0 0 .8rem #ff8962af; }
+h1 { margin: 0; font: 500 clamp(2.3rem, 4.55vw, 5rem)/.99 var(--serif); letter-spacing: -.06em; }
+h1 em { color: var(--accent); font-weight: 400; }
+.intro > p:last-child { max-width: 23ch; color: var(--muted); margin: 1.2rem 0 0; font-size: .91rem; }
+
+.globe-stage { grid-area: 1 / 2; display: grid; place-items: center; position: relative; min-width: 0; align-self: stretch; }
+.planet { position: relative; width: min(73svh, 100%, 860px); aspect-ratio: 1; }
+.descent .planet { z-index: 2; will-change: transform; }
+canvas { width: 100%; height: 100%; display: block; border-radius: 50%; touch-action: none; cursor: grab; background: radial-gradient(circle at 36% 32%, #ab573b, #612c22 60%, #1c1116); box-shadow: 0 0 3rem #f5683e47, 0 0 9rem #e7582f22; }
+canvas:active { cursor: grabbing; }
+.markers { position: absolute; inset: 0; pointer-events: none; }
+.marker { position: absolute; inset: auto; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; transform: translate(-50%, -50%); border: none; border-radius: 50%; background: none; pointer-events: auto; }
+.marker::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: white; box-shadow: 0 0 0 1px #652b1c, 0 0 12px #ff875f; transition: transform 140ms ease; }
+.marker:hover, .marker:focus-visible { z-index: 1; }
+.marker:hover::before, .marker:focus-visible::before { transform: scale(1.3); }
+.marker span { position: absolute; bottom: calc(100% - 4px); left: 50%; transform: translateX(-50%); display: none; padding: .3rem .55rem; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: #1e1316; white-space: nowrap; font: 500 .73rem var(--mono); pointer-events: none; }
+.marker:hover span, .marker:focus-visible span { display: block; }
+.descent .markers { pointer-events: none; }
+.descent .marker { pointer-events: none; opacity: 0; transition: opacity 150ms ease; }
+.descent .marker.destination { opacity: var(--destination-opacity, 1); transition: none; }
+.descent .marker span { display: none; }
+
+.missions { grid-area: 1 / 3; z-index: 1; align-self: center; }
+.missions h2 { font: 500 .72rem/1.5 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 .7rem; }
+.missions ul { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); }
+.missions li { border-top: 1px solid var(--line); }
+.mission { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .6rem; width: 100%; min-height: 44px; border: 0; padding: .45rem .15rem; background: transparent; text-align: left; font-size: .88rem; }
+.mission span + span { font: .68rem var(--mono); color: var(--muted); }
+.mission:hover { color: var(--accent); background: #e1836110; }
+
+.orbit-footer { grid-area: 2 / 1 / 3 / -1; z-index: 1; display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: .85rem; }
+.coordinates { font: .7rem/1.5 var(--mono); color: var(--muted); }
+.coordinates span { display: block; }
+#longitude { color: var(--ink); }
+.controls { justify-self: center; display: grid; place-items: center; gap: .35rem; }
+.controls p { color: var(--muted); font-size: .76rem; margin: 0; }
+#rotation { border: 1px solid #6b4c47; border-radius: 5px; background: #181216; min-height: 44px; min-width: 82px; padding: .25rem .65rem; font-size: .75rem; }
+#rotation:hover { border-color: var(--accent); }
+.credit { color: var(--muted); justify-self: end; font-size: .68rem; }
+
+.surface {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  background: #321a18;
+}
+.landscape { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; color: transparent; }
+.arrival { position: fixed; inset: 0; z-index: 2; background: #321a18; pointer-events: none; opacity: 0; will-change: opacity, transform; }
+.surface::after, .arrival::after { content: ""; z-index: -1; position: absolute; inset: 0; background: linear-gradient(90deg, #100b10e8, #100b1094 42%, #18101818 95%), linear-gradient(180deg, #100b1080, transparent 27%, transparent 76%, #100b1090); pointer-events: none; }
+.surface-content { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; padding: calc(var(--header) + 1.25rem) var(--gutter) clamp(1.7rem, 6vh, 5rem); gap: clamp(2rem, 12vh, 10rem); }
+.back { display: inline-flex; align-items: center; min-height: 44px; padding: .6rem .95rem; background: #171014d9; border: 1px solid #b47e6a; border-radius: 5px; text-decoration: none; font-size: .88rem; }
+.surface-copy { width: min(100%, 490px); }
+.surface-copy h1 { margin-bottom: 1rem; font-size: clamp(2.6rem, 7vw, 6.4rem); overflow-wrap: anywhere; }
+.story { background: #150f13e8; border-inline-start: 2px solid var(--accent); padding: .9rem 1rem; box-shadow: 0 1rem 2.5rem #0e080b44; }
+.story h2 { font-size: 1.18rem; margin: 0; }
+.story p { margin: .55rem 0; color: #e2d4ce; }
+#story-text { white-space: pre-line; }
+.story a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-size: .9rem; }
+.scene-credit { color: #ead9cf; font: .72rem var(--mono); margin: .75rem 0 0; }
+.no-script { margin: 1rem var(--gutter); }
+
+/* Quests (left column) */
+.quests { grid-area: 1 / 1; align-self: end; z-index: 1; max-width: 19rem; }
+.quests h2 { font: 500 .72rem/1.5 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 .15rem; }
+.quest-count { margin: 0 0 .6rem; font: .68rem var(--mono); color: var(--muted); }
+.quests ul { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--line); }
+.quests li { display: grid; grid-template-columns: auto 1fr; gap: .65rem; align-items: start; padding: .6rem .15rem; border-top: 1px solid var(--line); font-size: .86rem; line-height: 1.35; }
+.quests .box { width: 1.05rem; height: 1.05rem; margin-top: .1rem; display: grid; place-items: center; border: 1px solid var(--accent); border-radius: 3px; font-size: .72rem; line-height: 1; color: transparent; }
+.quests li.done { color: var(--muted); }
+.quests li.done .txt { text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 1.5px; }
+.quests li.done .box { background: var(--accent); color: #201012; box-shadow: 0 0 .8rem #ff8962a0; }
+.quests li.fresh { animation: quest-done 900ms ease-out; }
+@keyframes quest-done { 0% { background: #ff9c7640; } 100% { background: transparent; } }
+
+/* Hover preview, top-left */
+.peek { position: fixed; z-index: 4; top: calc(var(--header) + .7rem); left: var(--gutter); width: min(15rem, 46vw); border: 1px solid var(--line); border-inline-start: 2px solid var(--accent); background: #150f13ee; box-shadow: 0 1rem 2.5rem #0e080b66; pointer-events: none; opacity: 0; transform: translateY(-.4rem); transition: opacity 180ms ease, transform 180ms ease; }
+.peek.on { opacity: 1; transform: none; }
+.peek img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; color: transparent; background: #321a18; }
+.peek div { padding: .45rem .65rem .55rem; display: grid; }
+.peek b { font: 600 .82rem var(--mono); letter-spacing: .06em; color: var(--accent); }
+.peek span { font: .68rem var(--mono); color: var(--muted); }
+
+/* Walkie-talkie, bottom-right */
+.radio { position: fixed; z-index: 3; right: var(--gutter); bottom: 3.4rem; display: flex; align-items: flex-end; gap: .8rem; pointer-events: none; }
+.radio-msg { max-width: 15.5rem; margin-bottom: 1.6rem; padding: .55rem .8rem; background: #150f13ee; border: 1px solid var(--line); border-inline-end: 2px solid var(--accent); font-size: .84rem; line-height: 1.35; }
+.radio-msg small { display: block; margin-bottom: .15rem; font: .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.radio-msg.in { animation: radio-in 520ms ease-out both; }
+.radio-msg.out { animation: radio-out 240ms ease-in both; }
+@keyframes radio-in { from { opacity: 0; transform: translateX(.7rem); } to { opacity: 1; transform: none; } }
+@keyframes radio-out { to { opacity: 0; transform: translateX(.4rem); } }
+.walkie { position: relative; width: 62px; height: 132px; flex: none; }
+.walkie .ant { position: absolute; left: 9px; bottom: 100px; width: 8px; height: 40px; border-radius: 4px 4px 1px 1px; background: linear-gradient(90deg, #111, #3b3b40 45%, #111); }
+.walkie .wbody { position: absolute; inset: 30px 0 0 0; border-radius: 12px 12px 10px 10px; border: 1px solid #55565c; background: linear-gradient(160deg, #35363b, #17181b 60%, #0e0f11); box-shadow: inset 0 1px 0 #ffffff26, 0 .5rem 1.2rem #00000088; }
+.walkie .led { position: absolute; top: 7px; left: 9px; width: 6px; height: 6px; border-radius: 50%; background: #5b1a12; }
+.walkie .knob { position: absolute; top: -7px; right: 8px; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #77787e, #1b1c1f); border: 1px solid #55565c; }
+.walkie .k2 { right: 28px; width: 10px; height: 10px; top: -5px; }
+.walkie .scr { position: absolute; top: 22px; left: 9px; right: 9px; height: 17px; border-radius: 3px; background: #1d1308; border: 1px solid #000; color: #c5792f; font: 700 .58rem/15px var(--mono); letter-spacing: .12em; text-align: center; }
+.walkie .grille { position: absolute; top: 48px; left: 10px; right: 10px; height: 36px; border-radius: 4px; background: repeating-linear-gradient(180deg, #050506 0 3px, #2a2b2f 3px 6px); }
+.walkie .ptt { position: absolute; left: -5px; top: 30px; width: 6px; height: 28px; border-radius: 3px 0 0 3px; background: linear-gradient(90deg, #7a2f1d, #a94f35); }
+.walkie .keys { position: absolute; bottom: 9px; left: 10px; right: 10px; height: 20px; background: radial-gradient(circle, #44454a 0 2px, transparent 2.5px) 0 0 / 14px 10px; opacity: .8; }
+.walkie.rx .led { background: #ff5a3d; box-shadow: 0 0 .7rem #ff5a3d; animation: led 520ms steps(2) 5; }
+.walkie.rx .scr { color: #ffb15c; }
+@keyframes led { 50% { opacity: .25; } }
+
+@media (max-width: 850px) {
+  .quests { grid-area: 5 / 1; align-self: start; max-width: none; }
+  .quests ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .9rem; }
+  .radio { transform-origin: bottom right; transform: scale(.78); bottom: .6rem; right: .7rem; }
+  .peek { width: min(11rem, 44vw); }
+  .orbit-view { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto auto; gap: 1.1rem; }
+  .intro { grid-area: 1 / 1; }
+  .intro h1 br { display: none; }
+  .intro > p:last-child { margin-top: .5rem; max-width: 48ch; }
+  .globe-stage { grid-area: 2 / 1; }
+  .planet { width: min(84vw, 53svh, 650px); }
+  .orbit-footer { grid-area: 3 / 1; justify-content: center; grid-template-columns: 1fr auto; }
+  .controls { justify-self: end; }
+  .credit { grid-column: 1 / -1; justify-self: start; }
+  .missions { grid-area: 4 / 1; }
+  .missions ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .9rem; }
+}
+@media (max-width: 445px) {
+  .edition { max-width: 14ch; text-align: right; font-size: .62rem; }
+  .orbit-footer { grid-template-columns: 1fr; }
+  .controls { justify-self: center; }
+  .coordinates { text-align: center; }
+  .coordinates span { display: inline; }
+  .landscape { object-position: 58% center; }
+  .surface::after, .arrival::after { background: linear-gradient(180deg, #100b10a0, #100b102a 37%, #100b10de 80%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marker::before, .peek, .intro { transition: none; }
+  .radio-msg.in, .radio-msg.out, .quests li.fresh, .walkie.rx .led { animation: none; }
+}
+
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="./" id="home-link" aria-label="Atlas Mars, home">
+      <span class="brand-icon" aria-hidden="true"></span> ATLAS <strong>MARS</strong>
+    </a>
+    <span class="edition">NASA SPACE APPS CHALLENGE</span>
+  </header>
+  <main id="main" tabindex="-1">
+    <div class="peek" id="peek" aria-hidden="true">
+      <img id="peek-img" alt="">
+      <div><b id="peek-name"></b><span id="peek-site"></span></div>
+    </div>
+
+    <section class="orbit-view" id="home" aria-labelledby="title">
+      <div class="stars" aria-hidden="true"></div>
+      <div class="globe-stage" id="globe-stage">
+        <div class="planet" id="planet">
+          <canvas id="globe" tabindex="0" aria-label="Globe of Mars. Use the four arrow keys to rotate it."></canvas>
+          <div class="markers" id="markers"></div>
+        </div>
+      </div>
+
+      <div class="intro">
+        <p class="eyebrow"><i aria-hidden="true"></i> ORBITAL VIEW</p>
+        <h1 id="title">The traces<br> of <em>Mars.</em></h1>
+        <p>Choose a white dot to descend to the surface and discover the mission.</p>
+      </div>
+
+      <aside class="quests" aria-labelledby="quest-title">
+        <h2 id="quest-title">Quests</h2>
+        <p class="quest-count" id="quest-count">0 / 4 completed</p>
+        <ul id="quest-list"></ul>
+      </aside>
+
+      <nav class="missions" aria-labelledby="mission-title">
+        <h2 id="mission-title">Landing sites</h2>
+        <ul id="mission-list"></ul>
+      </nav>
+
+      <div class="orbit-footer">
+        <div class="coordinates"><span>Globe center</span><span id="longitude">9° N · 26° W</span></div>
+        <div class="controls">
+          <p>Drag to rotate Mars</p>
+          <button id="rotation" type="button">Pause</button>
+        </div>
+        <span class="credit">Procedurally generated Mars · drawn in code</span>
+      </div>
+    </section>
+
+    <div class="arrival" id="arrival" aria-hidden="true" hidden>
+      <img id="arrival-landscape" class="landscape" alt="">
+    </div>
+    <section class="surface" id="surface" aria-labelledby="surface-title" hidden>
+      <img id="landscape" class="landscape" alt="">
+      <div class="surface-content">
+        <a class="back" id="back" href="./">← Back to the globe</a>
+        <div class="surface-copy">
+          <p class="eyebrow" id="surface-location"></p>
+          <h1 id="surface-title" tabindex="-1"></h1>
+          <article class="story">
+            <h2 id="story-title"></h2>
+            <p id="story-text"></p>
+            <a id="story-source" target="_blank" rel="noopener">NASA fact sheet <span class="sr-only">(new tab)</span></a>
+          </article>
+          <p class="scene-credit">Placeholder scene · illustration</p>
+        </div>
+      </div>
+    </section>
+    <noscript><p class="no-script">Enable JavaScript to explore the globe. <a href="https://science.nasa.gov/image-detail/45468-landingsitescontextmap-featperseverance/">See the landing sites on NASA’s map.</a></p></noscript>
+  </main>
+
+  <div class="radio" id="radio">
+    <div class="radio-msg" id="radio-msg" role="status" aria-live="polite" hidden><small>Mission control</small><span id="radio-text"></span></div>
+    <div class="walkie" id="walkie" aria-hidden="true"><i class="ant"></i><div class="wbody"><i class="led"></i><i class="knob"></i><i class="knob k2"></i><span class="scr">RX</span><div class="grille"></div><div class="keys"></div><b class="ptt"></b></div></div>
+  </div>
+
+<script>
+const missions = [
+  {name:"Opportunity", year:2004, site:"Meridiani Planum", lat:-1.95, lon:-5.53, title:"Rocks that tell of water", story:"Opportunity brings its instruments close to the rocks of a small crater. There it finds minerals and traces in the rock layers showing that liquid water once flowed here.", source:"https://science.nasa.gov/mission/mars-exploration-rovers-spirit-and-opportunity/"},
+  {name:"Pathfinder", year:1997, site:"Ares Vallis", lat:19.13, lon:-33.22, title:"The first rover to roll on Mars", story:"The little Sojourner rolls off its lander and goes to examine the rocks. Its spectrometer reveals silicon and other elements, giving researchers clues about their composition.", source:"https://science.nasa.gov/mission/mars-pathfinder/"},
+  {name:"Ingenuity", year:2021, site:"Jezero Crater · Wright Brothers Field", lat:18.4, lon:77.4, title:"The first helicopter on Mars", story:"On the 18th of February 2021, the first ever helicopter to fly in Mars's atmosphere, landed on the Martian soil. It was launched on the 30th of July 2020 and traveled for nearly 6 months.\n\nThe main goal: Previewing areas of Mars of possible interest for the Perseverance rover to explore.\n\nIngenuity completed 128.8 flying minutes in 72 flights, covering 10.5 miles (17.0 kilometers), and reaching altitudes as high as 78.7 feet (24.0 meters).", source:"https://science.nasa.gov/mission/mars-2020-perseverance/ingenuity-mars-helicopter/"},
+  {name:"Phoenix", year:2008, site:"Vastitas Borealis", lat:68.22, lon:-125.75, title:"Ice beneath the dust", story:"Phoenix's arm digs near the Martian north pole. Bright fragments vanish after a few days, and the analysis of a sample confirms the presence of water in the form of ice. Phoenix was also a mission meant to analyze Martian seismic activity, in order to discover how the planet is organized and to better understand its internal structure.", source:"https://science.nasa.gov/mission/phoenix/"}
+];
+
+const radians = Math.PI / 180;
+const size = 520;
+const radius = size / 2;
+const fullTurn = 2 * Math.PI;
+const maximumTilt = 90 * radians;
+const orbitSpeed = .00023;
+const maximumFlingSpeed = .0058;
+const momentumDecay = 560;
+const dragResponse = 14;
+const releaseWindow = 150;
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const canvas = document.querySelector("#globe");
+canvas.width = canvas.height = size;
+const context = canvas.getContext("2d");
+const frame = context.createImageData(size, size);
+const markerLayer = document.querySelector("#markers");
+const list = document.querySelector("#mission-list");
+const rotation = document.querySelector("#rotation");
+const longitudeReadout = document.querySelector("#longitude");
+const home = document.querySelector("#home");
+const globeStage = document.querySelector("#globe-stage");
+const planet = document.querySelector("#planet");
+const surface = document.querySelector("#surface");
+const landscape = document.querySelector("#landscape");
+const arrival = document.querySelector("#arrival");
+const arrivalLandscape = document.querySelector("#arrival-landscape");
+const surfaceTitle = document.querySelector("#surface-title");
+const surfaceLocation = document.querySelector("#surface-location");
+const storyTitle = document.querySelector("#story-title");
+const storyText = document.querySelector("#story-text");
+const storySource = document.querySelector("#story-source");
+
+for (const mission of missions) {
+  mission.slug = mission.name.toLowerCase().replaceAll(" ", "-");
+}
+
+let angle = -26 * radians;
+let tilt = 9 * radians;
+let projectedTilt;
+let rotating = !reducedMotion.matches;
+let orbitDirection = 1;
+let horizontalMomentum = 0;
+let verticalMomentum = 0;
+let pendingLongitude = 0;
+let pendingLatitude = 0;
+let drag = null;
+let descent = null;
+let lastEntry = null;
+let previousTime;
+let dirty = true;
+let texture = null;
+
+const starField = document.querySelector(".stars");
+let seed = 8429;
+function random() {
+  seed = (Math.imul(1664525, seed) + 1013904223) >>> 0;
+  return seed / 4294967296;
+}
+for (let index = 0; index < 130; index++) {
+  const star = document.createElement("i");
+  const diameter = random() > 0.91 ? 2 : 1;
+  star.style.cssText = `left:${random()*100}%;top:${random()*100}%;width:${diameter}px;height:${diameter}px;opacity:${0.15+random()*0.65}`;
+  starField.append(star);
+}
+
+const pins = missions.map((mission, index) => {
+  const marker = document.createElement("button");
+  marker.type = "button";
+  marker.className = "marker";
+  marker.hidden = true;
+  marker.setAttribute("aria-label", mission.name + " on the globe");
+  const label = document.createElement("span");
+  label.textContent = mission.name;
+  marker.append(label);
+  marker.addEventListener("click", () => enterMission(index, marker));
+  markerLayer.append(marker);
+
+  const row = document.createElement("button");
+  row.type = "button";
+  row.className = "mission";
+  row.innerHTML = `<span>${mission.name}</span><span>${mission.year}</span>`;
+  row.addEventListener("click", () => enterMission(index, row));
+  const item = document.createElement("li");
+  item.append(row);
+  list.append(item);
+  return { marker, row };
+});
+
+function syncRotation() {
+  rotation.textContent = rotating ? "Pause" : "Resume";
+  rotation.setAttribute("aria-label", rotating ? "Pause the rotation" : "Resume the rotation");
+}
+
+function clearMomentum() {
+  horizontalMomentum = 0;
+  verticalMomentum = 0;
+  pendingLongitude = 0;
+  pendingLatitude = 0;
+}
+
+
+// ---- Procedural landscapes (no image files needed) ----
+const sceneCache = {};
+function sceneURL(mission) {
+  if (sceneCache[mission.slug]) return sceneCache[mission.slug];
+  const W = 1280, H = 720, canvasEl = document.createElement("canvas");
+  canvasEl.width = W; canvasEl.height = H;
+  const g = canvasEl.getContext("2d");
+  let s = 1 + [...mission.slug].reduce((a, c) => a + c.charCodeAt(0) * 31, 0);
+  const rnd = () => (s = (Math.imul(1664525, s) + 1013904223) >>> 0) / 4294967296;
+  const pal = {
+    opportunity: { sky: ["#4a3036", "#d49468", "#f1c79c"], gr: ["#a9582f", "#47201a"], far: "#7b3f30", mid: "#8d4934" },
+    pathfinder: { sky: ["#45303d", "#c67e5d", "#edb88e"], gr: ["#935030", "#3d1d17"], far: "#6b382d", mid: "#80432f" },
+    ingenuity: { sky: ["#5d3d3a", "#d8976b", "#f3c79a"], gr: ["#a34f2c", "#4a2018"], far: "#7a3d2e", mid: "#8b4530" },
+    phoenix: { sky: ["#4b4350", "#b8998a", "#e9d2bd"], gr: ["#c7b6a6", "#6e5e55"], far: "#8b766b", mid: "#a28d80" }
+  }[mission.slug];
+  const hz = H * .6;
+  let k = g.createLinearGradient(0, 0, 0, hz); k.addColorStop(0, pal.sky[0]); k.addColorStop(.7, pal.sky[1]); k.addColorStop(1, pal.sky[2]);
+  g.fillStyle = k; g.fillRect(0, 0, W, hz + 2);
+  k = g.createRadialGradient(W * .72, hz - 40, 4, W * .72, hz - 40, 260); k.addColorStop(0, "rgba(255,238,210,.9)"); k.addColorStop(1, "rgba(255,238,210,0)");
+  g.fillStyle = k; g.fillRect(0, 0, W, hz);
+  const ridge = (base, amp, color, seed) => {
+    g.fillStyle = color; g.beginPath(); g.moveTo(0, hz + 4);
+    for (let x = 0; x <= W; x += 16) g.lineTo(x, base - amp * (.5 + .35 * Math.sin(x * .004 + seed) + .25 * Math.sin(x * .011 + seed * 2) + .12 * Math.sin(x * .031 + seed * 3)));
+    g.lineTo(W, hz + 4); g.fill();
+  };
+  ridge(hz - 6, 120, pal.far, 1.3); ridge(hz, 70, pal.mid, 4.1);
+  k = g.createLinearGradient(0, hz, 0, H); k.addColorStop(0, pal.gr[0]); k.addColorStop(1, pal.gr[1]);
+  g.fillStyle = k; g.fillRect(0, hz, W, H - hz);
+  for (let n = 0; n < 150; n++) {
+    const t = rnd(), y = hz + 8 + t * t * (H - hz - 10), x = rnd() * W, w = 4 + t * 46 * rnd() + 2, h = w * (.35 + rnd() * .3);
+    g.fillStyle = "rgba(30,14,10,.4)"; g.beginPath(); g.ellipse(x + w * .2, y + h * .5, w * 1.05, h * .5, 0, 0, 7); g.fill();
+    g.fillStyle = mission.slug === "phoenix" ? "#6f625a" : "#6a3626"; g.beginPath(); g.ellipse(x, y, w, h, 0, 0, 7); g.fill();
+    g.fillStyle = "rgba(255,214,170,.2)"; g.beginPath(); g.ellipse(x - w * .2, y - h * .3, w * .55, h * .4, 0, 0, 7); g.fill();
+  }
+  const box = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  const wheel = (x, y, r) => { g.fillStyle = "#1c1c20"; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.fillStyle = "#555"; g.beginPath(); g.arc(x, y, r * .4, 0, 7); g.fill(); };
+  const rover = (x, y, sc) => {
+    g.save(); g.translate(x, y); g.scale(sc, sc);
+    g.fillStyle = "rgba(20,8,6,.4)"; g.beginPath(); g.ellipse(10, 4, 130, 14, 0, 0, 7); g.fill();
+    g.strokeStyle = "#cfcfd4"; g.lineWidth = 5; g.beginPath(); g.moveTo(-60, -30); g.lineTo(-70, -8); g.moveTo(60, -30); g.lineTo(72, -8); g.moveTo(0, -30); g.lineTo(0, -8); g.stroke();
+    [-80, -2, 78].forEach(wx => { wheel(wx, -12, 14); });
+    box(-70, -78, 140, 46, "#d8d4ca"); box(-84, -86, 168, 8, "#1c2a5a"); box(-62, -70, 124, 4, "#aaa8a0");
+    box(34, -140, 6, 58, "#bbb"); box(24, -158, 26, 18, "#222"); g.fillStyle = "#6fd3ff"; g.beginPath(); g.arc(37, -149, 4, 0, 7); g.fill();
+    g.restore();
+  };
+  const sl = mission.slug;
+  if (sl === "opportunity") {
+    for (let n = 0; n < 220; n++) { const t = rnd(), y = hz + 14 + t * (H - hz - 20), r = 1.5 + t * 5; g.fillStyle = "#3b3438"; g.beginPath(); g.arc(rnd() * W, y, r, 0, 7); g.fill(); g.fillStyle = "rgba(255,255,255,.25)"; g.beginPath(); g.arc(rnd() * W, y, r * .35, 0, 7); g.fill(); }
+    rover(W * .66, H * .82, 1.55);
+  } else if (sl === "pathfinder") {
+    g.save(); g.translate(W * .64, H * .8); g.fillStyle = "rgba(20,8,6,.4)"; g.beginPath(); g.ellipse(0, 6, 220, 22, 0, 0, 7); g.fill();
+    [[-1, "#c9c9cf"], [1, "#b9b9c1"]].forEach(p => { g.fillStyle = p[1]; g.beginPath(); g.moveTo(0, -20); g.lineTo(p[0] * 210, -6); g.lineTo(p[0] * 150, 14); g.lineTo(0, 6); g.fill(); });
+    g.fillStyle = "#d8d4ca"; g.beginPath(); g.moveTo(-70, 0); g.lineTo(-34, -120); g.lineTo(34, -120); g.lineTo(70, 0); g.fill();
+    g.fillStyle = "#e9e5dc"; g.beginPath(); g.moveTo(-34, -120); g.lineTo(0, -150); g.lineTo(34, -120); g.fill(); g.restore();
+    rover(W * .28, H * .9, .85);
+  } else if (sl === "ingenuity") {
+    g.fillStyle = "rgba(20,8,6,.4)"; g.beginPath(); g.ellipse(W * .62, H * .86, 150, 16, 0, 0, 7); g.fill();
+    g.save(); g.translate(W * .62, H * .38);
+    box(-3, -60, 6, 70, "#222"); box(-190, -86, 380, 7, "#15151a"); box(-170, -58, 340, 7, "#15151a");
+    box(-52, -98, 104, 38, "#1b2a5a"); g.strokeStyle = "#6f8fe0"; g.lineWidth = 2; g.strokeRect(-52, -98, 104, 38);
+    g.fillStyle = "#d9a441"; g.fillRect(-36, 6, 72, 58); g.strokeStyle = "#e8e4dc"; g.lineWidth = 5; g.lineCap = "round";
+    [[-28, 60, -80, 150], [28, 60, 80, 150], [-16, 62, -36, 152], [16, 62, 36, 152]].forEach(l => { g.beginPath(); g.moveTo(l[0], l[1]); g.lineTo(l[2], l[3]); g.stroke(); });
+    g.restore();
+  } else {
+    g.fillStyle = "rgba(248,246,242,.55)"; for (let n = 0; n < 60; n++) { const t = rnd(), y = hz + 12 + t * (H - hz - 18); g.beginPath(); g.ellipse(rnd() * W, y, 12 + t * 80 * rnd(), 3 + t * 12 * rnd(), 0, 0, 7); g.fill(); }
+    g.strokeStyle = "rgba(70,56,50,.35)"; g.lineWidth = 2; for (let n = 0; n < 40; n++) { let x = rnd() * W, y = hz + 30 + rnd() * (H - hz - 40); g.beginPath(); g.moveTo(x, y); for (let q = 0; q < 4; q++) g.lineTo(x += (rnd() - .5) * 60, y += (rnd() - .3) * 14); g.stroke(); }
+    g.save(); g.translate(W * .64, H * .8); g.fillStyle = "rgba(20,8,6,.35)"; g.beginPath(); g.ellipse(0, 8, 230, 20, 0, 0, 7); g.fill();
+    g.strokeStyle = "#bdbdc4"; g.lineWidth = 6; [[-50, -50, -110, 8], [50, -50, 110, 8], [0, -50, 0, 8]].forEach(l => { g.beginPath(); g.moveTo(l[0], l[1]); g.lineTo(l[2], l[3]); g.stroke(); });
+    box(-70, -100, 140, 54, "#cfcbc2"); box(-62, -92, 124, 6, "#a9a79f");
+    [[-1], [1]].forEach(p => { g.fillStyle = "#1b2a5a"; g.beginPath(); g.ellipse(p[0] * 150, -96, 82, 20, p[0] * -.12, 0, 7); g.fill(); g.strokeStyle = "#6f8fe0"; g.lineWidth = 2; g.stroke(); });
+    box(-4, -150, 8, 50, "#bbb"); g.fillStyle = "#222"; g.fillRect(-20, -162, 40, 14); g.restore();
+  }
+  const url = canvasEl.toDataURL("image/jpeg", .86);
+  sceneCache[mission.slug] = url;
+  return url;
+}
+
+function scenePath(mission) {
+  return sceneURL(mission);
+}
+
+function showRoute() {
+  const mission = missions.find(item => location.hash === "#mission-" + item.slug);
+  const wasOnSurface = !surface.hidden;
+  home.hidden = Boolean(mission);
+  surface.hidden = !mission;
+  if (mission) {
+    landscape.src = scenePath(mission);
+    surfaceLocation.textContent = mission.site + " · " + mission.year;
+    surfaceTitle.textContent = mission.name;
+    storyTitle.textContent = mission.title;
+    storyText.textContent = mission.story;
+    storySource.href = mission.source;
+    document.title = mission.name + " — Atlas Mars";
+    window.scrollTo(0, 0);
+    surfaceTitle.focus({ preventScroll: true });
+  } else {
+    document.title = "Atlas Mars — The traces of exploration";
+    dirty = true;
+    if (wasOnSurface) {
+      window.scrollTo(0, lastEntry?.scroll ?? 0);
+      const trigger = lastEntry?.trigger;
+      (trigger && !trigger.hidden ? trigger : pins[0].row).focus();
+    }
+  }
+}
+
+function enterMission(index, trigger) {
+  if (descent) return;
+  const mission = missions[index];
+  lastEntry = { trigger, scroll: window.scrollY };
+  clearMomentum();
+  const targetAngle = mission.lon * radians;
+  const longitudeDifference = targetAngle - angle;
+  const longitudeTravel = Math.atan2(Math.sin(longitudeDifference), Math.cos(longitudeDifference));
+  const latitudeTravel = mission.lat * radians - tilt;
+  descent = {
+    mission,
+    marker: pins[index].marker,
+    startAngle: angle,
+    startTilt: tilt,
+    longitudeTravel,
+    latitudeTravel,
+    elapsed: 0,
+    waitingForScene: 0
+  };
+  if (reducedMotion.matches) {
+    completeDescent(descent);
+    return;
+  }
+
+  const bounds = planet.getBoundingClientRect();
+  if (bounds.top < 0 || bounds.bottom > window.innerHeight) {
+    globeStage.scrollIntoView({ block: "center", behavior: "instant" });
+  }
+  descent.duration = 1370 + 240 * Math.max(Math.abs(longitudeTravel) / Math.PI, Math.abs(latitudeTravel) / Math.PI);
+  arrivalLandscape.src = scenePath(mission);
+  arrival.hidden = false;
+  descent.marker.classList.add("destination");
+  home.classList.add("descent");
+}
+
+function completeDescent(current) {
+  angle = current.mission.lon * radians;
+  tilt = current.mission.lat * radians;
+  history.pushState({ fromOrbit: true }, "", "#mission-" + current.mission.slug);
+  showRoute();
+  cancelDescent();
+}
+
+function cancelDescent() {
+  if (!descent) return;
+  descent.marker.classList.remove("destination");
+  descent = null;
+  home.classList.remove("descent");
+  planet.style.removeProperty("transform");
+  planet.style.removeProperty("--destination-opacity");
+  arrival.hidden = true;
+  arrival.style.removeProperty("opacity");
+  arrival.style.removeProperty("transform");
+}
+
+// Smooth interpolation with zero velocity at both ends of a transition.
+function easeBetween(value, start, end) {
+  const t = Math.max(0, Math.min(1, (value - start) / (end - start)));
+  return t * t * (3 - 2 * t);
+}
+
+function updateDescent(current, elapsed) {
+  const revealStart = .67;
+  current.startedAt ??= performance.now();
+  const nextTime = performance.now() - current.startedAt;
+  // Let the terrain load before revealing it, with a bounded wait on slow connections.
+  if (!arrivalLandscape.complete && nextTime > revealStart * current.duration && current.waitingForScene < 900) {
+    current.waitingForScene += elapsed;
+    current.startedAt += elapsed;
+    current.elapsed = revealStart * current.duration;
+  } else {
+    current.elapsed = nextTime;
+  }
+  const progress = Math.min(1, current.elapsed / current.duration);
+  if (progress === 1) {
+    completeDescent(current);
+    return;
+  }
+
+  const alignment = easeBetween(progress, 0, .62);
+  const nextAngle = current.startAngle + current.longitudeTravel * alignment;
+  const nextTilt = current.startTilt + current.latitudeTravel * alignment;
+  dirty ||= nextAngle !== angle || nextTilt !== tilt;
+  angle = nextAngle;
+  tilt = nextTilt;
+
+  const zoom = easeBetween(progress, .09, .94);
+  const zoomLimit = Math.max(4, 2.3 * Math.max(window.innerWidth, window.innerHeight) / planet.clientWidth);
+  const scale = zoomLimit ** zoom;
+  const destination = projectMission(current.mission, Math.sin(tilt), Math.cos(tilt));
+  // Keep the zoom centered on the landing site while the globe turns towards it.
+  const offset = (scale - 1) * planet.clientWidth / 2;
+  planet.style.transform = `translate(${-destination.x * offset}px, ${destination.y * offset}px) scale(${scale})`;
+  planet.style.setProperty("--destination-opacity", 1 - easeBetween(progress, .46, revealStart));
+  arrival.style.opacity = easeBetween(progress, revealStart, .98);
+  arrival.style.transform = `scale(${1 + .065 * (1 - easeBetween(progress, revealStart, 1))})`;
+}
+
+rotation.addEventListener("click", () => {
+  if (descent) return;
+  rotating = !rotating;
+  clearMomentum();
+  syncRotation();
+});
+
+for (const id of ["#back", "#home-link"]) {
+  document.querySelector(id).addEventListener("click", event => {
+    if (surface.hidden || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    if (history.state?.fromOrbit) {
+      history.back();
+    } else {
+      history.replaceState(null, "", location.pathname + location.search);
+      showRoute();
+    }
+  });
+}
+window.addEventListener("hashchange", () => {
+  cancelDescent();
+  showRoute();
+});
+
+const pixels = [];
+for (let row = 0; row < size; row++) {
+  const y = (radius - row - 0.5) / radius;
+  for (let column = 0; column < size; column++) {
+    const x = (column + 0.5 - radius) / radius;
+    const depth = 1 - x*x - y*y;
+    if (depth <= 0) continue;
+    const z = Math.sqrt(depth);
+    const light = 0.25 + 0.91*Math.max(0, -0.39*x + 0.35*y + 0.85*z);
+    const offset = (row * size + column) * 4;
+    pixels.push({ offset, x, y, z, light, u: 0, textureRow: 0 });
+    frame.data[offset + 3] = Math.min(255, depth * radius * 165);
+  }
+}
+
+
+// ---- Procedural 3D Mars: seamless noise on the sphere + painted regions, craters and polar caps ----
+function makeMarsTexture() {
+  const W = 1024, H = 512, cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  const g = cv.getContext("2d"), img = g.createImageData(W, H), d = img.data;
+  const hash = (x, y, z) => { let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263) ^ Math.imul(z, 1274126177); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+  const fade = t => t * t * (3 - 2 * t), mix = (p, q, t) => p + (q - p) * t;
+  function vnoise(x, y, z) {
+    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z), xf = fade(x - xi), yf = fade(y - yi), zf = fade(z - zi);
+    const c = (i, j, k) => hash(xi + i, yi + j, zi + k);
+    return mix(mix(mix(c(0,0,0), c(1,0,0), xf), mix(c(0,1,0), c(1,1,0), xf), yf), mix(mix(c(0,0,1), c(1,0,1), xf), mix(c(0,1,1), c(1,1,1), xf), yf), zf);
+  }
+  const fbm = (x, y, z) => { let s = 0, a = .5, f = 1; for (let i = 0; i < 5; i++) { s += a * vnoise(x * f, y * f, z * f); f *= 2.03; a *= .5; } return s; };
+  for (let row = 0; row < H; row++) {
+    const lat = (.5 - (row + .5) / H) * Math.PI, cl = Math.cos(lat), y = Math.sin(lat);
+    for (let col = 0; col < W; col++) {
+      const lon = ((col + .5) / W - .5) * 2 * Math.PI, x = cl * Math.cos(lon), z = cl * Math.sin(lon);
+      const t = fade(Math.min(1, Math.max(0, (fbm(x * 3 + 7, y * 3, z * 3) * .7 + fbm(x * 9, y * 9 + 3, z * 9) * .3 - .25) * 2.1)));
+      const dark = fade(Math.min(1, Math.max(0, (.46 - fbm(x * 2 + 3, y * 2 + 1, z * 2)) * 6)));
+      const i = (row * W + col) * 4;
+      d[i] = mix(mix(150, 212, t), 92, dark * .8); d[i+1] = mix(mix(72, 146, t), 52, dark * .8); d[i+2] = mix(mix(44, 92, t), 40, dark * .8); d[i+3] = 255;
+    }
+  }
+  g.putImageData(img, 0, 0);
+  const X = lon => (lon / 360 + .5) * W, Y = lat => (.5 - lat / 180) * H;
+  const blob = (lon, lat, rx, ry, rgb, alpha) => {
+    g.save(); g.translate(X(lon), Y(lat)); g.scale(rx / 360 * W, ry / 180 * H);
+    const r = g.createRadialGradient(0, 0, 0, 0, 0, 1); r.addColorStop(0, `rgba(${rgb},${alpha})`); r.addColorStop(1, `rgba(${rgb},0)`);
+    g.fillStyle = r; g.beginPath(); g.arc(0, 0, 1, 0, 7); g.fill(); g.restore();
+  };
+  [[68,8,14,18],[-30,45,25,12],[0,-3,10,6],[145,-25,22,8],[-150,-30,25,7],[-90,-25,10,8],[110,-8,12,10]].forEach(a => blob(a[0], a[1], a[2], a[3], "52,30,26", .6));
+  [[70,-42,9,9],[-45,-50,10,7],[20,15,26,12],[-170,12,18,10]].forEach(a => blob(a[0], a[1], a[2], a[3], "238,204,166", .5));
+  [[-112,1,7,7],[-121,-9,6,6],[-102,10,6,6],[-134,18,7,7]].forEach(a => { blob(a[0], a[1], a[2], a[3], "226,170,120", .55); blob(a[0], a[1], a[2] * .35, a[3] * .35, "70,40,32", .6); });
+  g.save(); g.strokeStyle = "rgba(62,34,28,.7)"; g.lineCap = "round"; g.lineWidth = 6; g.shadowColor = "rgba(62,34,28,.9)"; g.shadowBlur = 8;
+  g.beginPath(); g.moveTo(X(-92), Y(-9)); g.quadraticCurveTo(X(-70), Y(-14), X(-44), Y(-7)); g.stroke(); g.restore();
+  const cap = (top, edge) => { const r = g.createLinearGradient(0, edge, 0, top ? edge + H * .13 : edge - H * .13); r.addColorStop(0, "rgba(248,244,238,.97)"); r.addColorStop(.6, "rgba(240,228,216,.7)"); r.addColorStop(1, "rgba(240,228,216,0)"); g.fillStyle = r; g.fillRect(0, top ? edge : edge - H * .13, W, H * .13); };
+  cap(true, 0); cap(false, H);
+  let s = 77; const rnd = () => (s = (Math.imul(1664525, s) + 1013904223) >>> 0) / 4294967296;
+  for (let n = 0; n < 260; n++) {
+    const x = rnd() * W, y = H * .1 + rnd() * H * .8, r = 2 + Math.pow(rnd(), 2.2) * 15;
+    const f = g.createRadialGradient(x, y, 0, x, y, r); f.addColorStop(0, "rgba(58,30,24,.38)"); f.addColorStop(.78, "rgba(58,30,24,.12)"); f.addColorStop(.9, "rgba(244,206,166,.38)"); f.addColorStop(1, "rgba(244,206,166,0)");
+    g.fillStyle = f; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+  }
+  return g.getImageData(0, 0, W, H);
+}
+setTimeout(() => { texture = makeMarsTexture(); projectedTilt = undefined; dirty = true; }, 30);
+
+
+function projectMission(mission, sinTilt, cosTilt) {
+  const latitude = mission.lat * radians;
+  const meridian = mission.lon * radians - angle;
+  const north = Math.sin(latitude);
+  const equator = Math.cos(latitude) * Math.cos(meridian);
+  return {
+    x: Math.cos(latitude) * Math.sin(meridian),
+    y: north * cosTilt - equator * sinTilt,
+    depth: north * sinTilt + equator * cosTilt
+  };
+}
+
+function draw() {
+  if (home.hidden) return;
+  const sinTilt = Math.sin(tilt);
+  const cosTilt = Math.cos(tilt);
+  const turn = angle / fullTurn;
+  if (texture) {
+    const width = texture.width;
+    const map = texture.data;
+    // Cache the projection while only the longitude is changing.
+    if (projectedTilt !== tilt) {
+      for (const pixel of pixels) {
+        const { x, y, z } = pixel;
+        const north = y * cosTilt + z * sinTilt;
+        const equator = z * cosTilt - y * sinTilt;
+        pixel.u = Math.atan2(x, equator) / fullTurn + 0.5;
+        const v = 0.5 - Math.asin(Math.max(-1, Math.min(1, north))) / Math.PI;
+        pixel.textureRow = Math.floor(v * (texture.height - 1)) * width;
+      }
+      projectedTilt = tilt;
+    }
+    for (const {offset,u,light,textureRow} of pixels) {
+      const longitude = u + turn;
+      const index = (textureRow + Math.floor((longitude - Math.floor(longitude))*width))*4;
+      frame.data[offset] = map[index]*light;
+      frame.data[offset+1] = map[index+1]*light;
+      frame.data[offset+2] = map[index+2]*light;
+    }
+    context.putImageData(frame,0,0);
+  }
+  missions.forEach((mission, index) => {
+    const { x, y, depth } = projectMission(mission, sinTilt, cosTilt);
+    const pin = pins[index].marker;
+    pin.hidden = depth < 0.15;
+    pin.style.left = `${50+50*x}%`;
+    pin.style.top = `${50-50*y}%`;
+  });
+  const longitude = Math.round(Math.atan2(Math.sin(angle), Math.cos(angle)) / radians);
+  const latitude = Math.round(tilt / radians);
+  longitudeReadout.textContent = `${Math.abs(latitude)}° ${latitude < 0 ? "S" : "N"} · ${Math.abs(longitude)}° ${longitude < 0 ? "W" : "E"}`;
+}
+
+function animate(time) {
+  const elapsed = Math.min(time - (previousTime ?? time), 50);
+  previousTime = time;
+  if (descent) {
+    updateDescent(descent, elapsed);
+  } else if (!home.hidden) {
+    updateRotation(elapsed);
+  }
+  if (dirty) {
+    draw();
+    dirty = false;
+  }
+  requestAnimationFrame(animate);
+}
+
+function updateRotation(elapsed) {
+  const follow = 1 - Math.exp(-elapsed / dragResponse);
+  const horizontal = Math.abs(pendingLongitude) < .0001 ? pendingLongitude : pendingLongitude * follow;
+  const vertical = Math.abs(pendingLatitude) < .0001 ? pendingLatitude : pendingLatitude * follow;
+  pendingLongitude -= horizontal;
+  pendingLatitude -= vertical;
+
+  if (horizontal || vertical) turnGlobe(horizontal, vertical);
+  const hasMomentum = horizontalMomentum !== 0 || verticalMomentum !== 0;
+  if (!rotating || drag || (!hasMomentum && markerLayer.querySelector(":hover, :focus-visible"))) return;
+
+  const decay = Math.exp(-elapsed / momentumDecay);
+  const drift = momentumDecay * (1 - decay);
+  turnGlobe(orbitDirection * orbitSpeed * elapsed + horizontalMomentum * drift, verticalMomentum * drift);
+  horizontalMomentum *= decay;
+  verticalMomentum *= decay;
+  if (Math.abs(horizontalMomentum) < .00002) horizontalMomentum = 0;
+  const hitPole = (tilt === maximumTilt && verticalMomentum > 0) || (tilt === -maximumTilt && verticalMomentum < 0);
+  if (Math.abs(verticalMomentum) < .00002 || hitPole) verticalMomentum = 0;
+}
+
+canvas.addEventListener("pointerdown", event => {
+  if (descent || !event.isPrimary || event.button !== 0) return;
+  clearMomentum();
+  drag = {
+    id: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+    time: event.timeStamp,
+    horizontalSpeed: 0,
+    verticalSpeed: 0
+  };
+  canvas.setPointerCapture(event.pointerId);
+});
+function trackDrag(event) {
+  const sensitivity = 2.75 / canvas.clientWidth;
+  const horizontal = (drag.x - event.clientX) * sensitivity;
+  const vertical = (event.clientY - drag.y) * sensitivity;
+  if (horizontal === 0 && vertical === 0) return;
+  const elapsed = Math.max(8, event.timeStamp - drag.time);
+  const smoothing = 1 - Math.exp(-elapsed / 26);
+  if (reducedMotion.matches) {
+    turnGlobe(horizontal, vertical);
+  } else {
+    pendingLongitude += horizontal;
+    const desiredTilt = Math.max(-maximumTilt, Math.min(maximumTilt, tilt + pendingLatitude + vertical));
+    pendingLatitude = desiredTilt - tilt;
+  }
+  drag.horizontalSpeed += (horizontal / elapsed - drag.horizontalSpeed) * smoothing;
+  drag.verticalSpeed += (vertical / elapsed - drag.verticalSpeed) * smoothing;
+  drag.x = event.clientX;
+  drag.y = event.clientY;
+  drag.time = event.timeStamp;
+}
+canvas.addEventListener("pointermove", event => {
+  if (!descent && drag?.id === event.pointerId) trackDrag(event);
+});
+canvas.addEventListener("pointerup", event => {
+  if (drag?.id !== event.pointerId) return;
+  if (!descent) trackDrag(event);
+
+  const age = event.timeStamp - drag.time;
+  if (!descent && rotating && !reducedMotion.matches && age < releaseWindow) {
+    const release = 1 - age / releaseWindow;
+    const horizontal = maximumFlingSpeed * Math.tanh(drag.horizontalSpeed * release / maximumFlingSpeed);
+    const vertical = maximumFlingSpeed * Math.tanh(drag.verticalSpeed * release / maximumFlingSpeed);
+    if (Math.abs(horizontal) > orbitSpeed) orbitDirection = Math.sign(horizontal);
+    horizontalMomentum = orbitDirection * Math.max(0, Math.abs(horizontal) - orbitSpeed);
+    verticalMomentum = vertical;
+  }
+  drag = null;
+});
+canvas.addEventListener("lostpointercapture", event => {
+  if (drag?.id === event.pointerId) drag = null;
+});
+
+function turnGlobe(horizontal, vertical) {
+  angle += horizontal;
+  tilt = Math.max(-maximumTilt, Math.min(maximumTilt, tilt + vertical));
+  dirty = true;
+}
+
+const arrowSteps = new Map([
+  ["ArrowLeft", [-12, 0]],
+  ["ArrowRight", [12, 0]],
+  ["ArrowUp", [0, 12]],
+  ["ArrowDown", [0, -12]]
+]);
+function rotateStep(step) {
+  if (descent) return;
+  clearMomentum();
+  turnGlobe(step[0] * radians, step[1] * radians);
+}
+canvas.addEventListener("keydown", event => {
+  const step = arrowSteps.get(event.key);
+  if (!step) return;
+  event.preventDefault();
+  rotateStep(step);
+});
+home.addEventListener("keydown", event => {
+  if (event.key === "Escape" && descent) {
+    cancelDescent();
+    lastEntry?.trigger.focus();
+  }
+});
+
+reducedMotion.addEventListener("change", event => {
+  if (!event.matches) return;
+  rotating = false;
+  clearMomentum();
+  if (descent) completeDescent(descent);
+  syncRotation();
+});
+
+syncRotation();
+showRoute();
+requestAnimationFrame(animate);
+
+/* ---------- Quests: progress written by the mini-games (localStorage), fallback ?done=slug ---------- */
+const QUEST_KEY = "atlasMarsQuests";
+const questList = document.querySelector("#quest-list");
+const questCount = document.querySelector("#quest-count");
+let questState = {};
+function readQuests() {
+  try { return JSON.parse(localStorage.getItem(QUEST_KEY) || "{}") || {}; } catch { return {}; }
+}
+const questRows = missions.map(mission => {
+  const item = document.createElement("li");
+  item.innerHTML = `<span class="box" aria-hidden="true">✓</span><span class="txt">Complete the ${mission.name} mission</span><span class="sr-only status"></span>`;
+  questList.append(item);
+  return item;
+});
+function renderQuests(justDone) {
+  questState = { ...questState, ...readQuests() };
+  let count = 0;
+  missions.forEach((mission, index) => {
+    const done = Boolean(questState[mission.slug]);
+    const row = questRows[index];
+    if (done) count++;
+    row.classList.toggle("done", done);
+    row.querySelector(".status").textContent = done ? "Completed" : "Not completed";
+    if (done && mission.slug === justDone) { row.classList.remove("fresh"); void row.offsetWidth; row.classList.add("fresh"); }
+  });
+  questCount.textContent = count + " / " + missions.length + " completed";
+}
+const doneParam = new URLSearchParams(location.search).get("done");
+if (doneParam && missions.some(mission => mission.slug === doneParam)) {
+  questState[doneParam] = true;
+  try { localStorage.setItem(QUEST_KEY, JSON.stringify({ ...readQuests(), ...questState })); } catch {}
+  history.replaceState(history.state, "", location.pathname + location.hash);
+}
+renderQuests(doneParam);
+window.addEventListener("storage", event => { if (event.key === QUEST_KEY) renderQuests(); });
+window.addEventListener("pageshow", () => renderQuests());
+window.addEventListener("focus", () => renderQuests());
+document.addEventListener("visibilitychange", () => { if (!document.hidden) renderQuests(); });
+
+/* ---------- Walkie-talkie: a random message every 15–30 seconds ---------- */
+const radioLines = ["Is it going well?", "How is it going?", "Keep going!", "We have just received the data you sent us."];
+const radioBox = document.querySelector("#radio-msg");
+const radioText = document.querySelector("#radio-text");
+const walkie = document.querySelector("#walkie");
+let radioLast = -1;
+function showRadio() {
+  let next;
+  do { next = Math.floor(Math.random() * radioLines.length); } while (next === radioLast);
+  radioLast = next;
+  const swap = () => {
+    radioText.textContent = radioLines[next];
+    radioBox.classList.remove("out");
+    radioBox.hidden = false;
+    radioBox.classList.remove("in"); void radioBox.offsetWidth; radioBox.classList.add("in");
+    walkie.classList.add("rx");
+    setTimeout(() => walkie.classList.remove("rx"), 2600);
+  };
+  if (!radioBox.hidden) { radioBox.classList.add("out"); setTimeout(swap, 260); } else swap();
+  scheduleRadio();
+}
+function scheduleRadio() { setTimeout(showRadio, 15000 + Math.random() * 15000); }
+scheduleRadio();
+
+/* ---------- Hover preview (top-left); tap shows it briefly on touch screens ---------- */
+const peek = document.querySelector("#peek");
+const peekImg = document.querySelector("#peek-img");
+const peekName = document.querySelector("#peek-name");
+const peekSite = document.querySelector("#peek-site");
+let peekTimer, lastPointer = "mouse";
+function showPeek(mission) {
+  clearTimeout(peekTimer);
+  peekImg.src = scenePath(mission);
+  peekName.textContent = mission.name;
+  peekSite.textContent = mission.site + " · " + mission.year;
+  peek.classList.add("on");
+  home.classList.add("peeking");
+}
+function hidePeek() {
+  clearTimeout(peekTimer);
+  peek.classList.remove("on");
+  home.classList.remove("peeking");
+}
+pins.forEach(({ marker }, index) => {
+  const mission = missions[index];
+  marker.addEventListener("pointerenter", event => { lastPointer = event.pointerType; if (event.pointerType !== "touch") showPeek(mission); });
+  marker.addEventListener("pointerleave", () => { if (lastPointer !== "touch") hidePeek(); });
+  marker.addEventListener("focus", () => showPeek(mission));
+  marker.addEventListener("blur", hidePeek);
+  marker.addEventListener("pointerdown", event => {
+    lastPointer = event.pointerType;
+    if (event.pointerType === "touch") { showPeek(mission); peekTimer = setTimeout(hidePeek, 1800); }
+  });
+  marker.addEventListener("click", () => { if (lastPointer !== "touch") hidePeek(); });
+});
+window.addEventListener("hashchange", hidePeek);
+
+</script>
+<style>
+  #launch-mission {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    padding: .85rem 1.4rem;
+    border: 1px solid #ff9c76;
+    border-radius: 4px;
+    background: #a94f35;
+    color: #fff4eb;
+    font: 700 .75rem/1.2 ui-monospace, monospace;
+    letter-spacing: .12em;
+    text-decoration: none;
+    text-transform: uppercase;
+    box-shadow: 0 0 22px #ff9c7640;
+    transition: background .18s ease, transform .18s ease;
+  }
+  #launch-mission:hover { background:#c26545; transform:translateY(-2px); }
+  #launch-mission[hidden] { display:none !important; }
+</style>
+<script>
+(function () {
+  const destinations = [
+    { match: /phoenix/i, href: "mini_jeux/Phoenix.html" },
+    { match: /opportunity/i, href: "mini_jeux/Spirit.html" },
+    { match: /pathfinder|sojourner/i, href: "mini_jeux/Sojourner.html" },
+    { match: /ingenuity/i, href: "mini_jeux/Ingenuity.html" }
+  ];
+
+  function updateLaunchButton() {
+    const surface = document.getElementById("surface");
+    const title = document.getElementById("surface-title");
+    const copy = document.querySelector(".surface-copy");
+    if (!surface || !title || !copy) return;
+
+    let button = document.getElementById("launch-mission");
+    if (!button) {
+      button = document.createElement("a");
+      button.id = "launch-mission";
+      button.textContent = "LAUNCH";
+      button.hidden = true;
+      button.setAttribute("aria-label", "Launch this mission");
+      copy.appendChild(button);
+    }
+
+    const mission = destinations.find(item => item.match.test(title.textContent.trim()));
+    if (mission && !surface.hidden) {
+      button.href = mission.href;
+      button.hidden = false;
+    } else {
+      button.hidden = true;
+      button.removeAttribute("href");
+    }
+  }
+
+  const observer = new MutationObserver(updateLaunchButton);
+  document.addEventListener("DOMContentLoaded", function () {
+    const surface = document.getElementById("surface");
+    const title = document.getElementById("surface-title");
+    if (surface) observer.observe(surface, { attributes: true, attributeFilter: ["hidden"] });
+    if (title) observer.observe(title, { childList: true, characterData: true, subtree: true });
+    updateLaunchButton();
+  });
+})();
+</script>
+
+</body>
+</html>
