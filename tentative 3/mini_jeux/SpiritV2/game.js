@@ -31,7 +31,7 @@ function start() {
     renderer.shadowMap.type = T.PCFSoftShadowMap;
   }
 
-  const sky = new T.Color();
+  const sky = new T.Color(0xba9b86);
   scene.background = sky;
   scene.fog = new T.FogExp2(sky, .012);
   const ambient = new T.HemisphereLight(0xffebdb, 0x66473f, 1.24);
@@ -562,6 +562,9 @@ function start() {
   antennaRod.rotation.z=.1;
   placeholder.traverse(part=>{if(part.isMesh){part.castShadow=true;part.receiveShadow=true;}});
   let modelWheels = [];
+  rover.visible = false;
+  // Safety net: if the detailed model is slow, never leave the player without a rover.
+  setTimeout(() => { rover.visible = true; }, 3000);
   if (typeof window.fetch === 'function') {
     import('./rover-model.js?v=spirit').then(({loadSpiritModel}) => loadSpiritModel(software))
       .then(({body, rollingWheels}) => {
@@ -569,12 +572,14 @@ function start() {
         rover.add(body);
         modelWheels = rollingWheels;
         canvas.dataset.rover = software ? 'light' : 'full';
+        rover.visible = true;
       })
       .catch(error => {
         canvas.dataset.rover = 'placeholder';
         console.warn('Detailed Spirit model unavailable.', error);
+        rover.visible = true;
       });
-  }
+  } else rover.visible = true;
   const shadow=new T.Mesh(new T.CircleGeometry(1.45,22),new T.MeshBasicMaterial({color:0x231811,transparent:true,opacity:.25,depthWrite:false}));
   shadow.rotation.x=-Math.PI/2;
   scene.add(shadow);
