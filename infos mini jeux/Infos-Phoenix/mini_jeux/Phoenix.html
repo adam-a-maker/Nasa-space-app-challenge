@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mars Seismic Lab – Become a seismologist</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;--c:#5ff;--o:#ff7a3d;--bg:#04080f;--pn:#08121f;--ln:#17405a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;background:var(--bg);color:#bfe;font:13px/1.45 'Segoe UI',system-ui,sans-serif}
+body{display:flex;flex-direction:column}
+header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--ln);background:linear-gradient(90deg,#0a1626,#1a0d08)}
+h1{margin:0;font-size:17px;letter-spacing:4px;font-weight:600}h1 b{color:var(--o)}
+#hd{font-family:monospace;text-align:right;font-size:12px}#hd i{color:var(--o);font-style:normal}
+nav{display:flex;gap:4px;padding:6px 10px;overflow-x:auto;border-bottom:1px solid var(--ln)}
+nav button{white-space:nowrap}
+button,select{background:#0a2a3a;color:var(--c);border:1px solid var(--ln);padding:6px 10px;font:inherit;cursor:pointer;border-radius:3px}
+button:hover{background:#0e4258}button.on{background:#0e5a70;border-color:var(--c);box-shadow:0 0 8px #5ff5}
+button.go{background:#5a2410;color:#ffd0b0;border-color:var(--o);font-weight:600;letter-spacing:1px}
+button:disabled{opacity:.35;cursor:not-allowed}
+#mn{flex:1;display:flex;min-height:0}
+#vz{flex:1;display:flex;flex-direction:column;gap:6px;padding:8px;min-width:0}
+canvas{flex:1;min-height:90px;width:100%;background:#050b14;border:1px solid var(--ln);touch-action:none;display:none}
+#sd{width:350px;overflow:auto;background:var(--pn);border-left:1px solid var(--ln);padding:12px}
+#sd h3{margin:0 0 6px;color:var(--o);letter-spacing:2px;font-size:14px}
+.r{display:flex;gap:6px;align-items:center;margin:6px 0;flex-wrap:wrap}.r input[type=range]{flex:1}
+.tg{font-family:monospace;color:#fff}.ok{color:#6f9}.ko{color:#f65}.sm{font-size:11px;opacity:.75}
+table{border-collapse:collapse;width:100%;font-family:monospace;font-size:11px}td,th{border-bottom:1px solid var(--ln);padding:2px 4px;text-align:right}th:first-child,td:first-child{text-align:left}
+textarea{width:100%;height:90px;background:#050b14;color:#cff;border:1px solid var(--ln);box-sizing:border-box}
+.bar{height:8px;border:1px solid var(--ln)}.bar i{display:block;height:100%;background:var(--o)}
+@media(max-width:820px){#mn{flex-direction:column}#sd{width:auto;border-left:0;border-top:1px solid var(--ln);max-height:48%}h1{font-size:13px;letter-spacing:2px}}
+</style></head><body>
+<header><h1>MARS <b>SEISMIC</b> LAB</h1><div id="hd"></div></header>
+<nav id="nv"></nav>
+<div id="mn"><div id="vz"><canvas id="sg"></canvas><canvas id="pl"></canvas><canvas id="tt"></canvas></div><div id="sd"></div></div>
+<script>
+function atlasQuest(id){try{var q=JSON.parse(localStorage.getItem("atlasMarsQuests")||"{}");q[id]=true;localStorage.setItem("atlasMarsQuests",JSON.stringify(q))}catch(e){}}
+const $=i=>document.getElementById(i),PI=Math.PI,FS=4,N=7200,RM=3390,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+/* ---------- state + save ---------- */
+const DEF={tab:0,cls:{},att:0,sc:{},hp:.05,lp:1.9,fon:0,ov:0,pk:{},echo:{},m:{h:70,vp:7.2,rc:1500},kept:0,rep:'',rv:0};
+let ST=Object.assign({},DEF);try{Object.assign(ST,JSON.parse(localStorage.getItem('msl')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('msl',JSON.stringify(ST))}catch(e){}};
+/* ---------- données synthétiques ---------- */
+function rnd(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const gauss=r=>Math.sqrt(-2*Math.log(r()+1e-9))*Math.cos(6.2832*r());
+function lp(x,fc){const a=Math.exp(-6.2832*fc/FS),y=new Float32Array(x.length);let s=0;for(let i=0;i<x.length;i++){s=(1-a)*x[i]+a*s;y[i]=s}return y}
+function hp(x,fc){const l=lp(lp(x,fc),fc);return x.map((v,i)=>v-l[i])}
+const flt=x=>hp(hp(lp(lp(x,ST.lp),ST.lp),ST.hp),ST.hp);
+/* modèle simplifié : rais droits, couches homogènes (croûte h, manteau vp, noyau rc), vp/vs=1,78 */
+function ph(m,th){const a=th*PI/180,vs=m.vp/1.78,L=2*RM*Math.sin(a/2),Lp=4*RM*Math.sin(a/4),Lc=2*Math.hypot(RM-m.rc*Math.cos(a/2),m.rc*Math.sin(a/2)),dP=m.h*(1/6-1/m.vp),dS=m.h*(1.78/6-1.78/m.vp);
+return{P:L/m.vp+dP,S:L/vs+dS,PP:Lp/m.vp+2*dP,SS:Lp/vs+2*dS,PcP:Lc/m.vp+2*dP,ScS:Lc/vs+2*dS}}
+const TM={h:40,vp:8.1,rc:1830};/* modèle caché utilisé pour fabriquer les données */
+function mk(n,dist,t0,amp,wa,seed){const r=rnd(seed),x=new Float32Array(N),wn=Float32Array.from({length:N},()=>gauss(r)),w=lp(lp(wn,.05),.05);let s=0;for(const v of w)s+=v*v;const sd=Math.sqrt(s/N)||1,b=lp(wn,.5),p0=r()*6,per=250+r()*150;
+for(let i=0;i<N;i++){const gu=1+.8*Math.pow(Math.max(0,Math.sin(6.283*i/FS/per+p0)),2);x[i]=wa*(w[i]/sd*(.7+.3*gu)+.15*b[i]*gu)+.08*gauss(r)}
+for(let k=0;k<3;k++){const i0=r()*N|0,sg=r()<.5?-1:1;for(let j=0;j<20&&i0+j<N;j++)x[i0+j]+=sg*2.5*Math.exp(-j/3)}
+let ob=null;if(dist){const T=ph(TM,dist);ob={};for(const k of['P','S','PcP','ScS'])ob[k]=t0+T[k]+gauss(r)*.5;
+for(const[k,a,f,tau]of[['P',.5,1,12],['S',1,.6,30],['PcP',.3,1,14],['ScS',.45,.6,26]])for(let i=Math.max(0,ob[k]*FS|0);i<N;i++){const d=i/FS-ob[k];if(d>tau*5)break;x[i]+=amp*a*Math.sin(6.283*f*d)*Math.exp(-d/tau)*(1-Math.exp(-d/2))}
+for(let i=ob.S*FS|0;i<N;i++)x[i]+=amp*.25*gauss(r)*Math.exp(-(i/FS-ob.S)/90)}
+return{n,x,f:x,ob,dist}}
+const REC=[mk('RECORDING A',28,300,1.6,.7,11),mk('RECORDING B',0,0,0,1.2,22),mk('RECORDING C',18,500,.9,1,33),mk('RECORDING D',62,250,1.2,.6,44)];
+const NM=['A','B','C','D'],EV=[{n:'A',d:28,i:0},{n:'C',d:18,i:2},{n:'D',d:62,i:3}];
+const refilter=()=>REC.forEach(r=>r.f=flt(r.x));
+function snr(r){if(!r.ob)return null;const a=ST.fon?r.f:r.x,q=(s,e)=>{let z=0,n=0;for(let i=s*FS|0;i<e*FS;i++){z+=a[i]*a[i];n++}return Math.sqrt(z/n)};return q(r.ob.S-5,r.ob.S+55)/q(20,r.ob.P-60)}
+function invDist(dt,m){let p=0;for(let t=.5;t<=120;t+=.1){const T=ph(m,t),v=T.S-T.P;if(v>=dt)return t;p=v}return null}
+function resid(){const o=[];for(const e of EV){const r=REC[e.i],T=ph(ST.m,e.d);for(const k of(e.n=='C'?['S']:['S','PcP','ScS']))o.push([e.n,k,T[k]-T.P,r.ob[k]-r.ob.P])}return o}
+const rms=()=>{const a=resid();return Math.sqrt(a.reduce((s,r)=>s+(r[2]-r[3])**2,0)/a.length)};
+/* ---------- seismogram view ---------- */
+const V={c:$('sg'),t0:0,t1:1800,rec:0,cmp:-1,mk:[]};let AN={t:0,on:0,ph:'P',ev:0},drag=null;
+const D=()=>devicePixelRatio||1;
+function plot(g,arr,col,al,W,H){const sp=V.t1-V.t0,i0=Math.max(0,V.t0*FS|0),i1=Math.min(N,Math.ceil(V.t1*FS));let m=0;for(let i=i0;i<i1;i++)m=Math.max(m,Math.abs(arr[i]));m=m*1.15||1;
+g.strokeStyle=col;g.globalAlpha=al;g.lineWidth=D();g.beginPath();
+if(i1-i0<W){for(let i=i0;i<i1;i++){const x=(i/FS-V.t0)/sp*W,y=H/2-arr[i]/m*H*.45;i==i0?g.moveTo(x,y):g.lineTo(x,y)}}
+else for(let px=0;px<W;px++){const a=i0+(px/W)*(i1-i0)|0,b=Math.max(a+1,i0+((px+1)/W)*(i1-i0)|0);let lo=1e9,hi=-1e9;for(let i=a;i<b&&i<N;i++){lo=Math.min(lo,arr[i]);hi=Math.max(hi,arr[i])}if(lo>hi)continue;g.moveTo(px,H/2-hi/m*H*.45);g.lineTo(px,H/2-lo/m*H*.45+1)}
+g.stroke();g.globalAlpha=1;return m}
+const PCOL={P:'#5ff',S:'#ff7a3d',PP:'#8af',SS:'#fb8',PcP:'#7f9',ScS:'#fd5'};
+function dSG(){const c=V.c,g=c.getContext('2d'),W=c.width,H=c.height,d=D(),r=REC[V.rec],sp=V.t1-V.t0,X=t=>(t-V.t0)/sp*W;
+g.fillStyle='#050b14';g.fillRect(0,0,W,H);g.font=10*d+'px monospace';
+const st=[1,2,5,10,20,30,60,120,300].find(s=>sp/s<9)||600;
+for(let t=Math.ceil(V.t0/st)*st;t<V.t1;t+=st){g.strokeStyle='#17405a66';g.beginPath();g.moveTo(X(t),0);g.lineTo(X(t),H);g.stroke();g.fillStyle='#6a9';g.fillText(t+' s',X(t)+3,H-5*d)}
+g.strokeStyle='#17405a';g.beginPath();g.moveTo(0,H/2);g.lineTo(W,H/2);g.stroke();
+if(V.cmp>=0&&V.cmp!=V.rec)plot(g,ST.fon?REC[V.cmp].f:REC[V.cmp].x,'#ff7a3d',.45,W,H);
+if(tab()==1&&ST.fon&&ST.ov)plot(g,r.x,'#8a6a5a',.5,W,H);
+const m=plot(g,ST.fon?r.f:r.x,'#5ff',1,W,H);
+g.fillStyle='#9cd';g.fillText(r.n+(ST.fon?'  [FILTERED '+ST.hp.toFixed(2)+'–'+ST.lp.toFixed(2)+' Hz]':'  [RAW]')+(V.cmp>=0&&V.cmp!=V.rec?'   orange: '+REC[V.cmp].n:'')+'   max amp. ±'+m.toFixed(2)+' a.u. · SIMULATED DATA',8*d,14*d);
+const L=(t,col,lab,dash)=>{g.strokeStyle=col;g.setLineDash(dash?[6*d,4*d]:[]);g.lineWidth=1.5*d;g.beginPath();g.moveTo(X(t),0);g.lineTo(X(t),H);g.stroke();g.setLineDash([]);g.fillStyle=col;g.fillText(lab,X(t)+4,26*d+(dash?(lab.length*3)%30*d:0))};
+V.mk.forEach(k=>L(k.o[k.k],k.col,k.k+' '+k.o[k.k].toFixed(1)+' s'));
+if(tab()==3){const T=ph(ST.m,62),ref=pkRef('D');for(const k in T)L(ref+T[k]-T.P,PCOL[k],k+'(model)',1)}}
+function pkRef(id){const p=ST.pk[id];return p?p.P:REC[3].ob.P}
+/* ---------- coupe de Mars ---------- */
+function dPL(){const c=$('pl'),g=c.getContext('2d'),W=c.width,H=c.height,d=D(),m=ST.m,cx=W/2,cy=H/2+4*d,k=(Math.min(W,H)/2-16*d)/RM,e=EV[AN.ev],T=ph(m,e.d);
+const P=(r,a)=>[cx+r*k*Math.sin(a*PI/180),cy-r*k*Math.cos(a*PI/180)];
+g.fillStyle='#050b14';g.fillRect(0,0,W,H);g.save();g.beginPath();g.arc(cx,cy,RM*k,0,7);g.clip();
+const disc=(r,c)=>{g.beginPath();g.arc(cx,cy,r*k,0,7);g.fillStyle=c;g.fill()};disc(RM,'#c07040');disc(RM-m.h*4,'#6e2f1c');disc(m.rc,'#ff9b4a');
+g.strokeStyle='#0008';g.lineWidth=d;[RM-m.h*4,m.rc].forEach(r=>{g.beginPath();g.arc(cx,cy,r*k,0,7);g.stroke()});
+const path=AN.ph=='P'||AN.ph=='S'?[[RM,0],[RM,e.d]]:AN.ph=='PP'||AN.ph=='SS'?[[RM,0],[RM,e.d/2],[RM,e.d]]:[[RM,0],[m.rc,e.d/2],[RM,e.d]],pts=path.map(p=>P(p[0],p[1])),col=PCOL[AN.ph];
+const ts=AN.t/6*T.S,s0=P(RM,0);
+if(AN.t>0){[[m.vp,'#5ff'],[m.vp/1.78,'#ff7a3d']].forEach(([v,c])=>{g.strokeStyle=c;g.globalAlpha=.7;g.lineWidth=2*d;g.beginPath();g.arc(s0[0],s0[1],v*ts*k,0,7);g.stroke()});g.globalAlpha=1}
+g.restore();
+g.strokeStyle=col;g.lineWidth=2.5*d;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();
+if(AN.t>0){let f=cl(ts/T[AN.ph],0,1),tot=0,seg=[];for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(l);tot+=l}let q=f*tot,i=0;while(i<seg.length-1&&q>seg[i]){q-=seg[i];i++}const u=seg[i]?q/seg[i]:0;g.fillStyle='#fff';g.beginPath();g.arc(pts[i][0]+(pts[i+1][0]-pts[i][0])*u,pts[i][1]+(pts[i+1][1]-pts[i][1])*u,5*d,0,7);g.fill()}
+g.fillStyle='#fff';g.font=11*d+'px monospace';g.fillText('★ source',s0[0]+8*d,s0[1]+4*d);const rc=P(RM,e.d);g.fillText('▲ station (Δ='+e.d+'°)',rc[0]+8*d,rc[1]+4*d);
+g.fillStyle='#fc9';g.fillText('Crust (thickness ×4) · Mantle · Core '+m.rc+' km',8*d,14*d);g.fillText(AN.ph+' : '+T[AN.ph].toFixed(0)+' s after origin (model)',8*d,28*d)}
+/* ---------- diagramme temps de trajet ---------- */
+function dTT(){const c=$('tt'),g=c.getContext('2d'),W=c.width,H=c.height,d=D(),m=ST.m,ml=40*d,mb=22*d,X=a=>ml+a/100*(W-ml-8*d),Y=t=>H-mb-t/600*(H-mb-18*d);
+g.fillStyle='#050b14';g.fillRect(0,0,W,H);g.font=10*d+'px monospace';g.fillStyle='#6a9';g.strokeStyle='#17405a66';
+for(let a=0;a<=100;a+=20){g.beginPath();g.moveTo(X(a),Y(0));g.lineTo(X(a),Y(600));g.stroke();g.fillText(a+'°',X(a)-6*d,H-6*d)}
+for(let t=0;t<=600;t+=100){g.beginPath();g.moveTo(X(0),Y(t));g.lineTo(X(100),Y(t));g.stroke();g.fillText(t,4*d,Y(t)+3*d)}
+const ks=tab()==2?['S']:['S','PcP','ScS'];g.fillStyle='#fc9';g.fillText('Time after P (s) vs. distance — current model curves',ml,12*d);
+for(const k of ks){g.strokeStyle=PCOL[k];g.lineWidth=2*d;g.beginPath();for(let a=2;a<=100;a+=1){const T=ph(m,a);a==2?g.moveTo(X(a),Y(T[k]-T.P)):g.lineTo(X(a),Y(T[k]-T.P))}g.stroke();g.fillStyle=PCOL[k];g.fillText(k+'−P',X(80),Y(ph(m,80)[k]-ph(m,80).P)-5*d)}
+if(tab()==2){for(const id of['A','C','D']){const p=ST.pk[id];if(!p)continue;const dt=p.S-p.P,dd=invDist(dt,m);g.strokeStyle='#fff';g.setLineDash([4*d,4*d]);g.beginPath();g.moveTo(X(0),Y(dt));g.lineTo(dd?X(dd):X(100),Y(dt));g.stroke();g.setLineDash([]);g.fillStyle='#fff';g.fillText(id+' : Δt='+dt.toFixed(0)+' s'+(dd?' → '+dd.toFixed(1)+'°':''),X(2),Y(dt)-4*d);if(dd){g.beginPath();g.arc(X(dd),Y(dt),4*d,0,7);g.fill()}}}
+else for(const e of EV){const r=REC[e.i];for(const k of(e.n=='C'?['S']:ks)){g.fillStyle='#fff';g.beginPath();g.arc(X(e.d),Y(r.ob[k]-r.ob.P),4*d,0,7);g.fill()}g.fillStyle='#fff';g.fillText(e.n,X(e.d)-3*d,Y(0)-4*d)}}
+/* ---------- interface ---------- */
+const tab=()=>ST.tab,ok=i=>i==0||(i<4?ST.sc[i]!=null:i==4?ST.sc[3]!=null:!!ST.kept);
+const TN=['1 · DATA','2 · FILTERS','3 · P/S PICKS','4 · ECHOES','5 · MODEL','6 · REPORT'];
+const tot=()=>Object.values(ST.sc).reduce((a,b)=>a+b,0),rank=()=>{const t=tot();return t<150?'Intern':t<300?'Technician':t<450?'Analyst':t<560?'Seismologist':'Mission lead'};
+const sel=(a,opts,v)=>`<select data-a="${a}">${opts.map((o,i)=>`<option value="${i}" ${i==v?'selected':''}>${o}</option>`).join('')}</select>`;
+const evPh=()=>`<div class="r">Event ${sel('ev',EV.map(e=>e.n+' ('+e.d+'°)'),AN.ev)} ${['P','S','PP','SS','PcP','ScS'].map(p=>`<button class="${AN.ph==p?'on':''}" data-a="phs" data-v="${p}">${p}</button>`).join('')}</div><div class="r"><button class="go" data-a="play">▶ RUN PROPAGATION</button></div>`;
+const zb=`<div class="r">${[['−',1.5],['+',.67]].map(z=>`<button data-a="z" data-v="${z[1]}">zoom ${z[0]}</button>`).join('')}<button data-a="sp" data-v="30">30 s</button><button data-a="sp" data-v="120">2 min</button><button data-a="sp" data-v="600">10 min</button><button data-a="sp" data-v="1800">all</button><button data-a="pn" data-v="-1">◀</button><button data-a="pn" data-v="1">▶</button></div><div class="sm">Wheel = zoom · drag = pan</div>`;
+function side(){const t=tab(),r=REC[V.rec];let h='';
+if(t==0)h=`<h3>MODULE 1 · ANALYSIS</h3><p>Inspect each recording (zoom, pan, compare). A quake shows distinct arrivals (P then S); wind gives structureless noise.</p>${REC.map((x,i)=>`<div class="r"><button class="${V.rec==i?'on':''}" data-a="rec" data-i="${i}">${NM[i]}</button><button class="${ST.cls[i]=='s'?'on':''}" data-a="cl" data-i="${i}" data-v="s">QUAKE</button><button class="${ST.cls[i]=='w'?'on':''}" data-a="cl" data-i="${i}" data-v="w">WIND</button></div>`).join('')}<div class="r">Compare with ${sel('cmp',['—',...NM],V.cmp+1)}</div>${zb}<div class="r"><button class="go" data-a="v1">CHECK CLASSIFICATION</button></div><p id="fb"></p>`;
+if(t==1)h=`<h3>MODULE 2 · PROCESSING</h3><p>Wind mostly pollutes low frequencies. Set a band-pass filter to bring out the weak event C (goal: signal-to-noise ratio ≥ 2.2).</p><div class="r">${REC.map((x,i)=>`<button class="${V.rec==i?'on':''}" data-a="rec" data-i="${i}">${NM[i]}</button>`).join('')}</div><div class="r"><button class="${ST.fon?'on':''}" data-a="fon">FILTER ${ST.fon?'ON':'OFF'}</button><button class="${ST.ov?'on':''}" data-a="ov">overlay raw</button></div><div class="r">High-pass <input type="range" data-r="hp" min=".01" max="1.2" step=".01" value="${ST.hp}"><span class="tg" id="o_hp"></span></div><div class="r">Low-pass <input type="range" data-r="lp" min=".4" max="1.9" step=".05" value="${ST.lp}"><span class="tg" id="o_lp"></span></div><div class="r">SNR (S window / noise): <span class="tg" id="o_snr"></span></div><div class="bar"><i id="o_bar"></i></div><p id="o_g"></p>${zb}`;
+if(t==2){const p=ST.pk[NM[V.rec]]||{P:0,S:0},dd=invDist(p.S-p.P,ST.m);h=`<h3>MODULE 3 · P / S PICKS</h3><p>Drag the <b style="color:#5ff">P</b> and <b style="color:#ff7a3d">S</b> markers onto the onset of each wave (use the filter! module 2).</p><div class="r">${[0,2,3].map(i=>`<button class="${V.rec==i?'on':''}" data-a="rec" data-i="${i}">${NM[i]}</button>`).join('')}</div><div class="r">Δt = S−P = <span class="tg" id="o_dt">${(p.S-p.P).toFixed(1)} s</span></div><div class="r">Estimated distance (current model): <span class="tg" id="o_ds">${dd?dd.toFixed(1)+'°':'—'}</span></div>${zb}<div class="r"><button class="go" data-a="v3">CHECK PICKS</button></div><p id="fb">${ST.sc[3]!=null?'<span class="ok">Points awarded: '+ST.sc[3]+'/100</span>':''}</p><p class="sm">The bottom diagram compares your Δt with the theoretical S−P curve: the intersection gives the distance.</p>`}
+if(t==3){h=`<h3>MODULE 4 · INTERNAL ECHOES</h3><p>Watch the ray paths: waves reflected off the core (PcP, ScS) arrive after P and S. On recording D, the dotted markers show the arrivals predicted by <b>your model</b> (module 5). Adjust the model until they match the observed echoes.</p>${evPh()}${zb}<div class="r"><button class="go" data-a="v4">CHECK ECHOES (D)</button></div><p id="fb">${ST.sc[4]!=null?'<span class="ok">Points: '+ST.sc[4]+'/100</span>':''}</p>`}
+if(t==4)h=`<h3>MODULE 5 · MODEL LAB</h3><p>Change the structure: ray paths are recomputed. Minimize the gap (RMS) between theoretical times (curves) and observed times (dots).</p><div class="r">Crust <input type="range" data-r="h" min="10" max="100" step="1" value="${ST.m.h}"><span class="tg" id="o_h"></span></div><div class="r">Mantle Vp <input type="range" data-r="vp" min="6.5" max="9.5" step=".05" value="${ST.m.vp}"><span class="tg" id="o_vp"></span></div><div class="r">Core radius <input type="range" data-r="rc" min="1400" max="2200" step="10" value="${ST.m.rc}"><span class="tg" id="o_rc"></span></div><div class="sm">Vs = Vp / 1.78 · crust speeds: Vp 6 km/s</div><div class="r">RMS gap: <span class="tg" id="o_rms"></span></div><div class="bar"><i id="o_mb"></i></div><div id="o_tb"></div>${evPh()}<div class="r"><button class="go" data-a="keep">KEEP THIS MODEL</button></div><p id="fb">${ST.kept?'<span class="ok">Model kept ('+ST.sc[5]+'/200)</span>':''}</p>`;
+if(t==5){const m=ST.kept||ST.m,real=ST.rv;h=`<h3>SCIENTIFIC REPORT</h3><p class="sm">Simulated data — not from NASA.</p><table><tr><th>Classification</th><th colspan=4>${NM.map((n,i)=>n+':'+(ST.cls[i]=='s'?'quake':'wind')).join(' ')}</th></tr>${['A','C','D'].map(id=>{const p=ST.pk[id];return p?`<tr><td>Pick ${id}</td><td>P ${p.P.toFixed(1)}</td><td>S ${p.S.toFixed(1)}</td><td>Δt ${(p.S-p.P).toFixed(1)} s</td><td>${invDist(p.S-p.P,m)?.toFixed(1)}°</td></tr>`:''}).join('')}<tr><td>Filter</td><td colspan=4>${ST.hp}–${ST.lp} Hz</td></tr><tr><td>Echoes (gap)</td><td colspan=4>PcP ${ST.echo.PcP?.toFixed(1)} s · ScS ${ST.echo.ScS?.toFixed(1)} s</td></tr><tr><td>Model kept</td><td colspan=4>crust ${m.h} km · Vp ${m.vp} · core ${m.rc} km</td></tr></table><p>Your conclusions:</p><textarea data-a="rep" placeholder="E.g. the core of Mars has a radius of about … km because the ScS echo arrives …">${ST.rep}</textarea><div class="r"><button class="go" data-a="rv">COMPARE WITH INSIGHT RESULTS</button></div>${real?`<div class="r"><button class="go" data-a="back">BACK TO ATLAS MARS</button></div><table><tr><th></th><th>Your model</th><th>InSight (published)</th></tr><tr><td>Core radius</td><td>${m.rc} km</td><td>≈ 1830 ± 40 km</td></tr><tr><td>Core state</td><td>—</td><td>liquid</td></tr><tr><td>Crust thickness</td><td>${m.h} km</td><td>≈ 24–72 km (site)</td></tr></table><p class="sm">InSight (2018–2022), SEIS seismometer: more than 1,300 Martian quakes detected, including one of magnitude ≈ 4.7 (May 2022), and meteorite impacts. Waves reflected/converted at the core (Stähler et al., 2021) revealed a liquid core larger and less dense than expected, hence rich in light elements. The crust was constrained by receiver functions (Knapmeyer-Endrun et al., 2021) and the mantle by direct P/S waves. Here: a simplified straight-ray model and synthetic data — real results require velocity-gradient models and years of data.</p>`:''}`}
+$('sd').innerHTML=h;info()}
+function info(){const s=(i,v)=>{const e=$(i);if(e)e.textContent=v};s('o_hp',ST.hp.toFixed(2)+' Hz');s('o_lp',ST.lp.toFixed(2)+' Hz');s('o_h',ST.m.h+' km');s('o_vp',ST.m.vp.toFixed(2)+' km/s');s('o_rc',ST.m.rc+' km');
+if($('o_snr')){const q=snr(REC[V.rec]);s('o_snr',q==null?'— (no event)':q.toFixed(2));$('o_bar').style.width=Math.min(100,(q||0)/3*100)+'%';const c=snr(REC[2]);if(ST.fon&&c>=2.2&&ST.sc[2]==null){ST.sc[2]=100;save();s('o_g','');$('o_g').innerHTML='<span class="ok">✔ Event C revealed (SNR '+c.toFixed(2)+') · +100 pts</span>';nav()}else if(ST.sc[2]!=null)$('o_g').innerHTML='<span class="ok">✔ Goal reached</span>'}
+if($('o_rms')){const r=rms();s('o_rms',r.toFixed(2)+' s');$('o_mb').style.width=Math.max(0,100-r*5)+'%';$('o_tb').innerHTML='<table><tr><th>Evt/phase</th><th>model</th><th>obs.</th><th>residual</th></tr>'+resid().map(a=>`<tr><td>${a[0]} ${a[1]}−P</td><td>${a[2].toFixed(1)}</td><td>${a[3].toFixed(1)}</td><td class="${Math.abs(a[2]-a[3])<2?'ok':'ko'}">${(a[2]-a[3]).toFixed(1)}</td></tr>`).join('')+'</table>'}
+if($('o_dt')){const p=ST.pk[NM[V.rec]];if(p){s('o_dt',(p.S-p.P).toFixed(1)+' s');const d=invDist(p.S-p.P,ST.m);s('o_ds',d?d.toFixed(1)+'°':'—')}}
+$('hd').innerHTML=`SCORE <i>${tot()}</i> / 600 · RANK <i>${rank()}</i><br><span class="sm">SYNTHETIC DATA (not NASA)</span>`}
+function nav(){$('nv').innerHTML=TN.map((n,i)=>`<button class="${ST.tab==i?'on':''}" data-t="${i}" ${ok(i)?'':'disabled'}>${ok(i)?'':'🔒 '}${n}</button>`).join('');info()}
+function setMk(){V.mk=[];if(tab()==2){const id=NM[V.rec];if(!REC[V.rec].ob)V.rec=0;const i=NM[V.rec],p=ST.pk[i]||(ST.pk[i]={P:100,S:160});V.mk=[{k:'P',col:'#5ff',o:p},{k:'S',col:'#ff7a3d',o:p}]}}
+function show(){const t=tab(),vis={sg:t<4&&t!=5||t==3,pl:t==3||t==4,tt:t==2||t==4};for(const k in vis)$(k).style.display=vis[k]?'block':'none';$('vz').style.display=t==5?'none':'flex';if(t==3)V.rec=3;if(t==2&&!REC[V.rec].ob)V.rec=0;setMk();if(t==0||t==1||t==3)V.mk=[];side();nav();fit();save()}
+function fit(){for(const k of['sg','pl','tt']){const c=$(k);if(c.style.display!='none'){c.width=c.clientWidth*D();c.height=c.clientHeight*D()}}draw()}
+function draw(){if($('sg').style.display!='none')dSG();if($('pl').style.display!='none')dPL();if($('tt').style.display!='none')dTT()}
+/* ---------- actions ---------- */
+$('nv').onclick=e=>{const b=e.target.closest('[data-t]');if(b&&!b.disabled){ST.tab=+b.dataset.t;show()}};
+$('sd').onclick=e=>{const b=e.target.closest('[data-a]');if(!b||b.tagName=='SELECT'||b.tagName=='TEXTAREA')return;const a=b.dataset.a,i=+b.dataset.i,v=b.dataset.v,fb=$('fb');
+if(a=='rec'){V.rec=i;setMk();side()}
+if(a=='cl'){ST.cls[i]=v;side()}
+if(a=='fon'){ST.fon^=1;side()}if(a=='ov'){ST.ov^=1;side()}
+if(a=='z'){const c=(V.t0+V.t1)/2,s=(V.t1-V.t0)*v/2;V.t0=Math.max(0,c-s);V.t1=Math.min(1800,c+s);if(V.t1-V.t0<8)V.t1=V.t0+8}
+if(a=='sp'){const s=+v,c=(V.t0+V.t1)/2;V.t0=cl(c-s/2,0,1800-s);V.t1=V.t0+s}
+if(a=='pn'){const s=V.t1-V.t0,d=s*.4*v;V.t0=cl(V.t0+d,0,1800-s);V.t1=V.t0+s}
+if(a=='phs'){AN.ph=v;AN.t=0;AN.on=1;side()}
+if(a=='play'){AN.t=.01;AN.on=1}
+if(a=='v1'){if(Object.keys(ST.cls).length<4){fb.innerHTML='<span class="ko">Classify all 4 recordings.</span>';return}const sol=['s','w','s','s'],n=sol.filter((s,k)=>ST.cls[k]==s).length;ST.att++;fb.innerHTML=n==4?'<span class="ok">✔ Classification correct.</span>':`<span class="ko">${n}/4 correct. Review the recordings (tip: a weak signal can hide under the wind → module 2).</span>`;if(n==4||ST.att>=3){const p=Math.max(0,n*25-Math.min(ST.att-1,3)*5);ST.sc[1]=Math.max(ST.sc[1]||0,p);if(n<4)fb.innerHTML+=' <span class="ok">Mission continues (partial classification) · '+p+' pts</span>';else fb.innerHTML+=' +'+p+' pts';nav()}}
+if(a=='v3'){let t=0;for(const id of['A','D']){const p=ST.pk[id],r=REC[id=='A'?0:3];if(!p){fb.innerHTML='<span class="ko">Also pick A and D.</span>';return}t+=25*Math.max(0,1-Math.abs(p.P-r.ob.P)/8)+25*Math.max(0,1-Math.abs(p.S-r.ob.S)/15)}t=Math.round(t);ST.sc[3]=Math.max(ST.sc[3]||0,t);fb.innerHTML=t>=70?`<span class="ok">Good picks: ${t}/100</span>`:`<span class="ko">${t}/100 : refine (zoom, filter) then check again.</span>`;nav();info()}
+if(a=='v4'){const T=ph(ST.m,62),ref=pkRef('D');let t=0;for(const k of['PcP','ScS']){const er=Math.abs(ref+T[k]-T.P-REC[3].ob[k]);ST.echo[k]=er;t+=50*Math.max(0,1-er/20)}t=Math.round(t);ST.sc[4]=Math.max(ST.sc[4]||0,t);fb.innerHTML=`Gaps: PcP ${ST.echo.PcP.toFixed(1)} s · ScS ${ST.echo.ScS.toFixed(1)} s → <b>${t}/100</b>${t<80?' — adjust the model (module 5) then check again.':''}`;info();save()}
+if(a=='keep'){const r=rms(),p=Math.round(200*Math.max(0,1-r/15));ST.sc[5]=Math.max(ST.sc[5]||0,p);if(r<4){ST.kept={...ST.m};fb.innerHTML=`<span class="ok">Model kept · RMS ${r.toFixed(2)} s · ${p}/200</span>`}else fb.innerHTML='<span class="ko">RMS too high ('+r.toFixed(1)+' s): the model does not reproduce the data (goal < 4 s).</span>';nav()}
+if(a=='rv'){ST.rv=1;atlasQuest('phoenix');side()}if(a=='back'){location.href='../index-avec-les-boutons-launch.html?done=phoenix';return}
+draw();save();info()};
+$('sd').oninput=e=>{const t=e.target,r=t.dataset.r,a=t.dataset.a;if(r){const v=+t.value;if(r=='hp'||r=='lp'){ST[r]=v;refilter()}else{ST.m[r]=v;ST.kept=0}save();info();draw();if(r=='hp'||r=='lp')nav()}};
+$('sd').onchange=e=>{const t=e.target,a=t.dataset.a;if(a=='cmp'){V.cmp=+t.value-1}if(a=='ev'){AN.ev=+t.value;AN.t=0;AN.on=1}if(a=='rep'){ST.rep=t.value;save()}draw()};
+$('sd').addEventListener('input',e=>{if(e.target.dataset.a=='rep'){ST.rep=e.target.value;save()}});
+/* marqueurs, déplacement, zoom */
+const sg=$('sg'),tOf=e=>V.t0+e.offsetX*D()/sg.width*(V.t1-V.t0);
+sg.onpointerdown=e=>{sg.setPointerCapture(e.pointerId);const t=tOf(e),px=(V.t1-V.t0)/sg.width*D()*14;let mk=V.mk.find(k=>Math.abs(k.o[k.k]-t)<px);drag=mk?{mk}:{x:e.clientX,t0:V.t0,t1:V.t1}};
+sg.onpointermove=e=>{if(!drag)return;if(drag.mk){drag.mk.o[drag.mk.k]=cl(tOf(e),0,1800);info()}else{const s=V.t1-V.t0,dt=(e.clientX-drag.x)/sg.clientWidth*s;V.t0=cl(drag.t0-dt,0,1800-s);V.t1=V.t0+s}dSG();if(tab()==2)dTT()};
+sg.onpointerup=()=>{drag=null;save()};
+sg.onwheel=e=>{e.preventDefault();const f=e.deltaY>0?1.25:.8,tc=tOf(e),s=cl((V.t1-V.t0)*f,8,1800);V.t0=cl(tc-(tc-V.t0)*s/(V.t1-V.t0),0,1800-s);V.t1=V.t0+s;dSG()};
+addEventListener('resize',fit);
+let lastT=0;(function loop(n){requestAnimationFrame(loop);if(AN.on){AN.t+=(n-lastT)/1000;if(AN.t>9)AN.on=0;if($('pl').style.display!='none')dPL()}lastT=n})(0);
+refilter();show();
+</script></body></html>
