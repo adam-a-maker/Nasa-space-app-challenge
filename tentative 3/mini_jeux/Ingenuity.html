@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr"><head><meta charset="utf-8">
+<html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>MISSION INGENUITY</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&display=swap" rel="stylesheet">
@@ -42,19 +42,19 @@ body[data-s=play] #hud{display:flex}
 <div id="fl"></div>
 <div id="hud">
   <div class="ttl">MISSION INGENUITY</div>
-  <div class="tm"><span id="tm">90.0</span><small>SECONDES RESTANTES</small></div>
+  <div class="tm"><span id="tm">90.0</span><small>SECONDS LEFT</small></div>
   <div class="bar"><i id="pb"></i></div>
-  <div class="tele"><span>VITESSE<b id="sp">0</b>km/h</span><span>ALTITUDE<b id="alt">0</b>m</span></div>
-  <div id="al">ALERTE COLLISION</div>
+  <div class="tele"><span>SPEED<b id="sp">0</b>km/h</span><span>ALTITUDE<b id="alt">0</b>m</span></div>
+  <div id="al">COLLISION ALERT</div>
 </div>
 <div id="pad"><div><button data-k="l">◀</button><button data-k="r">▶</button></div><div><button data-k="u">▲</button><button data-k="d">▼</button></div></div>
-<button id="snd">SON : ON</button>
+<button id="snd">SOUND: ON</button>
 <div class="scr" id="menu"><h1>MISSION INGENUITY</h1>
-<p>Pilotez l’hélicoptère martien Ingenuity à travers un champ d’astéroïdes et survivez 90 secondes.<br>Flèches ← → ↑ ↓ (ou commandes tactiles) pour piloter.</p>
-<button class="b" id="go">DÉMARRER LA MISSION</button></div>
-<div class="scr hide" id="lose"><h1>MISSION ÉCHOUÉE</h1><p id="lp"></p><button class="b" id="retry">RÉESSAYER</button></div>
+<p>Pilot the Mars helicopter Ingenuity through an asteroid field and survive 90 seconds.<br>Arrow keys ← → ↑ ↓ (or touch controls) to fly.</p>
+<button class="b" id="go">START MISSION</button></div>
+<div class="scr hide" id="lose"><h1>MISSION FAILED</h1><p id="lp"></p><button class="b" id="retry">RETRY</button></div>
 <div class="scr hide" id="win"><div class="ring"></div><div class="ring" style="animation-delay:.8s"></div><div class="ring" style="animation-delay:1.6s"></div>
-<h1>MISSION RÉUSSIE !</h1><p>Ingenuity a survécu aux 90 secondes. Vol parfait, pilote.</p><button class="b" id="again">REJOUER</button><button class="b" id="back">RETOUR À ATLAS MARS</button></div>
+<h1>MISSION SUCCESSFUL!</h1><p>Ingenuity survived the 90 seconds. Flawless flight, pilot.</p><button class="b" id="again">PLAY AGAIN</button><button class="b" id="back">BACK TO ATLAS MARS</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -164,7 +164,7 @@ g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(vol,n+dur*.3)
 function tone(f,dur,vol,type='square',when=0,f2){if(!AC)return;const n=AC.currentTime+when,o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+dur);g.gain.setValueAtTime(vol,n);g.gain.exponentialRampToValueAtTime(.001,n+dur);o.connect(g);g.connect(master);o.start(n);o.stop(n+dur+.05)}
 const beep=()=>{tone(880,.12,.1);tone(880,.12,.1,'square',.18)},boom=()=>{noise(1.4,'lowpass',900,60,1.3);tone(70,.9,.7,'sine',0,25)},
 whoosh=(p,v)=>noise(.7,'bandpass',1400,250,v,p,1.5),fanfare=()=>[523,659,784,1047].forEach((f,i)=>tone(f,.6,.18,'triangle',i*.16));
-$('snd').onclick=()=>{muted=!muted;$('snd').textContent='SON : '+(muted?'OFF':'ON');if(master)master.gain.value=muted?0:.8};
+$('snd').onclick=()=>{muted=!muted;$('snd').textContent='SOUND: '+(muted?'OFF':'ON');if(master)master.gain.value=muted?0:.8};
 
 // Contrôles
 const inp={l:0,r:0,u:0,d:0},km={ArrowLeft:'l',KeyA:'l',KeyQ:'l',ArrowRight:'r',KeyD:'r',ArrowUp:'u',KeyW:'u',KeyZ:'u',ArrowDown:'d',KeyS:'d'};
@@ -185,7 +185,7 @@ ast.push({m,r:r*.9,sp,vx:vx2,vy:vy2,sx:rnd(-1.2,1.2),sy:rnd(-1.2,1.2),passed:0,w
 function start(){initAudio();clearAst();clearInterval(cfT);t=0;hx=0;hy=5;vx=vy=0;spawnT=1.5;heli.visible=true;state='play';$('fl').style.opacity=0;show(null)}
 function lose(){state='over';shake=1.2;heli.visible=false;boom();$('fl').style.opacity=.55;
 for(let i=0;i<90;i++){const a=rnd(0,6.28),s=rnd(3,14);emit(hx,hy+1,0,Math.cos(a)*s,rnd(-3,9),Math.sin(a)*s,rnd(.8,1.6))}
-state_ui();setTimeout(()=>{if(state==='over'){$('lp').textContent='Collision après '+t.toFixed(1)+' s sur 90. Réessayez !';show('lose')}},1000)}
+state_ui();setTimeout(()=>{if(state==='over'){$('lp').textContent='Collision after '+t.toFixed(1)+' s out of 90. Try again!';show('lose')}},1000)}
 function win(){state='win';atlasQuest('ingenuity');clearAst();fanfare();wA=0;state_ui();setTimeout(()=>{if(state==='win'){show('win');const b=()=>{for(let i=0;i<46;i++){const e=document.createElement('span'),a=rnd(0,6.28),d=rnd(150,520);e.className='cf';e.style.cssText=`--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d+120}px;background:hsl(${rnd(0,60)|0},100%,60%)`;$('win').appendChild(e);setTimeout(()=>e.remove(),2300)}};b();cfT=setInterval(b,900)}},500)}
 $('go').onclick=start;$('retry').onclick=start;$('again').onclick=start;$('back').onclick=()=>{location.href='../index.html?done=ingenuity'};
 

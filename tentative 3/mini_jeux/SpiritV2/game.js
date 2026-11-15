@@ -87,12 +87,11 @@ function start() {
     {x:-10,z:114,rx:10,rz:6},{x:18,z:80,rx:9,rz:7}
   ];
   const craters=[{x:38,z:-39,r:7},{x:-39,z:0,r:6}];
-  const lake = {x:-22,z:-26,rx:20,rz:13};
   const stations = [
     {name:'Plaine de départ',action:'Observer les dépôts érodés',era:'present',x:-24,z:94},
-    {name:'Ancienne rive du sud',action:'Observer les berges',era:'past',x:23,z:48},
-    {name:'Lit asséché', action:'Relever les sédiments', era:'present', x:-23,z:-26},
-    {name:'Berge ancienne', action:'Relever le niveau de l’eau', era:'past', x:-36,z:-48},
+    {name:'Replat du sud',action:'Relever les niveaux de dépôt',era:'past',x:23,z:48},
+    {name:'Cuvette d’impact', action:'Relever les sédiments', era:'present', x:38,z:-39},
+    {name:'Contrefort ancien', action:'Mesurer l’érosion', era:'past', x:-36,z:-48},
     {name:'Éboulis du plateau', action:'Relever les strates', era:'present', x:7,z:-58}
   ];
   const gully={x:-3,z:-51};
@@ -100,9 +99,6 @@ function start() {
     const bend=gully.x+Math.sin((z-gully.z)*.18)*3;
     return (1-T.MathUtils.smoothstep(Math.abs(x-bend),1.2,4.8)) *
       (1-T.MathUtils.smoothstep(Math.abs(z-gully.z),11,19));
-  }
-  function basinDistance(x,z) {
-    return Math.hypot((x-lake.x)/lake.rx,(z-lake.z)/lake.rz);
   }
   function elevation(x,z,period) {
     const dx=x-mesa.x, dz=z-mesa.z;
@@ -116,7 +112,6 @@ function start() {
         * (1-T.MathUtils.smoothstep(dz,10,31));
       h=Math.max(h,6.8*ramp);
     }
-    const basin=1-T.MathUtils.smoothstep(basinDistance(x,z),.69,1.12);
     const wave=.42*Math.sin(x*.115+z*.06)+.24*Math.cos(z*.16-x*.074);
     const rim=5*T.MathUtils.smoothstep(Math.hypot(x,z-30),135,157);
     const south=T.MathUtils.smoothstep(z,16,33);
@@ -131,11 +126,11 @@ function start() {
       craterRelief-=depth*(1-T.MathUtils.smoothstep(d,.25,.88));
       craterRelief+=.65*Math.exp(-(((d-.96)/.13)**2));
     }
-    return h-1.46*basin+wave+rim+relief-ravine+craterRelief+southernHills+crossing;
+    return h+wave+rim+relief-ravine+craterRelief+southernHills+crossing;
   }
   function softSoil(x,z,period) {
     return period==='present' && (sandPatches.some(p=>Math.hypot((x-p.x)/p.rx,(z-p.z)/p.rz)<1) ||
-      basinDistance(x,z)<.75 || (gullyDepth(x,z)>.55 && z<-49));
+      (gullyDepth(x,z)>.55 && z<-49));
   }
 
   function cellHash(x,z) {
@@ -184,7 +179,6 @@ function start() {
   function groundColor(x,y,z,period,target) {
     const soil=noise(x*.135,z*.135);
     const grain=noise(x*.53+17,z*.53);
-    const exposed=1-T.MathUtils.smoothstep(basinDistance(x,z),.55,1.18);
     const rise=Math.hypot(elevation(x+.3,z,period)-elevation(x-.3,z,period),
       elevation(x,z+.3,period)-elevation(x,z-.3,period))/.6;
     const ledge=T.MathUtils.smoothstep(rise,.25,.92);
@@ -192,7 +186,7 @@ function start() {
     const layer=.5+.5*Math.sin(layerHeight*12.7+noise(x*.3,z*.3)*2.2);
     const colors=soilColors[period];
     target.copy(colors.ground).lerp(colors.rock,.32*soil);
-    target.lerp(colors.sediment,Math.max(exposed*.7,gullyDepth(x,z)*.49));
+    target.lerp(colors.sediment,gullyDepth(x,z)*.49);
     target.lerp(colors.band,ledge*(.15+.64*T.MathUtils.smoothstep(layer,.36,.82)));
     return target.multiplyScalar(.84+soil*.15+grain*.16);
   }
@@ -343,7 +337,6 @@ function start() {
       const x=(scatter()-.5)*220,z=145-scatter()*235;
       if(noise(x*.136,z*.136)<.42 && scatter()>.16) continue;
       const y=elevation(x,z,period);
-      if (period==='past' && flooded(x,z,y)) continue;
       const size=.045+scatter()**3*(software?.52:.38);
       const color=i%colors.length;
       piece.position.set(x,y+size*.10,z);
@@ -365,24 +358,6 @@ function start() {
       mesh.receiveShadow=true;
       group.add(mesh);
     });
-  }
-
-  const water=[];
-  function pool(group,x,z,rx,rz,y) {
-    const geometry=new T.CircleGeometry(1,software?42:76);
-    const surface=new T.Mesh(geometry,new T.MeshStandardMaterial({
-      color:0x526f72,roughness:.24,metalness:.06,bumpMap:groundMap,bumpScale:.08,side:T.DoubleSide
-    }));
-    surface.rotation.x=-Math.PI/2;
-    surface.position.set(x,y,z);
-    surface.scale.set(rx,rz,1);
-    group.add(surface);
-    for(let i=0;i<18;i++) {
-      const a=random()*Math.PI*2, distance=Math.sqrt(random())*.85;
-      const ripple=box(group,0x91b5b7,x+Math.cos(a)*rx*distance,y+.024,z+Math.sin(a)*rz*distance,1+random()*2,.012,.036+random()*.027);
-      ripple.userData={x:ripple.position.x,z:ripple.position.z,phase:random()*6};
-      water.push(ripple);
-    }
   }
 
   function boulder(period,x,z,r,h) {
@@ -415,8 +390,7 @@ function start() {
       if (stations.some(p=>Math.hypot(x-p.x,z-p.z)<4.5)) continue;
       const dx=x-mesa.x,dz=z-mesa.z;
       if (((Math.abs(x)<20 && z>7 && z<17) || Math.hypot(x,z-12)<6) || Math.hypot(x-vent.x,z-vent.z)<5 ||
-          Math.hypot(dx,dz)<16 || (dx>-13&&dx<4&&z<17&&dz>0) ||
-          (period==='past'&&basinDistance(x,z)<1)) continue;
+          Math.hypot(dx,dz)<16 || (dx>-13&&dx<4&&z<17&&dz>0)) continue;
       boulder(period,x,z,.22+random()**2*2.7,.16+random()**2*1.7);
     }
     if(period==='present') {
@@ -502,8 +476,6 @@ function start() {
     mesh.renderOrder=software?-2:0;
     worlds.present.add(mesh);
   }
-  pool(worlds.past,lake.x,lake.z,lake.rx*.89,lake.rz*.88,-.59);
-  pool(worlds.past,mesa.x,mesa.z,9.1,9.1,7.19);
   vent.y=elevation(vent.x,vent.z,'past');
   for (const [name,group] of Object.entries(worlds)) {
     const ventRing = new T.Mesh(new T.TorusGeometry(1.5,.22,8,20),material(name==='past'?0xb9a98a:0x6f3e32));
@@ -641,6 +613,7 @@ function start() {
   let lastCheckpoint=0;
   let orbit=0;
   let pitch=.55;
+  let lookPitch=-.13;
   let cameraDistance=13;
   let cameraPreset=0;
   let surveyed=new Set();
@@ -649,8 +622,15 @@ function start() {
   const cameraPresets=[
     {name:'Suivi',pitch:.55,distance:13},
     {name:'Près du sol',pitch:.23,distance:11},
-    {name:'Vue haute',pitch:1.09,distance:21}
+    {name:'Vue haute',pitch:1.09,distance:21},
+    {name:'Mât de Spirit',mast:true}
   ];
+  // Eye of the Pancam mast, expressed in the rover's own space.
+  const mastLocal=new T.Vector3(.55,2.13,-.62);
+  const mastWorld=new T.Vector3();
+  function useMastView() {
+    return cameraPresets[cameraPreset].mast===true;
+  }
   const waypoints=[{x:0,z:133},{x:16,z:-16},{x:16,z:-39}];
   function message(text) {
     el('notice').textContent=text;
@@ -673,11 +653,6 @@ function start() {
     document.body.dataset.era=era;
   }
 
-  function flooded(x,z,y) {
-    if (y<-.43 && basinDistance(x,z)<.88) return true;
-    return y<7.27 && Math.hypot(x-mesa.x,z-mesa.z)<9;
-  }
-
   function blocked(x,z,y,period) {
     if (Math.hypot(x,z-30)>145) return true;
     if(slabs[period].some(slab=>{
@@ -693,7 +668,6 @@ function start() {
     if (finished || scraping || guide.open || report.open) return;
     const next=era==='past'?'present':'past';
     if (blocked(pos.x,pos.z,pos.y,next) ||
-        (next==='past' && flooded(pos.x,pos.z,pos.y)) ||
         elevation(pos.x,pos.z,next)>pos.y+.5) {
       message('Le terrain de cette époque occupe cet emplacement. Décale Spirit.');
       return;
@@ -757,7 +731,7 @@ function start() {
     grounded=false;
     flight=true;
     velocity.set((mesa.x-pos.x)*.55,12.9,-8.4);
-    message('En vol · Bascule au présent pour te poser sur le plateau sec.');
+    message('En vol · oriente la trajectoire vers le plateau pour t’y poser.');
   }
 
   function tick(dt) {
@@ -807,8 +781,7 @@ function start() {
       if (!grounded) return nextFloor<=pos.y+.045;
       const rise=nextFloor-floorAt(pos.x,pos.z);
       const distance=Math.hypot(x-pos.x,z-pos.z);
-      return rise<=distance*.9+.002 &&
-        (era==='present' || !flooded(x,z,nextFloor));
+      return rise<=distance*.9+.002;
     };
     if (canMove(nx,pos.z)) pos.x=nx;
     if (canMove(pos.x,nz)) pos.z=nz;
@@ -817,11 +790,6 @@ function start() {
     else {
       pos.y+=velocity.y*dt;
       if (pos.y<=floor && velocity.y<=0) {
-        if (era==='past' && flooded(pos.x,pos.z,floor)) {
-          reset();
-          message('Spirit est retombé dans l’eau. Réessaie depuis le pied du plateau.');
-          return;
-        }
         grounded=true;
         flight=false;
         velocity.y=0;
@@ -871,11 +839,17 @@ function start() {
 
   function changeCamera() {
     cameraPreset=(cameraPreset+1)%cameraPresets.length;
-    orbit=0;
     const view=cameraPresets[cameraPreset];
-    pitch=view.pitch;
-    cameraDistance=view.distance;
+    orbit=0;
+    if (view.mast) lookPitch=-.13;
+    else {
+      pitch=view.pitch;
+      cameraDistance=view.distance;
+    }
+    document.body.dataset.camera=view.mast?'mast':'orbit';
     el('camera-angle').textContent='Caméra · '+view.name;
+    cameraReady=false;
+    resize();
   }
 
   const keymap={
@@ -995,14 +969,6 @@ function start() {
     }
     if (noticeUntil<now) el('notice').hidden=true;
     phase+=dt;
-    if (era==='past' && !reduced.matches) {
-      for (const ripple of water) {
-        const {x,z,phase:offset}=ripple.userData;
-        ripple.position.x=x+Math.sin(phase*.9+offset)*.44;
-        ripple.position.z=z+Math.cos(phase*.65+offset)*.16;
-        ripple.scale.x=1.4+.55*Math.sin(phase*1.8+offset);
-      }
-    }
     const portrait=camera.aspect<.85;
     const radius=cameraDistance+(portrait?1.4:0);
     const distance=Math.cos(pitch)*radius;
