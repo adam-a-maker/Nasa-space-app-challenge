@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0d0b0d">
   <meta name="description" content="Explore NASA landing sites by descending from orbit all the way down to the surface of Mars.">
-  <title>Mars Rovers — Traces of Exploration</title>
+  <title>Atlas Mars — Traces of Exploration</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Instrument+Serif&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -160,6 +160,33 @@ canvas:active { cursor: grabbing; }
 .scene-credit { color: #ead9cf; font: .72rem var(--mono); margin: .75rem 0 0; }
 .no-script { margin: 1rem var(--gutter); }
 
+/* Walkie-talkie, bottom-right */
+.radio { position: fixed; z-index: 3; right: var(--gutter); bottom: 3.4rem; display: flex; align-items: flex-end; gap: .8rem; pointer-events: none; }
+.radio-msg { max-width: 15.5rem; margin-bottom: 1.6rem; padding: .55rem .8rem; background: #150f13ee; border: 1px solid var(--line); border-inline-end: 2px solid var(--accent); font-size: .84rem; line-height: 1.35; }
+.radio-msg small { display: block; margin-bottom: .15rem; font: .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.radio-msg.in { animation: radio-in 520ms ease-out both; }
+.radio-msg.out { animation: radio-out 240ms ease-in both; }
+@keyframes radio-in { from { opacity: 0; transform: translateX(.7rem); } to { opacity: 1; transform: none; } }
+@keyframes radio-out { to { opacity: 0; transform: translateX(.4rem); } }
+.walkie { position: relative; width: 62px; height: 132px; flex: none; }
+.walkie .ant { position: absolute; left: 9px; bottom: 100px; width: 8px; height: 40px; border-radius: 4px 4px 1px 1px; background: linear-gradient(90deg, #111, #3b3b40 45%, #111); }
+.walkie .wbody { position: absolute; inset: 30px 0 0 0; border-radius: 12px 12px 10px 10px; border: 1px solid #55565c; background: linear-gradient(160deg, #35363b, #17181b 60%, #0e0f11); box-shadow: inset 0 1px 0 #ffffff26, 0 .5rem 1.2rem #00000088; }
+.walkie .led { position: absolute; top: 7px; left: 9px; width: 6px; height: 6px; border-radius: 50%; background: #5b1a12; }
+.walkie .knob { position: absolute; top: -7px; right: 8px; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #77787e, #1b1c1f); border: 1px solid #55565c; }
+.walkie .k2 { right: 28px; width: 10px; height: 10px; top: -5px; }
+.walkie .scr { position: absolute; top: 22px; left: 9px; right: 9px; height: 17px; border-radius: 3px; background: #1d1308; border: 1px solid #000; color: #c5792f; font: 700 .58rem/15px var(--mono); letter-spacing: .12em; text-align: center; }
+.walkie .grille { position: absolute; top: 48px; left: 10px; right: 10px; height: 36px; border-radius: 4px; background: repeating-linear-gradient(180deg, #050506 0 3px, #2a2b2f 3px 6px); }
+.walkie .ptt { position: absolute; left: -5px; top: 30px; width: 6px; height: 28px; border-radius: 3px 0 0 3px; background: linear-gradient(90deg, #7a2f1d, #a94f35); }
+.walkie .keys { position: absolute; bottom: 9px; left: 10px; right: 10px; height: 20px; background: radial-gradient(circle, #44454a 0 2px, transparent 2.5px) 0 0 / 14px 10px; opacity: .8; }
+.walkie.rx .led { background: #ff5a3d; box-shadow: 0 0 .7rem #ff5a3d; animation: led 520ms steps(2) 5; }
+.walkie.rx .scr { color: #ffb15c; }
+@keyframes led { 50% { opacity: .25; } }
+/* On mission pages: smaller walkie, lowered so it stays clear of the timeline and the LAUNCH button */
+@media (min-width: 851px) {
+  body.on-surface .radio { bottom: 1rem; transform-origin: bottom right; transform: scale(.72); }
+  body.on-surface .radio-msg { margin-bottom: 4.2rem; }
+}
+
 @media (max-width: 850px) {
   .orbit-view { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto auto; gap: 1.1rem; }
   .intro { grid-area: 1 / 1; }
@@ -174,6 +201,7 @@ canvas:active { cursor: grabbing; }
   .missions ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .9rem; }
   .quests { grid-area: 5 / 1; align-self: start; max-width: none; }
   .quests ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: .9rem; }
+  .radio { transform-origin: bottom right; transform: scale(.78); bottom: .6rem; right: .7rem; }
 }
 @media (max-width: 445px) {
   .edition { max-width: 14ch; text-align: right; font-size: .62rem; }
@@ -239,7 +267,7 @@ canvas:active { cursor: grabbing; }
   .marker::before { transition: none; }
   .dossier, .dossier.visible { transform: none; transition: none; }
   .dossier-line path, .dossier-line circle, .dossier-line rect { transition: none; }
-  .quests li.fresh { animation: none; }
+  .radio-msg.in, .radio-msg.out, .walkie.rx .led, .quests li.fresh { animation: none; }
 }
 
 /* ---------- Detailed mission panel (missions that define `details`) ---------- */
@@ -335,7 +363,7 @@ canvas:active { cursor: grabbing; }
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="top">
-    <a class="brand" href="./" id="home-link" aria-label="Mars Rovers, home">
+    <a class="brand" href="./" id="home-link" aria-label="Atlas Mars, home">
       <span class="brand-icon" aria-hidden="true"></span> ATLAS <strong>MARS</strong>
     </a>
     <span class="edition">NASA SPACE APPS CHALLENGE</span>
@@ -408,6 +436,12 @@ canvas:active { cursor: grabbing; }
     </section>
     <noscript><p class="no-script">Enable JavaScript to explore the globe. <a href="https://science.nasa.gov/image-detail/45468-landingsitescontextmap-featperseverance/">See the landing sites on NASA’s map.</a></p></noscript>
   </main>
+
+  <div class="radio" id="radio">
+    <div class="radio-msg" id="radio-msg" role="status" aria-live="polite" hidden><small>Mission control</small><span id="radio-text"></span></div>
+    <div class="walkie" id="walkie" aria-hidden="true"><i class="ant"></i><div class="wbody"><i class="led"></i><i class="knob"></i><i class="knob k2"></i><span class="scr">RX</span><div class="grille"></div><div class="keys"></div><b class="ptt"></b></div></div>
+  </div>
+
 
 <script>
 const missions = [
@@ -687,6 +721,7 @@ function showRoute() {
   const wasOnSurface = !surface.hidden;
   home.hidden = Boolean(mission);
   surface.hidden = !mission;
+  document.body.classList.toggle("on-surface", Boolean(mission));
   surface.classList.toggle("has-details", Boolean(mission && mission.details));
   if (mission) {
     setScene(landscape, mission);
@@ -700,14 +735,14 @@ function showRoute() {
     renderBriefing(mission);
     syncModel(mission);
     modelCanvas.setAttribute("aria-label", "3D model: " + mission.name + ". Drag to rotate it.");
-    document.title = mission.name + " — Mars Rovers";
+    document.title = mission.name + " — Atlas Mars";
     window.scrollTo(0, 0);
     surfaceTitle.focus({ preventScroll: true });
   } else {
     syncModel(null);
     launchLink.hidden = true;
     launchLink.removeAttribute("href");
-    document.title = "Mars Rovers — Traces of Exploration";
+    document.title = "Atlas Mars — Traces of Exploration";
     dirty = true;
     if (wasOnSurface) {
       window.scrollTo(0, lastEntry?.scroll ?? 0);
@@ -1049,6 +1084,33 @@ reducedMotion.addEventListener("change", event => {
   if (descent) completeDescent(descent);
   syncRotation();
 });
+
+/* ---------- Walkie-talkie: a random message every 15–30 seconds ---------- */
+const radioLines = ["Is it going well?", "How is it going?", "Keep going!", "We have just received the data you sent us."];
+const radioBox = document.querySelector("#radio-msg");
+const radioText = document.querySelector("#radio-text");
+const walkie = document.querySelector("#walkie");
+let radioLast = -1;
+let radioHide = 0;
+function showRadio() {
+  let next;
+  do { next = Math.floor(Math.random() * radioLines.length); } while (next === radioLast);
+  radioLast = next;
+  const swap = () => {
+    radioText.textContent = radioLines[next];
+    radioBox.classList.remove("out");
+    radioBox.hidden = false;
+    radioBox.classList.remove("in"); void radioBox.offsetWidth; radioBox.classList.add("in");
+    walkie.classList.add("rx");
+    setTimeout(() => walkie.classList.remove("rx"), 2600);
+    clearTimeout(radioHide);
+    radioHide = setTimeout(() => { radioBox.classList.add("out"); setTimeout(() => { radioBox.hidden = true; }, 260); }, 10000);
+  };
+  if (!radioBox.hidden) { radioBox.classList.add("out"); setTimeout(swap, 260); } else swap();
+  scheduleRadio();
+}
+function scheduleRadio() { setTimeout(showRadio, 15000 + Math.random() * 15000); }
+scheduleRadio();
 
 /* ---------- Fiche d'identification au survol d'un point ---------- */
 // Données de la fiche, par mission. state : "abandoned" (matériel abandonné) ou "active".
