@@ -1,8 +1,8 @@
 const missions = [
-  {name:"Sojourner", year:1997, site:"Ares Vallis", lat:19.13, lon:-33.22, title:"Le premier rover sur Mars", story:"Déployé par l’atterrisseur Pathfinder dans Ares Vallis, Sojourner examine des roches et des sols d’une ancienne plaine d’inondation. Ses observations contribuent à étudier l’histoire géologique et climatique de Mars."},
-  {name:"Spirit", year:2004, site:"Cratère Gusev", lat:-14.57, lon:175.47, title:"Une roue révèle un sol riche en silice", story:"En 2007, une roue bloquée creuse une tranchée près de Home Plate. Spirit y met au jour un sol presque composé de silice pure, probablement formé dans un environnement où l’eau était présente."},
-  {name:"Phoenix", year:2008, site:"Vastitas Borealis", lat:68.22, lon:-125.75, title:"De la glace sous la surface arctique", story:"Le bras robotique de Phoenix creuse le sol près du pôle nord martien. La mission confirme la présence de glace d’eau sous la surface et détecte aussi du perchlorate dans le sol."},
-  {name:"Ingenuity", year:2021, site:"Cratère Jezero", lat:18.44, lon:77.45, title:"Le premier vol motorisé sur une autre planète", story:"Transporté sous le rover Perseverance, Ingenuity réalise en 2021 le premier vol motorisé et contrôlé sur une autre planète. Prévu pour cinq vols, l’hélicoptère en effectue 72 avant la fin de sa mission en 2024."}
+  {name:"Sojourner", year:1997, site:"Ares Vallis", lat:19.13, lon:-33.22, title:"The first rover on Mars", story:"Deployed by the Pathfinder lander in Ares Vallis, Sojourner examines rocks and soils in an ancient flood plain. Its observations help researchers study the geological and climate history of Mars."},
+  {name:"Spirit", year:2004, site:"Gusev Crater", lat:-14.57, lon:175.47, title:"A wheel reveals a soil rich in silica", story:"In 2007, a stuck wheel digs a trench near Home Plate. There Spirit uncovers a soil made almost entirely of pure silica, probably formed in an environment where water was present."},
+  {name:"Phoenix", year:2008, site:"Vastitas Borealis", lat:68.22, lon:-125.75, title:"Ice beneath the Arctic surface", story:"Phoenix’s robotic arm digs into the ground near the Martian north pole. The mission confirms the presence of water ice beneath the surface and also detects perchlorate in the soil."},
+  {name:"Ingenuity", year:2021, site:"Jezero Crater", lat:18.44, lon:77.45, title:"The first powered flight on another planet", story:"Carried beneath the Perseverance rover, Ingenuity makes the first powered, controlled flight on another planet in 2021. Planned for five flights, the helicopter completes 72 before its mission ends in 2024."}
 ];
 
 
@@ -75,7 +75,7 @@ const pins = missions.map((mission, index) => {
   marker.type = "button";
   marker.className = "marker";
   marker.hidden = true;
-  marker.setAttribute("aria-label", mission.name + " sur le globe");
+  marker.setAttribute("aria-label", mission.name + " on the globe");
   marker.addEventListener("click", () => enterMission(index, marker));
   markerLayer.append(marker);
 
@@ -91,8 +91,8 @@ const pins = missions.map((mission, index) => {
 });
 
 function syncRotation() {
-  rotation.textContent = rotating ? "Pause" : "Reprendre";
-  rotation.setAttribute("aria-label", rotating ? "Mettre la rotation en pause" : "Relancer la rotation");
+  rotation.textContent = rotating ? "Pause" : "Resume";
+  rotation.setAttribute("aria-label", rotating ? "Pause the rotation" : "Resume the rotation");
 }
 
 function clearMomentum() {
@@ -121,7 +121,7 @@ function showRoute() {
     window.scrollTo(0, 0);
     surfaceTitle.focus({ preventScroll: true });
   } else {
-    document.title = "Atlas Mars — Les traces de l’exploration";
+    document.title = "Atlas Mars — Traces of Exploration";
     dirty = true;
     if (wasOnSurface) {
       window.scrollTo(0, lastEntry?.scroll ?? 0);
@@ -332,7 +332,7 @@ function draw() {
   syncDossier();
   const longitude = Math.round(Math.atan2(Math.sin(angle), Math.cos(angle)) / radians);
   const latitude = Math.round(tilt / radians);
-  longitudeReadout.textContent = `${Math.abs(latitude)}° ${latitude < 0 ? "S" : "N"} · ${Math.abs(longitude)}° ${longitude < 0 ? "O" : "E"}`;
+  longitudeReadout.textContent = `${Math.abs(latitude)}° ${latitude < 0 ? "S" : "N"} · ${Math.abs(longitude)}° ${longitude < 0 ? "W" : "E"}`;
 }
 
 function animate(time) {
@@ -472,7 +472,7 @@ const dossierData = {
   "sojourner":  { object: "Sojourner Rover",        program: "Mars Pathfinder",        state: "abandoned" },
   "ingenuity":  { object: "Ingenuity Mars Helicopter", program: "Mars 2020",           state: "abandoned" }
 };
-const statusLabels = { abandoned: "Matériel abandonné", active: "En activité" };
+const statusLabels = { abandoned: "Abandoned hardware", active: "Active" };
 
 const svgNS = "http://www.w3.org/2000/svg";
 const leaderSvg = document.createElementNS(svgNS, "svg");
@@ -494,7 +494,7 @@ dossier.innerHTML = `
   <h3 data-field="object"></h3>
   <dl>
     <dt>Mission</dt><dd data-field="program"></dd>
-    <dt>Statut</dt><dd class="dossier-status"><i></i><span data-field="status"></span></dd>
+    <dt>Status</dt><dd class="dossier-status"><i></i><span data-field="status"></span></dd>
   </dl>`;
 const dossierFields = Object.fromEntries([...dossier.querySelectorAll("[data-field]")].map(el => [el.dataset.field, el]));
 home.append(leaderSvg, dossier);
@@ -677,7 +677,7 @@ function readQuests() {
 }
 const questRows = missions.map(mission => {
   const item = document.createElement("li");
-  item.innerHTML = `<span class="box" aria-hidden="true">✓</span><span class="txt">Terminer la mission ${mission.name}</span><span class="sr-only status"></span>`;
+  item.innerHTML = `<span class="box" aria-hidden="true">✓</span><span class="txt">Complete the ${mission.name} mission</span><span class="sr-only status"></span>`;
   questList.append(item);
   return item;
 });
@@ -689,10 +689,10 @@ function renderQuests(justDone) {
     const row = questRows[index];
     if (done) count++;
     row.classList.toggle("done", done);
-    row.querySelector(".status").textContent = done ? "Terminée" : "Non terminée";
+    row.querySelector(".status").textContent = done ? "Completed" : "Not completed";
     if (done && mission.slug === justDone) { row.classList.remove("fresh"); void row.offsetWidth; row.classList.add("fresh"); }
   });
-  questCount.textContent = count + " / " + missions.length + " terminées";
+  questCount.textContent = count + " / " + missions.length + " completed";
 }
 const doneParam = new URLSearchParams(location.search).get("done");
 if (doneParam && missions.some(mission => mission.slug === doneParam)) {

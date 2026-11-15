@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -88,33 +88,33 @@ body.launch #planetWrap{transform:translate(-50%,-50%) scale(1.6);opacity:1;tran
 <main>
  <div class="col">
   <header class="top"><h1>Project Memory</h1>
-  <p class="sub">Chaque mission a laissé une trace. Retrouve-les toutes.</p>
-  <p class="lore">Depuis plus de cinquante ans, orbiteurs, atterrisseurs et rovers explorent Mars. Parcours la planète rouge, retrouve chaque mission et découvre ce qu’elle a laissé derrière elle.</p></header>
+  <p class="sub">Every mission left a trace. Find them all.</p>
+  <p class="lore">For more than fifty years, orbiters, landers and rovers have explored Mars. Journey across the Red Planet, find every mission and discover what it left behind.</p></header>
 
-  <nav class="panel menu" id="pMenu" aria-label="Menu principal">
-   <button type="button" id="bPlay">Jouer</button>
-   <button type="button" id="bSet">Paramètres</button>
-   <button type="button" id="bQuit">Quitter</button>
+  <nav class="panel menu" id="pMenu" aria-label="Main menu">
+   <button type="button" id="bPlay">Play</button>
+   <button type="button" id="bSet">Settings</button>
+   <button type="button" id="bQuit">Quit</button>
   </nav>
 
   <section class="panel" id="pSet" hidden aria-labelledby="hSet">
-   <h2 id="hSet">Paramètres</h2>
-   <div class="row"><label for="snd">Son</label><span class="tg"><input type="checkbox" id="snd" checked><span class="sw"></span></span></div>
+   <h2 id="hSet">Settings</h2>
+   <div class="row"><label for="snd">Sound</label><span class="tg"><input type="checkbox" id="snd" checked><span class="sw"></span></span></div>
    <div class="row"><label for="vol">Volume</label><input type="range" id="vol" min="0" max="100" value="60"><span class="val" id="volV">60</span></div>
-   <div class="btns"><button type="button" class="btn main" id="bBack">Retour</button></div>
+   <div class="btns"><button type="button" class="btn main" id="bBack">Back</button></div>
   </section>
 
   <section class="panel" id="pQuit" hidden aria-labelledby="hQuit">
-   <h2 id="hQuit">Quitter la mission ?</h2>
-   <p class="sub" style="margin-bottom:0">Ta progression non sauvegardée sera perdue.</p>
-   <div class="btns"><button type="button" class="btn main" id="bStay">Rester</button><button type="button" class="btn" id="bYes">Quitter</button></div>
+   <h2 id="hQuit">Quit the mission?</h2>
+   <p class="sub" style="margin-bottom:0">Your unsaved progress will be lost.</p>
+   <div class="btns"><button type="button" class="btn main" id="bStay">Stay</button><button type="button" class="btn" id="bYes">Quit</button></div>
   </section>
  </div>
- <div id="planetWrap"><canvas id="planet" width="520" height="520" role="img" aria-label="Mars en rotation"></canvas></div>
+ <div id="planetWrap"><canvas id="planet" width="520" height="520" role="img" aria-label="Mars rotating"></canvas></div>
 </main>
 
-<div class="screen" id="sLaunch" hidden role="status"><h2>Entrée dans l’atmosphère…</h2></div>
-<div class="screen" id="sBye" hidden><h2>À bientôt, explorateur.</h2><div><button type="button" class="btn main" id="bBack2">Revenir au menu</button></div></div>
+<div class="screen" id="sLaunch" hidden role="status"><h2>Entering the atmosphere…</h2></div>
+<div class="screen" id="sBye" hidden><h2>See you soon, explorer.</h2><div><button type="button" class="btn main" id="bBack2">Back to menu</button></div></div>
 
 <script>
 (function(){

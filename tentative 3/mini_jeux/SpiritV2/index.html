@@ -1,80 +1,80 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#181713">
-<title>Spirit — Les traces de l’eau</title>
+<title>Spirit — Traces of Water</title>
 <link rel="stylesheet" href="./style.css?v=gusev">
 <script type="module" src="./game.js?v=expedition"></script>
 </head>
 <body>
 <main>
-  <canvas id="world" aria-label="Paysage martien en 3D"></canvas>
+  <canvas id="world" aria-label="Martian landscape in 3D"></canvas>
   <header class="top">
-    <div><div class="wordmark"><span class="signal"></span> <strong>SPIRIT</strong></div><span class="subtitle">LES TRACES DE L’EAU</span></div>
-    <div class="era"><strong id="era">Présent</strong><span id="era-caption">Époque de Spirit</span></div>
+    <div><div class="wordmark"><span class="signal"></span> <strong>SPIRIT</strong></div><span class="subtitle">TRACES OF WATER</span></div>
+    <div class="era"><strong id="era">Present</strong><span id="era-caption">Spirit era</span></div>
   </header>
   <section class="objective" aria-labelledby="goal">
-    <h1 id="goal">Trouver le dépôt blanc</h1>
-    <p id="instruction">Mets au jour le dépôt blanc, analyse-le et transmets à la Terre ce qu’il révèle sur l’eau ancienne de Mars.</p>
-    <div class="progress" aria-label="Progression"><span id="progress-text">Relevés · 0/5</span><progress id="progress" max="7" value="0" aria-label="Étapes franchies"></progress></div>
+    <h1 id="goal">Find the white deposit</h1>
+    <p id="instruction">Uncover the white deposit, analyze it and transmit to Earth what it reveals about ancient water on Mars.</p>
+    <div class="progress" aria-label="Progress"><span id="progress-text">Surveys · 0/5</span><progress id="progress" max="7" value="0" aria-label="Steps completed"></progress></div>
   </section>
   <div id="destination" class="destination" aria-hidden="true"><span></span></div>
-  <p id="survey-hint" class="survey-hint" hidden>Effectue les cinq relevés avant de racler le dépôt.</p>
+  <p id="survey-hint" class="survey-hint" hidden>Complete the five surveys before scraping the deposit.</p>
   <p id="terrain-status" class="terrain-status" role="status" hidden></p>
   <p id="notice" class="notice" role="status" hidden></p>
   <div class="controls">
-    <div class="dpad" aria-label="Déplacer Spirit">
-      <button data-move="forward" aria-label="Avancer">↑</button>
-      <button data-move="left" aria-label="Tourner à gauche">←</button>
-      <button data-move="back" aria-label="Reculer">↓</button>
-      <button data-move="right" aria-label="Tourner à droite">→</button>
+    <div class="dpad" aria-label="Move Spirit">
+      <button data-move="forward" aria-label="Move forward">↑</button>
+      <button data-move="left" aria-label="Turn left">←</button>
+      <button data-move="back" aria-label="Move back">↓</button>
+      <button data-move="right" aria-label="Turn right">→</button>
     </div>
     <div class="switcher">
-      <button id="switch" class="primary" type="button"><span aria-hidden="true">◈</span> <span id="switch-label">Passer au passé</span> <kbd>Espace</kbd></button>
-      <button id="interact" class="primary" type="button" hidden>Racler le sol</button>
+      <button id="switch" class="primary" type="button"><span aria-hidden="true">◈</span> <span id="switch-label">Switch to the past</span> <kbd>Espace</kbd></button>
+      <button id="interact" class="primary" type="button" hidden>Scrape the ground</button>
     </div>
     <div class="tools">
-      <button id="camera-angle" type="button">Caméra · Suivi</button>
-      <button id="reset" type="button">Reprise</button>
-      <button id="help" type="button">Aide</button>
+      <button id="camera-angle" type="button">Camera · Follow</button>
+      <button id="reset" type="button">Resume</button>
+      <button id="help" type="button">Help</button>
     </div>
   </div>
   <dialog id="guide">
     <form method="dialog">
-      <p class="overline">CRATÈRE GUSEV</p>
-      <h2>Spirit — Les traces de l’eau</h2>
-      <p>Avance ou recule avec ↑ / ↓ et tourne le rover avec ← / →. La caméra suit le cap de Spirit. Les mêmes commandes sont disponibles à l’écran. Avec <strong>Espace</strong> ou le bouton d’époque, transforme le terrain sans déplacer le rover.</p>
-      <p>Glisse horizontalement pour tourner la caméra et verticalement pour l’incliner. La molette règle la distance. Le bouton Caméra ou <strong>C</strong> change de vue. Les touches <strong>J / L</strong> font pivoter la vue. Effectue les cinq relevés puis choisis ton accès au dépôt du plateau. <strong>Reprise</strong> te ramène au dernier point sûr.</p>
-      <p>Les champs de blocs et les dalles doivent être contournés. Le sable meuble ralentit Spirit. Les cuvettes possèdent des pentes douces et des rebords plus raides. Observe le terrain dans les deux époques pour trouver ton chemin.</p>
-      <label class="assist"><input id="assist" type="checkbox" checked> Geyser assisté <small>Le geyser peut te propulser dès que la vapeur apparaît.</small></label>
-      <p><small>Terrain de jeu inspiré des <a href="https://science.nasa.gov/photojournal/home-plate-evidence-for-an-explosive-past/" target="_blank" rel="noopener">photos de Home Plate prises par Spirit</a>.</small></p>
-      <p><small>Modèle 3D de Spirit et Opportunity fourni pour le projet.</small></p>
-      <button class="primary" value="close">Reprendre la mission</button>
+      <p class="overline">GUSEV CRATER</p>
+      <h2>Spirit — Traces of Water</h2>
+      <p>Move forward or back with ↑ / ↓ and turn the rover with ← / →. The camera follows Spirit’s heading. The same controls are available on screen. With <strong>Space</strong> or the era button, transform the terrain without moving the rover.</p>
+      <p>Drag horizontally to rotate the camera and vertically to tilt it. The mouse wheel sets the distance. The Camera button or <strong>C</strong> changes the view. The <strong>J / L</strong> keys rotate the view. Complete the five surveys, then choose your way up to the plateau deposit. <strong>Resume</strong> takes you back to the last safe point.</p>
+      <p>Block fields and slabs must be gone around. Loose sand slows Spirit. Basins have gentle slopes and steeper rims. Observe the terrain in both eras to find your way.</p>
+      <label class="assist"><input id="assist" type="checkbox" checked> Assisted geyser <small>The geyser can propel you as soon as the steam appears.</small></label>
+      <p><small>Game terrain inspired by <a href="https://science.nasa.gov/photojournal/home-plate-evidence-for-an-explosive-past/" target="_blank" rel="noopener">photos of Home Plate taken by Spirit</a>.</small></p>
+      <p><small>3D model of Spirit and Opportunity provided for the project.</small></p>
+      <button class="primary" value="close">Resume the mission</button>
     </form>
   </dialog>
   <dialog id="report" aria-labelledby="report-title">
-    <p class="overline">RÉSULTAT DE L’ANALYSE</p>
-    <h2 id="report-title">Dépôt riche en silice</h2>
-    <p>Quel rapport veux-tu envoyer à la Terre ?</p>
+    <p class="overline">ANALYSIS RESULT</p>
+    <h2 id="report-title">Silica-rich deposit</h2>
+    <p>Which report do you want to send to Earth?</p>
     <form id="report-form">
-      <label><input required type="radio" name="answer" value="today"> Il y a encore de l’eau liquide ici.</label>
-      <label><input type="radio" name="answer" value="ancient"> De l’eau a pu participer à la formation de ce dépôt autrefois.</label>
-      <label><input type="radio" name="answer" value="life"> Spirit a trouvé de la vie.</label>
+      <label><input required type="radio" name="answer" value="today"> There is still liquid water here.</label>
+      <label><input type="radio" name="answer" value="ancient"> Water may once have played a part in forming this deposit.</label>
+      <label><input type="radio" name="answer" value="life"> Spirit found life.</label>
       <p id="report-feedback" role="status"></p>
-      <button class="primary" type="submit">Transmettre à la Terre</button>
+      <button class="primary" type="submit">Transmit to Earth</button>
     </form>
   </dialog>
   <dialog id="victory" aria-labelledby="victory-title">
-    <p class="overline">TRANSMISSION REÇUE</p>
-    <h2 id="victory-title">Mission réussie</h2>
-    <p>La roue bloquée de Spirit a réellement révélé un dépôt riche en silice. Une ancienne source chaude ou des émanations de vapeur volcanique pourraient expliquer sa formation.</p>
-    <p>Le terrain du passé est une reconstitution possible. Le saut par geyser a été imaginé pour le jeu.</p>
-    <a href="https://science.nasa.gov/resource/rovers-wheel-churns-up-bright-martian-soil/" target="_blank" rel="noopener">Découvrir le vrai sillon de Spirit · NASA</a>
-    <button id="replay" class="primary" type="button">Rejouer</button>
+    <p class="overline">TRANSMISSION RECEIVED</p>
+    <h2 id="victory-title">Mission successful</h2>
+    <p>Spirit’s stuck wheel really did reveal a silica-rich deposit. An ancient hot spring or volcanic steam vents could explain its formation.</p>
+    <p>The past terrain is a possible reconstruction. The geyser jump was imagined for the game.</p>
+    <a href="https://science.nasa.gov/resource/rovers-wheel-churns-up-bright-martian-soil/" target="_blank" rel="noopener">Discover Spirit’s real trench · NASA</a>
+    <button id="replay" class="primary" type="button">Replay</button>
   </dialog>
-  <p id="failure" hidden>Le jeu 3D nécessite un navigateur compatible WebGL 2.</p>
+  <p id="failure" hidden>The 3D game requires a browser compatible with WebGL 2.</p>
 </main>
 </body>
 </html>
