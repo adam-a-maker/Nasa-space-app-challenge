@@ -13,7 +13,7 @@ try {
   renderer.setQuality('low');
   renderer.domElement.id = 'world';
   renderer.domElement.setAttribute('role', 'img');
-  renderer.domElement.setAttribute('aria-label', 'Paysage martien en 3D');
+  renderer.domElement.setAttribute('aria-label', 'Martian landscape in 3D');
   canvas.replaceWith(renderer.domElement);
   canvas = renderer.domElement;
 }
@@ -88,11 +88,11 @@ function start() {
   ];
   const craters=[{x:38,z:-39,r:7},{x:-39,z:0,r:6}];
   const stations = [
-    {name:'Plaine de départ',action:'Observer les dépôts érodés',era:'present',x:-24,z:94},
-    {name:'Replat du sud',action:'Relever les niveaux de dépôt',era:'past',x:23,z:48},
-    {name:'Cuvette d’impact', action:'Relever les sédiments', era:'present', x:38,z:-39},
-    {name:'Contrefort ancien', action:'Mesurer l’érosion', era:'past', x:-36,z:-48},
-    {name:'Éboulis du plateau', action:'Relever les strates', era:'present', x:7,z:-58}
+    {name:'Starting plain',action:'Observe the eroded deposits',era:'present',x:-24,z:94},
+    {name:'Southern bench',action:'Survey the deposit layers',era:'past',x:23,z:48},
+    {name:'Impact basin', action:'Survey the sediments', era:'present', x:38,z:-39},
+    {name:'Ancient buttress', action:'Measure the erosion', era:'past', x:-36,z:-48},
+    {name:'Plateau scree', action:'Survey the strata', era:'present', x:7,z:-58}
   ];
   const gully={x:-3,z:-51};
   function gullyDepth(x,z) {
@@ -572,7 +572,7 @@ function start() {
       })
       .catch(error => {
         canvas.dataset.rover = 'placeholder';
-        console.warn('Modèle détaillé de Spirit indisponible.', error);
+        console.warn('Detailed Spirit model unavailable.', error);
       });
   }
   const shadow=new T.Mesh(new T.CircleGeometry(1.45,22),new T.MeshBasicMaterial({color:0x231811,transparent:true,opacity:.25,depthWrite:false}));
@@ -609,7 +609,7 @@ function start() {
   const guide=el('guide');
   const report=el('report');
   const victory=el('victory');
-  const objectiveText='Mets au jour le dépôt blanc, analyse-le et transmets à la Terre ce qu’il révèle sur l’eau ancienne de Mars.';
+  const objectiveText='Uncover the white deposit, analyze it and transmit to Earth what it reveals about ancient water on Mars.';
   let lastCheckpoint=0;
   let orbit=0;
   let pitch=.55;
@@ -620,10 +620,10 @@ function start() {
   let safeSurvey=null;
   let cameraDrag=null;
   const cameraPresets=[
-    {name:'Suivi',pitch:.55,distance:13},
-    {name:'Près du sol',pitch:.23,distance:11},
-    {name:'Vue haute',pitch:1.09,distance:21},
-    {name:'Mât de Spirit',mast:true}
+    {name:'Follow',pitch:.55,distance:13},
+    {name:'Close to the ground',pitch:.23,distance:11},
+    {name:'High view',pitch:1.09,distance:21},
+    {name:'Spirit’s mast',mast:true}
   ];
   // Eye of the Pancam mast, expressed in the rover's own space.
   const mastLocal=new T.Vector3(.55,2.13,-.62);
@@ -647,9 +647,9 @@ function start() {
     scene.fog.density=isPast?.006:.0036;
     ambient.color.setHex(isPast?0xd0e2e2:0xffebdb);
     sunlight.color.setHex(palettes[era].light);
-    el('era').textContent=isPast?'Passé':'Présent';
-    el('era-caption').textContent=isPast?'Reconstitution possible':'Époque de Spirit';
-    el('switch-label').textContent=isPast?'Revenir au présent':'Passer au passé';
+    el('era').textContent=isPast?'Past':'Present';
+    el('era-caption').textContent=isPast?'Possible reconstruction':'Spirit era';
+    el('switch-label').textContent=isPast?'Back to the present':'Switch to the past';
     document.body.dataset.era=era;
   }
 
@@ -669,7 +669,7 @@ function start() {
     const next=era==='past'?'present':'past';
     if (blocked(pos.x,pos.z,pos.y,next) ||
         elevation(pos.x,pos.z,next)>pos.y+.5) {
-      message('Le terrain de cette époque occupe cet emplacement. Décale Spirit.');
+      message('This era’s terrain occupies this spot. Move Spirit aside.');
       return;
     }
     era=next;
@@ -679,7 +679,7 @@ function start() {
   function updateProgress() {
     if (lastCheckpoint===0 && Math.hypot(pos.x-mesa.x,pos.z-mesa.z)<32 && grounded) {
       lastCheckpoint=1;
-      message('Plateau repéré. Cherche la rampe ancienne à gauche ou le geyser au pied du relief.');
+      message('Plateau spotted. Look for the ancient ramp on the left or the geyser at the foot of the relief.');
     }
     if (era==='present' && grounded && Math.hypot(pos.x-mesa.x,pos.z-mesa.z)<11 && pos.y>5.7) {
       lastCheckpoint=2;
@@ -688,14 +688,14 @@ function start() {
     if (progress!==step || el('progress').value!==step || !el('progress-text').textContent.includes('MISSION')) {
       progress=step;
       el('progress').value=step;
-      el('progress-text').textContent=action?'MISSION · ANALYSER':`MISSION · RELEVÉS ${surveyed.size}/${stations.length}`;
+      el('progress-text').textContent=action?'MISSION · ANALYZE':`MISSION · SURVEYS ${surveyed.size}/${stations.length}`;
     }
     const pending=stations.findIndex((_,index)=>!surveyed.has(index));
     const next=stations[pending];
-    const text=next ? (surveyed.size===0 ? objectiveText+' Commence par le relevé de la plaine au sud.' :
-      `Prochain relevé · ${next.name} (${next.era==='past'?'Passé':'Présent'}).`) : action===1?'Le dépôt est dégagé. Analyse la matière blanche.':lastCheckpoint===2?
-      'Approche-toi du repère et racle le sol.':lastCheckpoint===1?
-      'Retrouve un accès au plateau. Dans le passé, une rampe rocheuse et un geyser sont encore visibles.':objectiveText;
+    const text=next ? (surveyed.size===0 ? objectiveText+' Start with the survey of the plain to the south.' :
+      `Next survey · ${next.name} (${next.era==='past'?'Past':'Present'}).`) : action===1?'The deposit is uncovered. Analyze the white material.':lastCheckpoint===2?
+      'Approach the marker and scrape the ground.':lastCheckpoint===1?
+      'Find a way up to the plateau. In the past, a rocky ramp and a geyser are still visible.':objectiveText;
     if (el('instruction').textContent!==text) el('instruction').textContent=text;
   }
 
@@ -731,7 +731,7 @@ function start() {
     grounded=false;
     flight=true;
     velocity.set((mesa.x-pos.x)*.55,12.9,-8.4);
-    message('En vol · oriente la trajectoire vers le plateau pour t’y poser.');
+    message('In flight · aim your trajectory at the plateau to land there.');
   }
 
   function tick(dt) {
@@ -746,7 +746,7 @@ function start() {
     }
     if (era==='past' && nearVent && grounded) {
       if (active || (el('assist').checked && ventCycle>4.1)) launch();
-      else if (warning && el('notice').hidden) message('Vapeur visible · le jet va jaillir.');
+      else if (warning && el('notice').hidden) message('Steam visible · the jet is about to erupt.');
     }
     const held=new Set(touch.values());
     const down=key=>keys.has(key)||held.has(key);
@@ -760,7 +760,7 @@ function start() {
       pos.z+=(deposit.z-pos.z)*dt*.5;
       if (scraping===0) {
         action=1;
-        message('Matière blanche dégagée. Lance l’analyse.');
+        message('White material uncovered. Start the analysis.');
       }
     } else if (!flight) {
       yaw -= steer * dt * 1.85;
@@ -828,12 +828,12 @@ function start() {
       Math.hypot(pos.x-deposit.x,pos.z-deposit.z)<3.2 && !scraping;
     const ready=nearDeposit && surveyed.size===stations.length;
     el('interact').hidden=finished || !(ready || station>=0);
-    const label=station>=0?stations[station].action:action===0?'Racler le sol':'Analyser';
+    const label=station>=0?stations[station].action:action===0?'Scrape the ground':'Analyze';
     if (el('interact').textContent!==label) el('interact').textContent=label;
     el('survey-hint').hidden=!(nearDeposit && !ready);
     exposed.visible=action>0;
     surveyMarkers.forEach((marker,index)=>{marker.visible=!surveyed.has(index);});
-    const goal=ready?(action===0?'Mettre au jour le dépôt':'Analyser le dépôt'):'Trouver le dépôt blanc';
+    const goal=ready?(action===0?'Uncover the deposit':'Analyze the deposit'):'Find the white deposit';
     if (el('goal').textContent!==goal) el('goal').textContent=goal;
   }
 
@@ -847,7 +847,7 @@ function start() {
       cameraDistance=view.distance;
     }
     document.body.dataset.camera=view.mast?'mast':'orbit';
-    el('camera-angle').textContent='Caméra · '+view.name;
+    el('camera-angle').textContent='Camera · '+view.name;
     cameraReady=false;
     resize();
   }
@@ -909,7 +909,7 @@ function start() {
   },{passive:false});
   el('camera-angle').addEventListener('click',changeCamera);
   el('switch').addEventListener('click',toggleEra);
-  el('reset').addEventListener('click',()=>{reset();message('Retour au dernier point sûr.');});
+  el('reset').addEventListener('click',()=>{reset();message('Back at the last safe point.');});
   document.addEventListener('visibilitychange',()=>{keys.clear();touch.clear();});
   el('help').addEventListener('click',()=>{keys.clear();touch.clear();guide.showModal();});
   el('interact').addEventListener('click',()=>{
@@ -920,13 +920,13 @@ function start() {
       safeSurvey=stations[station];
       updateProgress();
       updateInteraction();
-      message(stations[station].name+' · relevé enregistré.');
+      message(stations[station].name+' · survey recorded.');
       return;
     }
     if (surveyed.size!==stations.length) return;
     if (action===0) {
       scraping=reduced.matches?.1:1.2;
-      message('La roue bloquée racle le sol.');
+      message('The stuck wheel scrapes the ground.');
     } else {
       keys.clear();
       touch.clear();
@@ -937,13 +937,15 @@ function start() {
   el('report-form').addEventListener('submit',event=>{
     event.preventDefault();
     if (new FormData(event.currentTarget).get('answer')!=='ancient') {
-      el('report-feedback').textContent='La silice est un indice sur la formation du dépôt. Relis ce que cette analyse permet de conclure.';
+      el('report-feedback').textContent='Silica is a clue to how the deposit formed. Re-read what this analysis lets you conclude.';
       return;
     }
     finished=true;
     el('progress').value=5;
-    el('progress-text').textContent='MISSION · RAPPORT TRANSMIS';
+    el('progress-text').textContent='MISSION · REPORT TRANSMITTED';
     report.close();
+    // Tick the Spirit quest in Atlas Mars (same key the atlas reads).
+    try { const q = JSON.parse(localStorage.getItem('atlasMarsQuests') || '{}') || {}; q.spirit = true; localStorage.setItem('atlasMarsQuests', JSON.stringify(q)); } catch {}
     victory.showModal();
   });
   el('replay').addEventListener('click',()=>reset(true));
@@ -987,7 +989,7 @@ function start() {
     camera.updateMatrixWorld();
     const next=stations.find((_,index)=>!surveyed.has(index));
     const target=next??deposit;
-    const targetName=next?next.name:'Dépôt blanc';
+    const targetName=next?next.name:'White deposit';
     const targetY=next?elevation(next.x,next.z,era):deposit.y;
     screen.set(target.x,targetY+2,target.z).project(camera);
     const visible=screen.z<1 && screen.z>-1 && Math.abs(screen.x)<.84 && Math.abs(screen.y)<.87 && !finished;
@@ -1009,9 +1011,9 @@ function start() {
     const sandy=softSoil(pos.x,pos.z,era);
     const nearbySlab=slabs[era].some(s=>Math.hypot(pos.x-s.x,pos.z-s.z)<s.rx+3);
     const nearbyCrater=craters.some(c=>Math.hypot(pos.x-c.x,pos.z-c.z)<c.r+2);
-    hazard.textContent=sandy?'Sable meuble · progression ralentie. Contourne la zone ou recule.':
-      nearbySlab?'Dalles rocheuses · cherche un passage autour des rebords.':
-      nearbyCrater?'Cuvette · évite les pentes raides et cherche une sortie douce.':'';
+    hazard.textContent=sandy?'Loose sand · progress slowed. Go around the area or back up.':
+      nearbySlab?'Rock slabs · look for a way around the edges.':
+      nearbyCrater?'Basin · avoid the steep slopes and look for a gentle way out.':'';
     hazard.hidden=!hazard.textContent;
     if (!software || now-lastRender>42) {
       renderer.render(scene,camera);
