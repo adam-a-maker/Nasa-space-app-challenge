@@ -130,11 +130,25 @@ canvas:active { cursor: grabbing; }
   display: grid;
   min-height: 100vh;
   min-height: 100svh;
-  background: #321a18;
 }
-.landscape { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; color: transparent; }
-.arrival { position: fixed; inset: 0; z-index: 2; background: #321a18; pointer-events: none; opacity: 0; will-change: opacity, transform; }
-.surface::after, .arrival::after { content: ""; z-index: -1; position: absolute; inset: 0; background: linear-gradient(90deg, #100b10e8, #100b1094 42%, #18101818 95%), linear-gradient(180deg, #100b1080, transparent 27%, transparent 76%, #100b1090); pointer-events: none; }
+.landscape { visibility: hidden; position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; color: transparent; }
+.arrival { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0; will-change: opacity, transform; }
+.surface::after, .arrival::after { content: ""; z-index: -1; position: absolute; inset: 0; background: linear-gradient(90deg, #02030acc, #02030a66 42%, transparent 90%), radial-gradient(ellipse at 50% 50%, transparent 55%, #01020880 100%); pointer-events: none; }
+
+/* ---------- Space background (mission information screens) ---------- */
+.surface, .arrival {
+  background:
+    radial-gradient(ellipse 55% 48% at 84% 14%, rgba(78, 62, 150, .18), transparent 72%),
+    radial-gradient(ellipse 50% 44% at 10% 90%, rgba(28, 72, 150, .16), transparent 72%),
+    radial-gradient(ellipse 38% 30% at 58% 52%, rgba(255, 156, 118, .035), transparent 72%),
+    linear-gradient(180deg, #02030a 0%, #040716 52%, #070a1d 100%);
+}
+.surface::before, .arrival::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='880'%20height='880'%3E%3Ccircle%20cx='501'%20cy='554'%20r='5.5'%20fill='%23cfe0ff'%20opacity='0.10'/%3E%3Ccircle%20cx='501'%20cy='554'%20r='2.7'%20fill='%23cfe0ff'%20opacity='0.21'/%3E%3Ccircle%20cx='501'%20cy='554'%20r='1.11'%20fill='%23cfe0ff'%20opacity='0.98'/%3E%3Ccircle%20cx='468'%20cy='464'%20r='6.9'%20fill='%23ffe9d6'%20opacity='0.10'/%3E%3Ccircle%20cx='468'%20cy='464'%20r='3.3'%20fill='%23ffe9d6'%20opacity='0.22'/%3E%3Ccircle%20cx='468'%20cy='464'%20r='1.38'%20fill='%23ffe9d6'%20opacity='0.99'/%3E%3Ccircle%20cx='285'%20cy='602'%20r='5.4'%20fill='%23cfe0ff'%20opacity='0.10'/%3E%3Ccircle%20cx='285'%20cy='602'%20r='2.6'%20fill='%23cfe0ff'%20opacity='0.22'/%3E%3Ccircle%20cx='285'%20cy='602'%20r='1.09'%20fill='%23cfe0ff'%20opacity='0.99'/%3E%3Ccircle%20cx='557'%20cy='268'%20r='5.7'%20fill='%23cfe0ff'%20opacity='0.10'/%3E%3Ccircle%20cx='557'%20cy='268'%20r='2.7'%20fill='%23cfe0ff'%20opacity='0.22'/%3E%3Ccircle%20cx='557'%20cy='268'%20r='1.13'%20fill='%23cfe0ff'%20opacity='0.98'/%3E%3Ccircle%20cx='650'%20cy='751'%20r='5.4'%20fill='%23ffe9d6'%20opacity='0.10'/%3E%3Ccircle%20cx='650'%20cy='751'%20r='2.6'%20fill='%23ffe9d6'%20opacity='0.21'/%3E%3Ccircle%20cx='650'%20cy='751'%20r='1.07'%20fill='%23ffe9d6'%20opacity='0.97'/%3E%3Ccircle%20cx='810'%20cy='488'%20r='4.8'%20fill='%23ffe9d6'%20opacity='0.10'/%3E%3Ccircle%20cx='810'%20cy='488'%20r='2.3'%20fill='%23ffe9d6'%20opacity='0.21'/%3E%3Ccircle%20cx='810'%20cy='488'%20r='0.96'%20fill='%23ffe9d6'%20opacity='0.97'/%3E%3Ccircle%20cx='284'%20cy='775'%20r='7.2'%20fill='white'%20opacity='0.08'/%3E%3Ccircle%20cx='284'%20cy='775'%20r='3.4'%20fill='white'%20opacity='0.18'/%3E%3Ccircle%20cx='284'%20cy='775'%20r='1.43'%20fill='white'%20opacity='0.81'/%3E%3Ccircle%20cx='324'%20cy='573'%20r='5.6'%20fill='white'%20opacity='0.09'/%3E%3Ccircle%20cx='324'%20cy='573'%20r='2.7'%20fill='white'%20opacity='0.19'/%3E%3Ccircle%20cx='324'%20cy='573'%20r='1.13'%20fill='white'%20opacity='0.86'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='430'%20height='430'%3E%3Ccircle%20cx='405'%20cy='66'%20r='0.83'%20fill='%23cfe0ff'%20opacity='0.63'/%3E%3Ccircle%20cx='299'%20cy='314'%20r='0.91'%20fill='%23e3d9ff'%20opacity='0.48'/%3E%3Ccircle%20cx='119'%20cy='29'%20r='0.64'%20fill='white'%20opacity='0.67'/%3E%3Ccircle%20cx='312'%20cy='186'%20r='0.81'%20fill='%23cfe0ff'%20opacity='0.46'/%3E%3Ccircle%20cx='117'%20cy='183'%20r='0.93'%20fill='%23cfe0ff'%20opacity='0.68'/%3E%3Ccircle%20cx='396'%20cy='328'%20r='0.59'%20fill='white'%20opacity='0.58'/%3E%3Ccircle%20cx='147'%20cy='84'%20r='0.70'%20fill='%23e3d9ff'%20opacity='0.76'/%3E%3Ccircle%20cx='403'%20cy='277'%20r='0.68'%20fill='%23cfe0ff'%20opacity='0.56'/%3E%3Ccircle%20cx='294'%20cy='187'%20r='0.79'%20fill='%23e3d9ff'%20opacity='0.46'/%3E%3Ccircle%20cx='391'%20cy='218'%20r='0.95'%20fill='white'%20opacity='0.61'/%3E%3Ccircle%20cx='391'%20cy='85'%20r='0.72'%20fill='white'%20opacity='0.68'/%3E%3Ccircle%20cx='131'%20cy='255'%20r='0.79'%20fill='white'%20opacity='0.75'/%3E%3Ccircle%20cx='380'%20cy='185'%20r='1.00'%20fill='%23cfe0ff'%20opacity='0.59'/%3E%3Ccircle%20cx='187'%20cy='175'%20r='0.79'%20fill='%23cfe0ff'%20opacity='0.61'/%3E%3Ccircle%20cx='48'%20cy='379'%20r='0.57'%20fill='%23cfe0ff'%20opacity='0.60'/%3E%3Ccircle%20cx='82'%20cy='385'%20r='0.64'%20fill='white'%20opacity='0.46'/%3E%3Ccircle%20cx='230'%20cy='338'%20r='0.89'%20fill='white'%20opacity='0.71'/%3E%3Ccircle%20cx='50'%20cy='89'%20r='0.92'%20fill='%23cfe0ff'%20opacity='0.82'/%3E%3Ccircle%20cx='199'%20cy='358'%20r='0.87'%20fill='%23e3d9ff'%20opacity='0.50'/%3E%3Ccircle%20cx='126'%20cy='291'%20r='0.77'%20fill='%23e3d9ff'%20opacity='0.48'/%3E%3Ccircle%20cx='304'%20cy='403'%20r='0.92'%20fill='%23cfe0ff'%20opacity='0.69'/%3E%3Ccircle%20cx='398'%20cy='16'%20r='0.71'%20fill='white'%20opacity='0.48'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='640'%20height='640'%3E%3Ccircle%20cx='290'%20cy='357'%20r='0.52'%20fill='%23dfe8ff'%20opacity='0.69'/%3E%3Ccircle%20cx='126'%20cy='510'%20r='0.58'%20fill='%23dfe8ff'%20opacity='0.67'/%3E%3Ccircle%20cx='67'%20cy='197'%20r='0.55'%20fill='white'%20opacity='0.71'/%3E%3Ccircle%20cx='404'%20cy='380'%20r='0.68'%20fill='%23dfe8ff'%20opacity='0.61'/%3E%3Ccircle%20cx='392'%20cy='106'%20r='0.64'%20fill='white'%20opacity='0.38'/%3E%3Ccircle%20cx='30'%20cy='557'%20r='0.62'%20fill='white'%20opacity='0.48'/%3E%3Ccircle%20cx='377'%20cy='130'%20r='0.58'%20fill='white'%20opacity='0.55'/%3E%3Ccircle%20cx='421'%20cy='293'%20r='0.51'%20fill='%23dfe8ff'%20opacity='0.57'/%3E%3Ccircle%20cx='589'%20cy='60'%20r='0.48'%20fill='%23dfe8ff'%20opacity='0.44'/%3E%3Ccircle%20cx='188'%20cy='52'%20r='0.51'%20fill='white'%20opacity='0.69'/%3E%3Ccircle%20cx='249'%20cy='606'%20r='0.45'%20fill='white'%20opacity='0.72'/%3E%3Ccircle%20cx='41'%20cy='242'%20r='0.51'%20fill='%23dfe8ff'%20opacity='0.58'/%3E%3Ccircle%20cx='132'%20cy='429'%20r='0.41'%20fill='%23dfe8ff'%20opacity='0.48'/%3E%3Ccircle%20cx='610'%20cy='481'%20r='0.43'%20fill='white'%20opacity='0.63'/%3E%3Ccircle%20cx='15'%20cy='298'%20r='0.44'%20fill='%23dfe8ff'%20opacity='0.57'/%3E%3Ccircle%20cx='287'%20cy='127'%20r='0.51'%20fill='white'%20opacity='0.50'/%3E%3Ccircle%20cx='254'%20cy='626'%20r='0.47'%20fill='white'%20opacity='0.74'/%3E%3Ccircle%20cx='509'%20cy='198'%20r='0.45'%20fill='white'%20opacity='0.51'/%3E%3Ccircle%20cx='541'%20cy='409'%20r='0.40'%20fill='white'%20opacity='0.41'/%3E%3Ccircle%20cx='284'%20cy='14'%20r='0.64'%20fill='%23dfe8ff'%20opacity='0.50'/%3E%3Ccircle%20cx='54'%20cy='138'%20r='0.39'%20fill='white'%20opacity='0.50'/%3E%3Ccircle%20cx='396'%20cy='87'%20r='0.64'%20fill='%23dfe8ff'%20opacity='0.40'/%3E%3Ccircle%20cx='249'%20cy='399'%20r='0.66'%20fill='%23dfe8ff'%20opacity='0.68'/%3E%3Ccircle%20cx='164'%20cy='126'%20r='0.59'%20fill='white'%20opacity='0.51'/%3E%3Ccircle%20cx='309'%20cy='57'%20r='0.42'%20fill='white'%20opacity='0.37'/%3E%3Ccircle%20cx='609'%20cy='157'%20r='0.46'%20fill='%23dfe8ff'%20opacity='0.68'/%3E%3Ccircle%20cx='380'%20cy='191'%20r='0.67'%20fill='white'%20opacity='0.74'/%3E%3Ccircle%20cx='87'%20cy='307'%20r='0.47'%20fill='white'%20opacity='0.72'/%3E%3Ccircle%20cx='135'%20cy='18'%20r='0.51'%20fill='%23dfe8ff'%20opacity='0.45'/%3E%3Ccircle%20cx='37'%20cy='184'%20r='0.41'%20fill='white'%20opacity='0.41'/%3E%3Ccircle%20cx='289'%20cy='215'%20r='0.56'%20fill='white'%20opacity='0.72'/%3E%3Ccircle%20cx='304'%20cy='231'%20r='0.68'%20fill='%23dfe8ff'%20opacity='0.36'/%3E%3Ccircle%20cx='405'%20cy='309'%20r='0.48'%20fill='%23dfe8ff'%20opacity='0.75'/%3E%3Ccircle%20cx='55'%20cy='349'%20r='0.66'%20fill='white'%20opacity='0.64'/%3E%3Ccircle%20cx='447'%20cy='503'%20r='0.49'%20fill='%23dfe8ff'%20opacity='0.62'/%3E%3Ccircle%20cx='570'%20cy='552'%20r='0.67'%20fill='%23dfe8ff'%20opacity='0.36'/%3E%3Ccircle%20cx='320'%20cy='17'%20r='0.50'%20fill='%23dfe8ff'%20opacity='0.35'/%3E%3Ccircle%20cx='53'%20cy='65'%20r='0.69'%20fill='white'%20opacity='0.70'/%3E%3Ccircle%20cx='462'%20cy='250'%20r='0.52'%20fill='%23dfe8ff'%20opacity='0.69'/%3E%3Ccircle%20cx='60'%20cy='476'%20r='0.48'%20fill='white'%20opacity='0.39'/%3E%3Ccircle%20cx='22'%20cy='605'%20r='0.54'%20fill='white'%20opacity='0.60'/%3E%3Ccircle%20cx='582'%20cy='168'%20r='0.50'%20fill='white'%20opacity='0.41'/%3E%3Ccircle%20cx='390'%20cy='331'%20r='0.58'%20fill='%23dfe8ff'%20opacity='0.53'/%3E%3Ccircle%20cx='564'%20cy='212'%20r='0.45'%20fill='%23dfe8ff'%20opacity='0.52'/%3E%3Ccircle%20cx='511'%20cy='578'%20r='0.50'%20fill='white'%20opacity='0.58'/%3E%3Ccircle%20cx='205'%20cy='93'%20r='0.49'%20fill='%23dfe8ff'%20opacity='0.71'/%3E%3C/svg%3E");
+  background-size: 880px 880px, 430px 430px, 640px 640px;
+  background-position: 120px 60px, 0 0, 260px 140px;
+}
 .surface-content { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; padding: calc(var(--header) + 1.25rem) var(--gutter) clamp(1.7rem, 6vh, 5rem); gap: clamp(2rem, 12vh, 10rem); }
 .back { display: inline-flex; align-items: center; min-height: 44px; padding: .6rem .95rem; background: #171014d9; border: 1px solid #b47e6a; border-radius: 5px; text-decoration: none; font-size: .88rem; }
 .surface-copy { width: min(100%, 490px); }
@@ -168,7 +182,7 @@ canvas:active { cursor: grabbing; }
   .coordinates { text-align: center; }
   .coordinates span { display: inline; }
   .landscape { object-position: 58% center; }
-  .surface::after, .arrival::after { background: linear-gradient(180deg, #100b10a0, #100b102a 37%, #100b10de 80%); }
+  .surface::after, .arrival::after { background: linear-gradient(180deg, #02030a99, #02030a33 37%, #02030acc 85%); }
 }
 /* Survol d'un point : il s'illumine, les autres s'atténuent */
 .markers.has-focus .marker::before { opacity: .5; }
@@ -248,20 +262,20 @@ canvas:active { cursor: grabbing; }
 .briefing h3, .timeline-rail h3 { margin: 0 0 .75rem; font: 600 .72rem/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
 .briefing p { margin: .5rem 0 0; color: #e2d4ce; }
 .briefing p:first-of-type { margin-top: 0; }
-.stats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
-.stat { padding: .75rem .8rem .8rem; border: 1px solid var(--line); background: #ffffff06; }
-.stat strong { display: block; font: 400 clamp(2rem, 3.4vw, 2.8rem)/1 var(--serif); letter-spacing: -.02em; color: var(--accent); }
-.stat strong small { margin-left: .3rem; font: 600 .8rem var(--mono); letter-spacing: .08em; color: var(--muted); }
-.stat span { display: block; margin-top: .4rem; font: .68rem/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.stats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .42rem; }
+.stat { padding: .55rem .65rem .6rem; border: 1px solid var(--line); background: #ffffff06; }
+.stat strong { display: block; font: 400 clamp(1.65rem, 2.7vw, 2.25rem)/1 var(--serif); letter-spacing: -.02em; color: var(--accent); }
+.stat strong small { margin-left: .25rem; font: 600 .7rem var(--mono); letter-spacing: .08em; color: var(--muted); }
+.stat span { display: block; margin-top: .3rem; font: .62rem/1.35 var(--mono); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
 .briefing .note { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--line); font-size: .92rem; }
 .surface.has-details #launch-mission { position: fixed; z-index: 5; right: calc(var(--gutter) + 5rem); bottom: 1.4rem; margin: 0; padding: 1rem 1.9rem; border-radius: 6px; font-size: .85rem; }
 .surface.has-details #launch-mission:hover { box-shadow: 0 0 32px #ff9c76b0; }
 .surface.has-details #launch-mission:active { transform: scale(.95); box-shadow: 0 0 14px #ff9c7680; }
 
-/* Right column: horizontal timeline ("From Earth to Mars") above the 3D model */
-.right-col { grid-area: 1 / 2 / 3 / 3; position: sticky; top: 0; align-self: start; display: flex; flex-direction: column; gap: 1rem; height: calc(100vh - var(--header) - 1.25rem - 5.5rem); height: calc(100svh - var(--header) - 1.25rem - 5.5rem); min-height: 24rem; min-width: 0; }
-.timeline-rail { flex: none; background: #150f13e8; border-inline-start: 2px solid var(--accent); box-shadow: 0 1rem 2.5rem #0e080b44; padding: 1rem 1.1rem 1.1rem; }
-.timeline { list-style: none; margin: 0; padding: 0; position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 1.1rem; }
+/* Right column: 3D model, then the horizontal timeline ("From Earth to Mars") centered below it */
+.right-col { grid-area: 1 / 2 / 3 / 3; position: sticky; top: 0; align-self: start; display: flex; flex-direction: column; gap: 1rem; height: calc(100vh - var(--header) - 1.25rem - 5.5rem); height: calc(100svh - var(--header) - 1.25rem - 5.5rem); min-height: 32rem; min-width: 0; }
+.timeline-rail { flex: none; align-self: center; width: min(100%, 52rem); margin-inline: auto; background: #150f13e8; border-inline-start: 2px solid var(--accent); box-shadow: 0 1rem 2.5rem #0e080b44; padding: .9rem 1.2rem 1rem; }
+.timeline { list-style: none; margin: 0; padding: 0; position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 1.3rem; }
 .timeline::before { content: ""; position: absolute; left: 0; right: 0; top: .32rem; height: 1px; background: linear-gradient(90deg, var(--accent), var(--line)); }
 .timeline li { position: relative; display: block; padding: 1.3rem 0 0; font-size: .84rem; line-height: 1.45; color: #e2d4ce; }
 .timeline li::before { content: ""; position: absolute; left: 0; top: 0; width: .64rem; height: .64rem; border-radius: 50%; background: var(--background); border: 1px solid var(--accent); }
@@ -269,7 +283,7 @@ canvas:active { cursor: grabbing; }
 .timeline time { display: block; margin-bottom: .25rem; font: 600 .74rem/1.6 var(--mono); letter-spacing: .06em; color: var(--accent); }
 
 /* 3D model, in the space left free */
-.model-stage { flex: 1; min-height: 0; display: grid; grid-template-rows: 1fr auto auto; background: radial-gradient(ellipse at 50% 46%, #ff9c7624, transparent 66%); }
+.model-stage { flex: 1; min-height: 14rem; display: grid; grid-template-rows: 1fr auto auto; background: radial-gradient(ellipse at 50% 46%, #ff9c7624, transparent 66%); }
 #model-canvas { min-height: 0; border-radius: 0; background: none; box-shadow: none; cursor: grab; touch-action: pan-y; }
 #model-canvas:active { cursor: grabbing; }
 .model-switch { display: flex; justify-content: center; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
@@ -383,12 +397,12 @@ canvas:active { cursor: grabbing; }
           <a id="launch-mission" aria-label="Launch this mission" hidden>LAUNCH</a>
         </div>
         <div class="right-col" id="right-col">
-          <aside class="timeline-rail" id="timeline-rail" aria-label="Mission timeline" hidden></aside>
           <div class="model-stage" id="model-stage" hidden>
             <canvas id="model-canvas" aria-label="3D model of the mission vehicle. Drag to rotate it." role="img"></canvas>
             <div class="model-switch" id="model-switch" role="group" aria-label="Choose a 3D model" hidden></div>
             <p class="model-hint" id="model-hint">Loading the 3D model…</p>
           </div>
+          <aside class="timeline-rail" id="timeline-rail" aria-label="Mission timeline" hidden></aside>
         </div>
       </div>
     </section>
