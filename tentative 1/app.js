@@ -1,11 +1,10 @@
 const missions = [
-  {name:"Viking 1", year:1976, site:"Chryse Planitia", lat:22.27, lon:-47.95, title:"Le sol martien à l’épreuve", story:"Viking 1 prélève de la terre avec son bras robotique et la confie à trois expériences. Les résultats suscitent un débat, mais ils ne suffisent pas à établir la présence de vie.", source:"https://science.nasa.gov/mission/viking-1/"},
-  {name:"Pathfinder", year:1997, site:"Ares Vallis", lat:19.13, lon:-33.22, title:"Le premier rover à rouler sur Mars", story:"Le petit Sojourner descend de son atterrisseur et va examiner les roches. Son spectromètre révèle la présence de silicium et d’autres éléments, donnant aux chercheurs des indices sur leur composition.", source:"https://science.nasa.gov/mission/mars-pathfinder/"},
-  {name:"Opportunity", year:2004, site:"Meridiani Planum", lat:-1.95, lon:-5.53, title:"Des roches qui racontent l’eau", story:"Opportunity approche ses instruments des roches d’un petit cratère. Il y trouve des minéraux et des traces dans les couches rocheuses qui indiquent que de l’eau liquide a autrefois circulé ici.", source:"https://science.nasa.gov/mission/mars-exploration-rovers-spirit-and-opportunity/"},
-  {name:"Phoenix", year:2008, site:"Vastitas Borealis", lat:68.22, lon:-125.75, title:"De la glace sous la poussière", story:"Le bras de Phoenix creuse près du pôle nord martien. Des fragments clairs disparaissent après quelques jours et l’analyse d’un prélèvement confirme la présence d’eau sous forme de glace.", source:"https://science.nasa.gov/mission/phoenix/"},
-  {name:"Curiosity", year:2012, site:"Cratère Gale", lat:-4.59, lon:137.44, title:"Au fond d’un ancien lac", story:"Curiosity fore une roche et analyse la poudre. Les minéraux et les couches de sédiments racontent l’histoire d’un ancien lac qui réunissait des conditions favorables à la vie microbienne.", source:"https://science.nasa.gov/mission/msl-curiosity/"},
-  {name:"Perseverance", year:2021, site:"Cratère Jezero", lat:18.44, lon:77.45, title:"Des échantillons pour une enquête future", story:"Dans un cratère où une rivière se jetait autrefois dans un lac, Perseverance prélève des carottes de roche. Ces échantillons pourraient aider à chercher des traces de vie ancienne.", source:"https://science.nasa.gov/mission/mars-2020-perseverance/"}
+  {name:"Spirit", year:2004, site:"Cratère Gusev", lat:-14.57, lon:175.47, title:"Une roue révèle un sol riche en silice", story:"En 2007, une roue bloquée creuse une tranchée près de Home Plate. Spirit y met au jour un sol presque composé de silice pure, probablement formé dans un environnement où l’eau était présente."},
+  {name:"Phoenix", year:2008, site:"Vastitas Borealis", lat:68.22, lon:-125.75, title:"De la glace sous la surface arctique", story:"Le bras robotique de Phoenix creuse le sol près du pôle nord martien. La mission confirme la présence de glace d’eau sous la surface et détecte aussi du perchlorate dans le sol."},
+  {name:"Sojourner", year:1997, site:"Ares Vallis", lat:19.13, lon:-33.22, title:"Le premier rover sur Mars", story:"Déployé par l’atterrisseur Pathfinder dans Ares Vallis, Sojourner examine des roches et des sols d’une ancienne plaine d’inondation. Ses observations contribuent à étudier l’histoire géologique et climatique de Mars."},
+  {name:"Ingenuity", year:2021, site:"Cratère Jezero", lat:18.44, lon:77.45, title:"Le premier vol motorisé sur une autre planète", story:"Transporté sous le rover Perseverance, Ingenuity réalise en 2021 le premier vol motorisé et contrôlé sur une autre planète. Prévu pour cinq vols, l’hélicoptère en effectue 72 avant la fin de sa mission en 2024."}
 ];
+
 
 const radians = Math.PI / 180;
 const size = 520;
@@ -37,7 +36,6 @@ const surfaceTitle = document.querySelector("#surface-title");
 const surfaceLocation = document.querySelector("#surface-location");
 const storyTitle = document.querySelector("#story-title");
 const storyText = document.querySelector("#story-text");
-const storySource = document.querySelector("#story-source");
 
 for (const mission of missions) {
   mission.slug = mission.name.toLowerCase().replaceAll(" ", "-");
@@ -119,7 +117,6 @@ function showRoute() {
     surfaceTitle.textContent = mission.name;
     storyTitle.textContent = mission.title;
     storyText.textContent = mission.story;
-    storySource.href = mission.source;
     document.title = mission.name + " — Atlas Mars";
     window.scrollTo(0, 0);
     surfaceTitle.focus({ preventScroll: true });
@@ -470,12 +467,10 @@ reducedMotion.addEventListener("change", event => {
 /* ---------- Fiche d'identification au survol d'un point ---------- */
 // Données de la fiche, par mission. state : "abandoned" (matériel abandonné) ou "active".
 const dossierData = {
-  "viking-1":     { object: "Viking 1 Lander",             program: "Programme Viking",        state: "abandoned" },
-  "pathfinder":   { object: "Pathfinder Lander · Sojourner", program: "Mars Pathfinder",       state: "abandoned" },
-  "opportunity":  { object: "Opportunity (MER-B)",         program: "Mars Exploration Rover",  state: "abandoned" },
-  "phoenix":      { object: "Phoenix Mars Lander",         program: "Phoenix Scout Mission",   state: "abandoned" },
-  "curiosity":    { object: "Curiosity (MSL)",             program: "Mars Science Laboratory", state: "active" },
-  "perseverance": { object: "Perseverance (Mars 2020)",    program: "Mars 2020",               state: "active" }
+  "spirit":     { object: "Spirit (MER-A)",         program: "Mars Exploration Rover", state: "abandoned" },
+  "phoenix":    { object: "Phoenix Mars Lander",    program: "Phoenix Scout Mission",  state: "abandoned" },
+  "sojourner":  { object: "Sojourner Rover",        program: "Mars Pathfinder",        state: "abandoned" },
+  "ingenuity":  { object: "Ingenuity Mars Helicopter", program: "Mars 2020",           state: "abandoned" }
 };
 const statusLabels = { abandoned: "Matériel abandonné", active: "En activité" };
 
