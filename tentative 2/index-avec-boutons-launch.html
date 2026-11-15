@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0d0b0d">
   <meta name="description" content="Explore NASA landing sites by descending from orbit to the surface of Mars.">
-  <title>Atlas Mars — The traces of exploration</title>
+  <title>Mars Rovers — The traces of exploration</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Instrument+Serif&family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -214,7 +214,7 @@ canvas:active { cursor: grabbing; }
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="top">
-    <a class="brand" href="./" id="home-link" aria-label="Atlas Mars, home">
+    <a class="brand" href="./" id="home-link" aria-label="Mars Rovers, home">
       <span class="brand-icon" aria-hidden="true"></span> ATLAS <strong>MARS</strong>
     </a>
     <span class="edition">NASA SPACE APPS CHALLENGE</span>
@@ -490,11 +490,11 @@ function showRoute() {
     storyTitle.textContent = mission.title;
     storyText.textContent = mission.story;
     storySource.href = mission.source;
-    document.title = mission.name + " — Atlas Mars";
+    document.title = mission.name + " — Mars Rovers";
     window.scrollTo(0, 0);
     surfaceTitle.focus({ preventScroll: true });
   } else {
-    document.title = "Atlas Mars — The traces of exploration";
+    document.title = "Mars Rovers — The traces of exploration";
     dirty = true;
     if (wasOnSurface) {
       window.scrollTo(0, lastEntry?.scroll ?? 0);
