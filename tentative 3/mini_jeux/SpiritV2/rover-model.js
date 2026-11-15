@@ -4,7 +4,7 @@ export async function loadSpiritModel(software) {
   const directory = new URL('./rover/', import.meta.url);
   async function fetchAsset(name) {
     const response = await fetch(new URL(name, directory));
-    if (!response.ok) throw new Error('Spirit asset unavailable: ' + name);
+    if (!response.ok) throw new Error('Asset Spirit indisponible : ' + name);
     return response;
   }
 

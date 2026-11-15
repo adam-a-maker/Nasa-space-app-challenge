@@ -13,6 +13,8 @@ Ouvre ensuite http://localhost:8000 dans ton navigateur.
 Pour fermer le serveur, appuie sur Ctrl+C dans le terminal.
 
 Flèches : avancer, reculer et tourner.
-Espace : passer du présent au passé et inversement.
-C : changer de caméra.
+Espace : photographier le dépôt blanc lorsqu’il est cadré et assez proche.
+C : changer de caméra (la première personne est activée par défaut).
+Glisser sur l’écran : orienter le regard / cadrer la photographie.
+Le voyage dans le passé a été retiré : toute la mission se déroule dans le présent.
 Sur mobile, utilise les commandes affichées à l’écran.
