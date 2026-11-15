@@ -1,0 +1,411 @@
+DIALOGUES RADIO — ATLAS MARS
+Tentative 3 · NASA Space Apps Challenge
+============================================================
+
+PRINCIPE
+La radio est le lien avec la Terre. Elle ne remplace pas les commandes :
+elle raconte ce qui se passe, signale les dangers et rappelle l'objectif.
+Chaque entrée donne le moment, le ton de la voix et le texte à afficher.
+Les crochets [ ] indiquent une valeur à remplacer par le jeu
+(distance, vitesse, angle, secondes, numéro de point de reprise…).
+
+CONSEIL D'ÉCRITURE
+Une phrase = une information. On dit toujours au joueur :
+1) où il est ; 2) ce qui vient de changer ; 3) ce qu'il peut faire.
+Éviter de répéter « Ici la Terre » à chaque message : la radio est
+déjà identifiée, le silence et le souffle font partie du décor.
+
+
+============================================================
+1. DÉMARRAGE, MENU, LANCEMENT
+Voix : Contrôle mission (Terre)
+============================================================
+
+[MEN-01] · Moment : premier chargement du jeu · Ton : calme, complice
+« Ici le contrôle mission, sur Terre. Tu me reçois ? Bien. À partir de maintenant, ma voix passe par la radio et tes yeux font le reste. »
+
+[MEN-02] · Moment : le joueur reste dans le menu · Ton : rassurant
+« Tu es dans le menu principal. Rien ne bouge tant que tu n'as pas lancé la mission : prends le temps de choisir. »
+
+[MEN-03] · Moment : ouverture des paramètres · Ton : léger
+« Règle le son avant de partir. Une radio, ça sert aussi à entendre le vent se lever. »
+
+[MEN-04] · Moment : confirmation de fermeture · Ton : neutre
+« Tu veux couper la liaison ? La progression non sauvegardée restera sur Mars. »
+
+[MEN-05] · Moment : clic sur « Jouer » · Ton : tendu, puis soulagé
+« Lancement confirmé. Entrée dans l'atmosphère… la coque chauffe, mais tout est nominal. »
+
+[MEN-06] · Moment : arrivée sur le globe · Ton : solennel
+« Bienvenue en orbite martienne. En dessous de toi : quatre sites d'atterrissage, quatre histoires. »
+
+
+============================================================
+2. ORBITE, GLOBE ET CHOIX D'UN SITE
+Voix : Contrôle mission (Terre)
+============================================================
+
+[ORB-01] · Moment : première vue du globe · Ton : pédagogique
+« Tu peux faire tourner Mars en glissant sur le globe, ou avec les flèches du clavier. Chaque point blanc est une mission. »
+
+[ORB-02] · Moment : rotation mise en pause · Ton : neutre
+« Rotation en pause. Le globe est immobile : choisis tranquillement ton site. »
+
+[ORB-03] · Moment : rotation relancée · Ton : léger
+« Rotation relancée. Mars défile sous tes yeux. »
+
+[ORB-04] · Moment : survol d'un point blanc · Ton : informatif
+« Ce point blanc marque un site d'atterrissage. Survole-le pour ouvrir sa fiche d'identification. »
+
+[ORB-05] · Moment : fiche Sojourner · Ton : archive
+« Ares Vallis, 1997. Sojourner, le premier rover martien. Statut : matériel abandonné. Silence radio depuis 1997. »
+
+[ORB-06] · Moment : fiche Spirit · Ton : archive
+« Cratère Gusev, 2004. Spirit. Statut : matériel abandonné. Sa roue bloquée a retourné le sol et révélé de la silice. »
+
+[ORB-07] · Moment : fiche Phoenix · Ton : archive
+« Vastitas Borealis, 2008. Phoenix. Statut : matériel abandonné. Il a confirmé la glace d'eau sous le sol arctique. »
+
+[ORB-08] · Moment : fiche Ingenuity · Ton : archive, admiratif
+« Cratère Jezero, 2021. Ingenuity. Statut : matériel abandonné. 72 vols, un record, puis plus rien. »
+
+[ORB-09] · Moment : sélection d'un site · Ton : ferme
+« Site verrouillé. On quitte l'orbite et on descend. Accroche-toi : la trajectoire est balistique. »
+
+[ORB-10] · Moment : descente vers la surface · Ton : immersif
+« L'atmosphère se densifie. Les caméras saturent, le relief grossit. On arrive. »
+
+[ORB-11] · Moment : contact avec le sol · Ton : soulagement
+« Contact avec la surface. La poussière retombe. Tu es sur le site. »
+
+[ORB-12] · Moment : lecture de la fiche de mission · Ton : complice
+« Voilà ce que les archives racontent. Lis la fiche, puis lance la mission : le terrain te dira le reste. »
+
+
+============================================================
+3. QUÊTES ET RETOUR AU GLOBE
+Voix : Contrôle mission (Terre)
+============================================================
+
+[QUE-01] · Moment : première quête terminée · Ton : content
+« Première quête validée. Tes données sont arrivées jusqu'à nous. »
+
+[QUE-02] · Moment : 1 mission sur 4 terminée · Ton : encourageant
+« Une mission sur quatre. On commence à voir une ligne dans le brouillard. »
+
+[QUE-03] · Moment : 2 missions sur 4 terminées · Ton : encourageant
+« Deux sur quatre. La moitié du chemin, et déjà deux époques de l'exploration martienne. »
+
+[QUE-04] · Moment : 3 missions sur 4 terminées · Ton : tendu
+« Trois sur quatre. Il ne reste qu'une trace à retrouver. »
+
+[QUE-05] · Moment : 4 missions sur 4 terminées · Ton : solennel
+« Quatre sur quatre. Toutes les missions sont bouclées. La Terre a ce qu'elle voulait. »
+
+[QUE-06] · Moment : retour au globe après une mission · Ton : neutre
+« Retour en orbite. La fiche est validée, la quête est cochée. Tu peux choisir un autre site. »
+
+[QUE-07] · Moment : le joueur revient plus tard · Ton : rassurant
+« Ta progression est enregistrée dans la mémoire de la mission. Même si tu coupes, elle restera là. »
+
+
+============================================================
+4. MISSION SOJOURNER — ATTERRISSAGE
+Voix : Contrôle mission, pupitre dynamique de vol
+============================================================
+
+[SOJ-01] · Moment : ouverture de la mission · Ton : solennel
+« Mission Sojourner. 1997. Tu pilotes un rover de 10 kilos vers le sol de Mars. La cible est peinte en rouge et blanc, deux fois sa taille. »
+
+[SOJ-02] · Moment : rappel de l'objectif · Ton : pédagogique
+« Objectif : toucher la cible à vitesse réduite, à plat, et sans retourner le rover. Le carburant est limité. »
+
+[SOJ-03] · Moment : début de la descente · Ton : technique
+« Décrochage. Altitude 420 mètres, vitesse verticale moins 20 mètres par seconde, carburant plein. Le vent te pousse déjà. »
+
+[SOJ-04] · Moment : ouverture du parachute · Ton : soulagé
+« Le parachute s'ouvre. La descente ralentit, mais le vent te fait dériver. Corrige avec les propulseurs latéraux. »
+
+[SOJ-05] · Moment : traversée de la couche de vent · Ton : avertissement
+« Tu traverses la couche de vent. Les rafales varient : anticipe, ne corrige pas après coup. »
+
+[SOJ-06] · Moment : carburant à 50 % · Ton : neutre
+« Carburant à 50 %. Chaque impulsion compte maintenant. »
+
+[SOJ-07] · Moment : carburant sous 20 % · Ton : urgent
+« Alerte carburant : moins de 20 %. Réserve tes propulseurs pour l'arrondi final. »
+
+[SOJ-08] · Moment : approche de la cible · Ton : concentré
+« La cible est à [distance] mètres. Tu es dans l'axe. Réduis la vitesse horizontale avant de descendre. »
+
+[SOJ-09] · Moment : vitesse verticale trop élevée · Ton : urgent
+« Vitesse verticale trop élevée. Le radar te donne [vitesse] mètres par seconde : freine, sinon l'impact sera fatal. »
+
+[SOJ-10] · Moment : dérive horizontale trop forte · Ton : ferme
+« Dérive horizontale trop forte. Tu vas sortir de la cible. Stabilise ton axe. »
+
+[SOJ-11] · Moment : inclinaison excessive · Ton : urgent
+« Inclinaison excessive : [angle] degrés. Le rover risque de basculer. Redresse-le avant le contact. »
+
+[SOJ-12] · Moment : réservoirs vides · Ton : grave
+« Réservoirs vides. Plus de propulsion. La suite dépend de la gravité. »
+
+[SOJ-13] · Moment : atterrissage réussi · Ton : joie contenue
+« Contact ! Le rover est posé, à plat, dans la cible. Sojourner est sur Mars. »
+
+[SOJ-14] · Moment : rover retourné · Ton : défaite
+« Le rover s'est retourné. Les panneaux sont face au sol. Mission perdue. »
+
+[SOJ-15] · Moment : impact trop violent · Ton : défaite
+« Impact à [vitesse] mètres par seconde. La structure n'a pas tenu. »
+
+[SOJ-16] · Moment : atterrissage hors cible · Ton : déception
+« Tu es posé, mais hors de la cible. Les instruments sont intacts, les données sont inutilisables. »
+
+[SOJ-17] · Moment : redémarrage de la mission · Ton : remobilisation
+« On efface la télémétrie et on remet le rover en vol. Nouvelle tentative. »
+
+
+============================================================
+5. MISSION SPIRIT — LES TRACES DE L'EAU
+Voix : Contrôle mission
+============================================================
+
+[SPI-01] · Moment : ouverture de la mission · Ton : narratif
+« Spirit. Cratère Gusev, près de Home Plate. Tu vas rouler dans deux versions du même paysage : le Présent, l'époque de Spirit, et le Passé, une reconstitution. »
+
+[SPI-02] · Moment : rappel de l'objectif · Ton : pédagogique
+« Objectif : mets au jour le dépôt blanc, analyse-le, puis transmets à la Terre ce qu'il révèle sur l'eau ancienne. »
+
+[SPI-03] · Moment : découverte du changement d'époque · Ton : pédagogique
+« La touche E bascule entre Présent et Passé. Spirit garde sa position, son cap et son élan. Le terrain, lui, change complètement. »
+
+[SPI-04] · Moment : passage au Passé · Ton : mystérieux
+« Passage au Passé. L'eau est là où elle n'est plus aujourd'hui. Regarde les bassins. »
+
+[SPI-05] · Moment : retour au Présent · Ton : neutre
+« Retour au Présent. Le bassin est à sec, mais certains passages ont disparu. »
+
+[SPI-06] · Moment : arrivée devant le premier bassin · Ton : conseil
+« Le bassin devant toi est sec au Présent. Au Passé, il est rempli : c'est le seul moyen de le traverser. »
+
+[SPI-07] · Moment : fond du bassin asséché · Ton : vigilance
+« Fond de bassin asséché. Passe entre les deux parois, mais évite les blocs. »
+
+[SPI-08] · Moment : arrivée devant le gouffre · Ton : tension
+« Gouffre devant. Au Passé, l'évent blanc au bord du vide gonfle avant de cracher un jet de vapeur. »
+
+[SPI-09] · Moment : compte à rebours du geyser · Ton : compte à rebours
+« L'anneau gonfle. Jet dans [secondes] secondes. Place-toi sur l'évent. »
+
+[SPI-10] · Moment : départ du jet · Ton : action
+« Jet de vapeur ! Spirit est projeté. Bascule au Présent avant d'atterrir. »
+
+[SPI-11] · Moment : Spirit en vol · Ton : urgent
+« Tu es en vol. Le Passé n'a pas de dalle d'atterrissage. Change d'époque maintenant. »
+
+[SPI-12] · Moment : atterrissage sur la dalle · Ton : soulagement
+« Dalle de sédiments atteinte. Descends la rampe et continue. »
+
+[SPI-13] · Moment : dune infranchissable · Ton : conseil
+« Une dune bloque le passage au Présent. Au Passé, c'est un gué peu profond : bascule. »
+
+[SPI-14] · Moment : pont absent au Présent · Ton : tension
+« Le pont de roche n'existe plus au Présent. Passe au Passé pour traverser le gouffre. »
+
+[SPI-15] · Moment : approche de la rive opposée · Ton : urgent
+« Reviens au Présent avant l'autre rive : au Passé, la source chaude est trop profonde. »
+
+[SPI-16] · Moment : point de reprise atteint · Ton : rassurant
+« Point de reprise [numéro] sur 5 enregistré. Si Spirit tombe, on le récupérera ici. »
+
+[SPI-17] · Moment : Spirit enseveli par le changement d'époque · Ton : incident
+« Le terrain a changé sous Spirit. Il est enseveli. Reprise au dernier point. »
+
+[SPI-18] · Moment : Spirit emporté par l'eau · Ton : incident
+« L'eau du Passé est trop profonde. Spirit est emporté. Reprise au dernier point. »
+
+[SPI-19] · Moment : arrivée à la zone d'étude · Ton : solennel
+« Zone d'étude. Le drapeau marque l'endroit exact où Spirit doit travailler. Arrête-toi. »
+
+[SPI-20] · Moment : Spirit racle le sol · Ton : technique
+« Spirit traîne sa roue avant droite bloquée. Elle racle le sol et retourne la poussière. »
+
+[SPI-21] · Moment : apparition du dépôt blanc · Ton : découverte
+« Le sol est gratté. Un dépôt blanc apparaît sous la croûte sombre. »
+
+[SPI-22] · Moment : analyse du dépôt · Ton : scientifique
+« Analyse en cours… le spectromètre lit une forte concentration de silice. »
+
+[SPI-23] · Moment : choix de la conclusion · Ton : solennel
+« Il faut choisir la conclusion à transmettre. La Terre attend ton rapport, pas une hypothèse. »
+
+[SPI-24] · Moment : mauvaise conclusion · Ton : ferme
+« Conclusion rejetée. L'analyse ne montre ni vie, ni absence d'eau. Relis les données et recommence. »
+
+[SPI-25] · Moment : rapport accepté · Ton : fierté
+« Rapport reçu. De l'eau a pu participer à la formation de ce dépôt. Mission accomplie. »
+
+
+============================================================
+6. MISSION PHOENIX / LABORATOIRE SISMIQUE
+Voix : Équipe scientifique (sismologie)
+============================================================
+
+[PHO-01] · Moment : ouverture du laboratoire · Ton : scientifique
+« Station sismique. Le module Phoenix a trouvé la glace. Le sismomètre d'InSight, lui, écoute l'intérieur de Mars : on te confie ses données. »
+
+[PHO-02] · Moment : rappel de l'objectif · Ton : pédagogique
+« Objectif : distinguer les séismes du vent, puis reconstruire la structure de Mars à partir des ondes. »
+
+[PHO-03] · Moment : enregistrement A · Ton : analyse
+« Enregistrement A : deux arrivées nettes, P puis S. C'est un séisme. »
+
+[PHO-04] · Moment : enregistrement B · Ton : analyse
+« Enregistrement B : un bruit continu, sans arrivée structurée. C'est du vent. »
+
+[PHO-05] · Moment : enregistrement C · Ton : analyse
+« Enregistrement C : signal faible. Le séisme est là, mais noyé dans le bruit. »
+
+[PHO-06] · Moment : enregistrement D · Ton : analyse
+« Enregistrement D : un séisme lointain. Les échos du noyau arrivent après les ondes directes. »
+
+[PHO-07] · Moment : classement exact · Ton : validation
+« Classement exact. Les quatre enregistrements sont triés. »
+
+[PHO-08] · Moment : classement partiel · Ton : encouragement
+« Classement partiel. Le signal faible C se cache sous le vent : change l'échelle et regarde mieux. »
+
+[PHO-09] · Moment : découverte du filtre · Ton : conseil
+« Le vent pollue les basses fréquences. Règle le passe-haut et le passe-bas pour isoler l'événement. »
+
+[PHO-10] · Moment : signal C révélé · Ton : satisfaction
+« Signal C révélé. Le rapport signal/bruit dépasse 2,2 : l'événement sort du brouillard. »
+
+[PHO-11] · Moment : pointé des ondes P et S · Ton : consigne
+« Pointe le début des ondes P et S sur les enregistrements A et D. Zoome et filtre si besoin. »
+
+[PHO-12] · Moment : pointés corrects · Ton : validation
+« Bons pointés. L'écart S moins P donne une distance cohérente avec le modèle. »
+
+[PHO-13] · Moment : pointés imprécis · Ton : correction
+« Pointés trop imprécis. L'écart S moins P ne colle pas à la courbe. Recommence. »
+
+[PHO-14] · Moment : observation des échos · Ton : mystérieux
+« Les échos PcP et ScS ont rebondi sur le noyau. Ils arrivent après les ondes directes et racontent sa profondeur. »
+
+[PHO-15] · Moment : réglage du modèle · Ton : technique
+« Ajuste la croûte, la vitesse du manteau et le rayon du noyau. Les courbes doivent passer par les points observés. »
+
+[PHO-16] · Moment : écart RMS trop grand · Ton : correction
+« Écart RMS trop grand : le modèle ne reproduit pas les données. Continue d'ajuster. »
+
+[PHO-17] · Moment : modèle cohérent · Ton : satisfaction
+« Le modèle tient. L'écart est minimal. Retiens cette structure. »
+
+[PHO-18] · Moment : rédaction du rapport · Ton : solennel
+« Rédige ta conclusion dans le rapport, puis compare-la aux résultats publiés d'InSight. »
+
+[PHO-19] · Moment : comparaison avec InSight · Ton : révélation
+« InSight : noyau liquide d'environ 1 830 kilomètres de rayon, croûte de 24 à 72 kilomètres. Ton modèle s'en approche. »
+
+[PHO-20] · Moment : rapport validé · Ton : fierté
+« Rapport validé. Tes données rejoignent les archives sismiques. La mission est terminée. »
+
+
+============================================================
+7. MISSION INGENUITY — VOL DE 90 SECONDES
+Voix : Contrôle mission, pupitre vol
+============================================================
+
+[ING-01] · Moment : ouverture de la mission · Ton : défi
+« Ingenuity. Un hélicoptère de 1,8 kilo dans une atmosphère cent fois plus fine que celle de la Terre. Objectif : survivre 90 secondes. »
+
+[ING-02] · Moment : décollage · Ton : action
+« Décollage. Les rotors mordent l'air raréfié. Le champ d'astéroïdes défile vers toi. »
+
+[ING-03] · Moment : 60 secondes restantes · Ton : tension
+« 60 secondes restantes. La vitesse du vent augmente et les rochers arrivent plus vite. »
+
+[ING-04] · Moment : 30 secondes restantes · Ton : urgent
+« 30 secondes. Les trajectoires se croisent. Ne reste pas dans l'axe. »
+
+[ING-05] · Moment : 10 secondes restantes · Ton : très urgent
+« 10 secondes. Tout va très vite. Maintiens ton altitude et évite les blocs. »
+
+[ING-06] · Moment : menace de collision · Ton : alerte
+« Alerte collision : un rocher arrive dans ton couloir. »
+
+[ING-07] · Moment : passage de justesse · Ton : soulagement
+« Passé de justesse. Les rotors ont sifflé, mais Ingenuity est entier. »
+
+[ING-08] · Moment : collision · Ton : échec
+« Collision après [secondes] secondes. L'hélicoptère est perdu. On réessaie. »
+
+[ING-09] · Moment : 90 secondes atteintes · Ton : triomphe
+« 90 secondes. Ingenuity a survécu. Vol parfait, pilote. »
+
+[ING-10] · Moment : retour au globe · Ton : neutre
+« Retour à l'orbite. La mission Ingenuity est validée. »
+
+
+============================================================
+8. FIN DE PARTIE ET RETOUR SUR TERRE
+Voix : Contrôle mission (Terre)
+============================================================
+
+[FIN-01] · Moment : toutes les quêtes terminées · Ton : solennel
+« Toutes les traces sont retrouvées. Les quatre missions sont dans les archives. »
+
+[FIN-02] · Moment : message final · Ton : émotion contenu
+« Ici la Terre. Tu peux rentrer maintenant. La planète rouge gardera tes traces. »
+
+[FIN-03] · Moment : écran de fin · Ton : chaleureux
+« Chaque mission a laissé une trace. Tu viens de les retrouver toutes. »
+
+[FIN-04] · Moment : le joueur reste en orbite après la fin · Ton : complice
+« Le globe tourne encore. Rien ne t'oblige à partir tout de suite. »
+
+[FIN-05] · Moment : coupure de la radio · Ton : fin de transmission
+« Fin de transmission. Atlas Mars reste en orbite, au cas où. »
+
+
+============================================================
+9. VARIANTES POUR ÉVITER LA RÉPÉTITION
+À utiliser en alternance avec les entrées principales.
+============================================================
+
+[VAR-01] · Moment : retour dans une mission déjà terminée · Ton : complice
+« Tu connais déjà ce site. Cette fois, tu peux prendre le temps de regarder. »
+
+[VAR-02] · Moment : échec répété sur Sojourner · Ton : encourageant
+« Trois essais, trois leçons. La bonne trajectoire est souvent plus lente que la fierté. »
+
+[VAR-03] · Moment : échec répété sur Spirit · Ton : encourageant
+« Spirit est robuste. C'est le pilote qui apprend. Repars du dernier point et change d'époque plus tôt. »
+
+[VAR-04] · Moment : échec répété sur Ingenuity · Ton : léger
+« Les rochers ne bougent pas. Toi, si. Prends un couloir plus large au prochain vol. »
+
+[VAR-05] · Moment : joueur inactif en orbite · Ton : taquin
+« Mars tourne depuis quatre milliards d'années. Elle peut attendre encore un peu. »
+
+[VAR-06] · Moment : joueur inactif dans un mini-jeu · Ton : inquiet
+« Contrôle, tu es toujours là ? La télémétrie bouge encore. »
+
+[VAR-07] · Moment : réussite avec peu de carburant · Ton : admiratif
+« Atterrissage avec les réservoirs presque vides. Le genre de manœuvre qui se raconte dans les couloirs. »
+
+[VAR-08] · Moment : réussite avec un modèle sismique très proche d'InSight · Ton : impressionné
+« Ton modèle colle presque aux données réelles. La Terre va relire ton rapport deux fois. »
+
+[VAR-09] · Moment : toutes les quêtes terminées, retour au menu · Ton : conclusion
+« La mission est finie, mais la radio reste allumée. On ne laisse jamais un explorateur sans contact. »
+
+[VAR-10] · Moment : générique / crédits · Ton : chaleureux
+« Ici le contrôle mission. Au nom de toute l'équipe : merci d'avoir écouté Mars. »
+
+
+============================================================
+FIN DU FICHIER
+============================================================
