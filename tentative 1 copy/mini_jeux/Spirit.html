@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Spirit — Les traces de l’eau</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0b0d10;--pn:rgba(12,14,18,.84);--tx:#f2ede5;--mu:#aaa398;--ac:#ff7a3d;--wt:#6fd0e8;--ok:#8fe3a1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font:500 14px/1.4 "Chakra Petch",system-ui,sans-serif;touch-action:none;user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.pn{position:fixed;background:var(--pn);border:1px solid #3a3d44;border-left:3px solid var(--ac);padding:8px 12px;backdrop-filter:blur(4px)}
+#mis{top:10px;left:10px;max-width:310px}#mis b{font-size:13px;letter-spacing:.04em}#mis p{margin:4px 0 6px;font-size:13px}
+#stp{display:flex;gap:10px;margin:0;padding:0;list-style:none;font-size:12px;color:var(--mu)}#stp li::before{content:"☐ "}#stp li.d{color:var(--ok)}#stp li.d::before{content:"☑ "}
+#era{position:fixed;top:10px;left:50%;transform:translateX(-50%);padding:8px 16px;font-weight:700;font-size:16px;background:var(--pn);white-space:nowrap}
+#era.p0{border:2px dashed var(--wt)}#era.p1{border:2px solid var(--ac)}
+#tel{top:10px;right:10px;font-size:12px;text-align:right;border-left:1px solid #3a3d44;border-right:3px solid var(--ac)}
+#tel button{margin:4px 0 0 4px}
+button{font:inherit;color:var(--tx);background:#1b1e24;border:1px solid #5b5f68;padding:8px 12px;cursor:pointer;min-height:40px}
+button:hover:not(:disabled){border-color:var(--ac)}button:focus-visible{outline:3px solid #fff;outline-offset:2px}button:disabled{opacity:.4;cursor:default}
+#eb{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:16px;min-height:60px;min-width:190px;font-weight:700;font-size:15px;background:#2a1a10;border:2px solid var(--ac)}
+#eb.p0{background:#0f2530;border:2px dashed var(--wt)}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);max-width:min(92vw,560px);text-align:center;padding:8px 14px;background:var(--pn);border:1px solid #3a3d44;opacity:0;transition:opacity .3s}
+#toast.on{opacity:1}
+#al{position:fixed;top:64px;left:50%;transform:translateX(-50%);padding:6px 16px;font-weight:700;font-size:18px;background:#fff;color:#111;border:3px solid #111;display:none}
+#act{top:64px;left:50%;transform:translateX(-50%);width:min(92vw,400px);display:grid;gap:6px}
+#act[hidden],#ch[hidden]{display:none}
+#res{margin:0;font-weight:700;color:var(--ok)}#ch{display:grid;gap:6px}#ch button{text-align:left}
+#tc{display:none}
+@media (hover:none){#tc{display:block}#tc button{position:fixed;bottom:16px;width:58px;height:58px;font-size:20px;padding:0;touch-action:none}
+ #tc [data-k=l]{left:12px}#tc [data-k=r]{left:76px}#tc [data-k=u]{left:140px}#tc [data-k=j]{right:14px;bottom:86px;width:190px;height:50px;font-size:15px}
+ #mis{max-width:230px;font-size:12px}#era{top:auto;bottom:150px;font-size:13px}#al{top:auto;bottom:200px}#act{top:auto;bottom:210px}}
+#fl{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .35s}#fl.on{opacity:.55;transition:none}#fl.bad{background:#a00}
+.ov{position:fixed;inset:0;background:rgba(6,7,9,.9);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;touch-action:auto}
+.ov[hidden]{display:none}.ov div{max-width:600px;border:1px solid #3a3d44;border-top:4px solid var(--ac);padding:20px;background:#101216}
+.ov h1{margin:0 0 8px;font-size:24px}.ov p{margin:8px 0}.ov a{color:var(--wt)}.ov small{color:var(--mu)}
+@media (prefers-reduced-motion:reduce){#toast,#fl{transition:none}}
+</style></head><body>
+<canvas id="c"></canvas><div id="fl"></div>
+<header id="mis" class="pn"><b>SPIRIT · LES TRACES DE L’EAU</b>
+<p id="obj">Mets au jour le dépôt blanc, analyse-le et transmets à la Terre ce qu’il révèle sur l’eau ancienne de Mars.</p>
+<ol id="stp"><li id="s1">Racler</li><li id="s2">Analyser</li><li id="s3">Transmettre</li></ol></header>
+<div id="era" role="status" aria-live="polite"></div>
+<div id="al" role="alert"></div>
+<aside id="tel" class="pn"><div id="tt"></div><button id="ba" aria-pressed="false">Aide timing : non (H)</button><button id="br">Rejouer</button></aside>
+<div id="act" class="pn" hidden><button id="b1">1 · Racler le sol</button><button id="b2" disabled>2 · Analyser</button><p id="res" role="status"></p><button id="b3" disabled>3 · Transmettre à la Terre</button><div id="ch" hidden></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="tc"><button data-k="l" aria-label="Tourner à gauche">◀</button><button data-k="r" aria-label="Tourner à droite">▶</button><button data-k="u" aria-label="Avancer">▲</button><button data-k="j">Sauter</button></div>
+<button id="eb"></button>
+<div class="ov" id="intro"><div><h1>Spirit — Les traces de l’eau</h1>
+<p>Gusev, près de Home Plate. Tu pilotes Spirit à travers deux visages du même lieu : le <b>Présent</b> (époque de Spirit) et le <b>Passé</b> (reconstitution possible, non prouvée).</p>
+<p><b>Mets au jour le dépôt blanc, analyse-le et transmets à la Terre ce qu’il révèle sur l’eau ancienne de Mars.</b></p>
+<p>Le bouton Passé / Présent change le terrain, les obstacles et l’ambiance, mais Spirit garde sa position, son cap et son élan. Bascule même en vol.</p>
+<p><small>Clavier : flèches ou ZQSD/WASD pour rouler, Espace pour sauter, E ou Maj pour changer d’époque, H pour l’aide timing. Tactile : boutons à l’écran. Des points de reprise sont enregistrés en route.</small></p>
+<button id="go">Commencer la mission</button></div></div>
+<div class="ov" id="win" hidden><div><h1>Rapport reçu sur Terre</h1>
+<p><b>Mission accomplie.</b> Ce qui est réel : en 2007, la roue avant droite bloquée de Spirit a creusé le sol près de Home Plate et révélé un sol blanc, presque de la silice pure. La NASA indique qu’il pourrait venir d’une source chaude ou d’une fumerolle ; dans les deux cas, de l’eau était impliquée.</p>
+<p>Ce qui est du jeu : la source chaude est une explication possible, le décor ancien est une reconstitution imaginée, et le saut par geyser est une mécanique de jeu.</p>
+<p><a href="https://science.nasa.gov/resource/rovers-wheel-churns-up-bright-martian-soil/" target="_blank" rel="noopener">Source NASA : la roue de Spirit révèle un sol clair</a></p>
+<button id="rp">Rejouer</button></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=i=>document.getElementById(i),cl=(v,a,b)=>Math.max(a,Math.min(b,v)),sm=(a,b,x)=>{const t=cl((x-a)/(b-a),0,1);return t*t*(3-2*t)},sb=(x,a,b,c,d)=>sm(a,b,x)*(1-sm(c,d,x)),bump=(x,z,cx,cz,r,H)=>{const d=Math.hypot(x-cx,z-cz)/r;return d<1?H*(1-d*d):0};
+// Terrain : e=0 Passé, e=1 Présent
+function f(x,z,e){const az=Math.abs(z);let h=(e?-2.4:-2.9)*sb(x,14,18,29,33);
+ if(e)h+=bump(x,z,24,-1.5,1.8,1.6)+bump(x,z,27,2.5,1.6,1.4)+bump(x,z,20,3,1.4,1.2);else h+=bump(x,z,9,2.5,1.6,.9);
+ h+=-8*sb(x,40,40.4,49.6,50)+(e?4:1)*sb(x,49.9,50.3,63,68);
+ h+=e?3*sb(x,69.5,71.5,77,79):-.4*sb(x,69,71,78,80);
+ const g=sb(x,84,84.5,91.5,92);h-=e?6*g:6*g*sm(2.2,3.2,az);
+ if(!e)h-=2.2*sb(x,93.5,96,113,114.5);
+ h+=14*sm(6,8,az)*(1+.15*Math.sin(x*.7+z))+14*sm(118,121,x)+14*sm(-3,-6,x)+.07*Math.sin(x*1.3)*Math.cos(z*1.1);return h}
+const WL=[[15,32,-.3],[50,64,2.2],[69.5,79.5,.1],[84,92,-3.5],[93.5,114.5,0]],wl=x=>{for(const w of WL)if(x>=w[0]&&x<=w[1])return w[2];return -99};
+const CP=[{x:3},{x:34},{x:58,e:1},{x:82},{x:97,e:1}],VX=36,SITE=99;
+const cv=$("c"),rd=new THREE.WebGLRenderer({canvas:cv,antialias:true});rd.setPixelRatio(Math.min(devicePixelRatio,2));
+const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(60,1,.1,400),hemi=new THREE.HemisphereLight(0xffffff,0x443322,1),sun=new THREE.DirectionalLight(0xffffff,1);sun.position.set(-30,50,20);sc.add(hemi,sun);
+const GP=new THREE.Group(),GN=new THREE.Group(),GC=new THREE.Group();sc.add(GP,GN,GC);
+const AM=[{bg:0x8fa7b0,fd:.013,hs:0xcfe3ea,hg:0x2a3a40,hi:.9,si:.7,sc:0xe8f2ff},{bg:0xd29a68,fd:.009,hs:0xffd9b0,hg:0x6a3d24,hi:.85,si:1.2,sc:0xffe0b8}];
+function col(x,z,h,e){const n=Math.sin(x*.9)*Math.cos(z*.8+x*.1)*.5+.5,b=.5+.5*Math.sin(h*5+x*.05),w=Math.abs(z)>6.5;
+ if(e){let r=.58+.1*n,g=.38+.07*n,u=.26+.05*n;if(b>.6){r+=.1;g+=.09;u+=.06}if(w){r*=.7;g*=.65;u*=.62}return[r,g,u]}
+ let v=.15+.05*n;if(w)v=.22+.05*n;const l=wl(x);if(l>-50&&h<l+.5)v=.06+.02*n;return[v*.95,v*1.02,v*1.1]}
+function mk(e){const g=new THREE.PlaneGeometry(130,28,260,56);g.rotateX(-Math.PI/2);const p=g.attributes.position,c=new Float32Array(p.count*3);
+ for(let i=0;i<p.count;i++){const x=p.getX(i)+55,z=p.getZ(i),h=f(x,z,e);p.setY(i,h);const k=col(x,z,h,e);c.set(k,i*3)}
+ g.translate(55,0,0);g.setAttribute("color",new THREE.BufferAttribute(c,3));g.computeVertexNormals();
+ return new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:1}))}
+GP.add(mk(0));GN.add(mk(1));
+// eau animée
+const waters=[];WL.forEach((w,i)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w[1]-w[0],14,24,10),new THREE.MeshStandardMaterial({color:i==4?0x9fd6cc:0x2c6f8a,transparent:true,opacity:.84,roughness:.15,metalness:.3}));m.rotation.x=-Math.PI/2;m.position.set((w[0]+w[1])/2,w[2],0);GP.add(m);waters.push(m)});
+// rochers
+let sd=7;const rn=()=>(sd=(sd*16807)%2147483647)/2147483647;
+for(let i=0;i<90;i++){const x=rn()*118,z=(rn()>.5?1:-1)*(5.2+rn()*5),s=.4+rn()*1.2;[0,1].forEach(e=>{const m=new THREE.Mesh(new THREE.IcosahedronGeometry(s,0),new THREE.MeshStandardMaterial({color:e?0x8a5a3c:0x25292b,flatShading:true,roughness:e?1:.4}));m.position.set(x,f(x,z,e)+s*.3,z);m.rotation.set(rn()*3,rn()*3,0);(e?GN:GP).add(m)})}
+// repères communs
+const rk=new THREE.MeshStandardMaterial({color:0x6d5a4c,flatShading:true,roughness:1});
+[[28,-20,5,30],[70,18,6,28],[100,-19,5,24]].forEach(a=>{const m=new THREE.Mesh(new THREE.ConeGeometry(a[2],a[3],6),rk);m.position.set(a[0],a[3]/2-4,a[1]);GC.add(m)});
+const hp=new THREE.Mesh(new THREE.CylinderGeometry(13,17,10,10),rk);hp.position.set(62,-1,-32);GC.add(hp);
+const bt=new THREE.Mesh(new THREE.ConeGeometry(34,60,7),rk);bt.position.set(150,26,0);GC.add(bt);
+const vent=new THREE.Mesh(new THREE.CylinderGeometry(2.4,3,.3,16),new THREE.MeshStandardMaterial({color:0xcfc8b8,roughness:.9}));vent.position.set(VX,.1,0);GC.add(vent);
+// geyser (Passé) + balise (Présent)
+const ring=new THREE.Mesh(new THREE.TorusGeometry(2.4,.16,8,32),new THREE.MeshBasicMaterial({color:0xffffff}));ring.rotation.x=Math.PI/2;ring.position.set(VX,.3,0);GP.add(ring);
+const colm=new THREE.Mesh(new THREE.CylinderGeometry(.9,1.5,16,12,1,true),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.1,side:2,depthWrite:false}));colm.position.set(VX,8,0);GP.add(colm);
+const pole=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,5),new THREE.MeshBasicMaterial({color:0xffffff}));pole.position.set(109,2.5,0);const flag=new THREE.Mesh(new THREE.ConeGeometry(.6,1.4,3),new THREE.MeshBasicMaterial({color:0xff7a3d}));flag.rotation.z=-Math.PI/2;flag.position.set(109,4.6,.7);GN.add(pole,flag);
+// particules
+const spr=(()=>{const c=document.createElement("canvas");c.width=c.height=64;const g=c.getContext("2d"),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,"rgba(255,255,255,1)");r.addColorStop(1,"rgba(255,255,255,0)");g.fillStyle=r;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
+function pts(n,color,op,size,grp){const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(n*3),3));const p=new THREE.Points(g,new THREE.PointsMaterial({size,map:spr,color,transparent:true,opacity:op,depthWrite:false}));p.frustumCulled=false;grp.add(p);return p}
+const steam=pts(160,0xffffff,.55,2.2,GP),dust=pts(160,0xe8b98a,.4,.9,GN);
+const sp=steam.geometry.attributes.position;for(let i=0;i<160;i++){const v=i<60;sp.setXYZ(i,v?VX+(rn()-.5)*3:94+rn()*20,rn()*6,v?(rn()-.5)*3:(rn()-.5)*10)}
+// rover
+const R={x:3,y:0,z:0,h:0,vx:0,vy:0,vz:0},rv=new THREE.Group(),wh=[];rv.rotation.order="YZX";
+const bx=(w,h,d,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.6}));m.position.set(x,y,z);rv.add(m);return m};
+bx(1.7,.5,1.1,0xd8d4ca,0,.8,0);bx(1.6,.06,1.2,0x1c2a55,0,1.1,0);bx(.12,.7,.12,0xaaaaaa,.5,1.45,0);bx(.3,.2,.4,0x222222,.5,1.85,0);
+[-.7,0,.7].forEach(x=>[-.75,.75].forEach(z=>{const g=new THREE.CylinderGeometry(.32,.32,.25,14);g.rotateX(Math.PI/2);const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x333333,roughness:1}));m.position.set(x,.32,z);rv.add(m);wh.push(m);if(x==.7&&z==.75)m.userData.stuck=1}));
+sc.add(rv);const stuckW=wh.find(w=>w.userData.stuck);
+// état
+const K={u:0,d:0,l:0,r:0,j:0};let E=1,mode="intro",gr=true,coy=0,cpI=0,as=false,ms=0,gClk=0,launched=false,snap=1,sT=0,lock=false,lastHint=-1,trail=[],pitch=0,spin=0;
+const CY=()=>as?8.5:7,gPh=()=>{const t=gClk%CY();return t<4?{p:0}:t<6?{p:1,left:6-t}:{p:2}};
+function toast(t,ms2=4200){const e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),ms2)}
+function flash(b){const e=$("fl");e.className=b?"bad on":"on";requestAnimationFrame(()=>requestAnimationFrame(()=>e.className=b?"bad":""))}
+function applyEra(){const a=AM[E];GP.visible=!E;GN.visible=!!E;sc.background=new THREE.Color(a.bg);sc.fog=new THREE.FogExp2(a.bg,a.fd);hemi.color.set(a.hs);hemi.groundColor.set(a.hg);hemi.intensity=a.hi;sun.intensity=a.si;sun.color.set(a.sc);
+ $("era").className="p"+E;$("era").textContent=E?"◐ PRÉSENT · Époque de Spirit":"≈ PASSÉ · Reconstitution possible";
+ const b=$("eb");b.className="p"+E;b.textContent=E?"⇄ Aller au Passé (E)":"⇄ Revenir au Présent (E)";b.disabled=lock}
+function die(m){const c=CP[cpI];if(c.e!==undefined&&E!==c.e){E=c.e;applyEra()}R.x=c.x;R.z=0;R.h=0;R.vx=R.vy=R.vz=0;R.y=f(R.x,0,E);gr=true;snap=1;toast(m+" Reprise au point "+(cpI+1)+"/5.",5000);flash(1)}
+function toggle(){if(mode!=="play"||lock)return;E=1-E;applyEra();flash();const g=f(R.x,R.z,E);if(g>R.y+.5)die("Spirit enseveli : le terrain a changé sous lui.");else if(g>R.y)R.y=g}
+function drown(){if(E)return false;const l=wl(R.x);return l>-50&&l-f(R.x,R.z,0)>.8&&R.y<l+.1}
+function phys(s){const ax=K.r-K.l,th=K.u-K.d;R.h+=ax*1.9*s;const c=Math.cos(R.h),n=Math.sin(R.h),l=E?-99:wl(R.x),gd=f(R.x,R.z,E),wade=!E&&l>-50&&l-gd>.15&&R.y<l+.2;
+ const a=(gr?15:4)*(wade?.5:1);R.vx+=c*th*a*s;R.vz+=n*th*a*s;
+ if(gr){const vf=R.vx*c+R.vz*n,vl=(-R.vx*n+R.vz*c)*Math.exp(-7*s);R.vx=c*vf-n*vl;R.vz=n*vf+c*vl}
+ const k=Math.exp(-(gr?(th?.5:2.2)+(wade?3:0):.04)*s);R.vx*=k;R.vz*=k;const v=Math.hypot(R.vx,R.vz);if(v>9){R.vx*=9/v;R.vz*=9/v}
+ if(K.j&&(gr||coy>0)){R.vy=7.6;gr=false;coy=0}else coy=gr?(as?.25:.1):coy-s;R.vy-=12*s;
+ let nx=R.x+R.vx*s;if(f(nx,R.z,E)-R.y>.1+1.5*Math.abs(nx-R.x)){R.vx=0;nx=R.x}R.x=nx;
+ let nz=R.z+R.vz*s;if(f(R.x,nz,E)-R.y>.1+1.5*Math.abs(nz-R.z)){R.vz=0;nz=R.z}R.z=nz;
+ R.y+=R.vy*s;const g=f(R.x,R.z,E);if(R.y<=g+((gr&&R.vy<=0)?.35:0)){R.y=g;R.vy=0;gr=true}else gr=false;spin+=Math.hypot(R.vx,R.vz)*s/.32*(Math.cos(R.h)*R.vx+Math.sin(R.h)*R.vz>=0?1:-1);
+ const ph=gPh();if(ph.p!==2)launched=false;
+ if(!E&&ph.p===2&&!launched&&Math.hypot(R.x-VX,R.z)<(as?4:2.6)&&R.y<g+1.5){R.vy=17;gr=false;launched=true;toast("Jet de vapeur ! Bascule en Présent avant d’atterrir.")}
+ if(R.y<-5.2)die("Chute dans le vide.");else if(drown())die("Emporté par l’eau profonde : infranchissable au Passé.");
+ for(let i=cpI+1;i<5;i++){const c=CP[i];if(gr&&R.x>=c.x&&R.x<c.x+3.5&&(c.e===undefined||c.e===E)){cpI=i;toast("Point de reprise "+(i+1)+"/5 enregistré.",2200)}}}
+const HINTS=[[0,13,()=>E?"Présent : le bassin devant est à sec. Essaie Passé (E) : tu gardes position, cap et élan.":"Passé : une eau sombre remplit le bassin. Reviens au Présent pour le traverser."],
+[13,34,()=>E?"Fond de bassin asséché : passage possible entre les deux parois. Contourne les blocs.":"Eau profonde : on ne traverse pas. Bascule en Présent."],
+[34,40,()=>"Gouffre. Au Passé, place-toi sur l’évent blanc : l’anneau gonfle et le compte à rebours annonce le jet."],
+[40,50,()=>E?"Présent : pas de jet. Le gouffre reste vide.":"En vol : bascule en Présent avant d’atterrir sur la dalle !"],
+[50,64,()=>E?"Dalle de sédiments atteinte. Descends la rampe.":"Lac profond au Passé : reviens au Présent !"],
+[64,82,()=>E?"Une dune bloque le passage. Au Passé, c’est un gué peu profond : bascule.":"Gué praticable. Avance, puis reviens au Présent si tu en as besoin."],
+[82,93,()=>E?"Au Présent, le pont n’existe plus. Passe au Passé pour traverser, puis reviens au Présent avant la rive.":"Pont de roche. Reviens au Présent AVANT l’autre rive : source chaude profonde."],
+[93,120,()=>E?"Roule jusqu’au drapeau (zone d’étude). Actions de mission en haut.":"Source chaude profonde : reviens au Présent !"]];
+function hint(){let k=-1;for(let i=0;i<HINTS.length;i++)if(R.x>=HINTS[i][0]&&R.x<HINTS[i][1])k=i;const key=k*2+E;if(key!==lastHint&&k>=0){lastHint=key;toast(HINTS[k][2](),6000)}}
+// mission
+const stepEl=i=>$("s"+i).classList.add("d");
+function actUI(){const ok=mode!=="intro"&&mode!=="win"&&E===1&&(R.x>=SITE||ms>0);$("act").hidden=!ok;$("b1").disabled=ms!==0||mode!=="play"||!gr;$("b2").disabled=ms!==1||mode!=="play";$("b3").disabled=ms!==2||mode!=="play"}
+$("b1").onclick=()=>{if(ms)return;mode="scrape";sT=0;lock=true;applyEra();R.vx=R.vz=0;const c=Math.cos(R.h),n=Math.sin(R.h),ox=R.x+c*.7-n*.75,oz=R.z+n*.7+c*.75;
+ [[.7,0x3a2a1c,.02],[.5,0xf4f1e6,.04]].forEach(t=>{const g=new THREE.PlaneGeometry(1,t[0]);g.rotateX(-Math.PI/2);g.translate(.5,0,0);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:t[1]}));m.position.set(ox,t[2],oz);m.rotation.y=-R.h+Math.PI;m.scale.x=.01;GN.add(m);trail.push(m)});toast("Spirit traîne sa roue bloquée et gratte le sol…",3500)};
+$("b2").onclick=()=>{ms=2;stepEl(1);$("res").textContent="Résultat : Dépôt riche en silice";$("b3").disabled=false;toast("Analyse terminée. Choisis la conclusion à transmettre.")};
+const CH=[["Ce dépôt prouve qu’il y a eu de la vie sur Mars.",0],["De l’eau a pu participer à la formation de ce dépôt autrefois.",1],["Ce dépôt n’a aucun rapport avec l’eau.",0]];
+$("b3").onclick=()=>{const d=$("ch");d.hidden=false;d.innerHTML="";CH.forEach(c=>{const b=document.createElement("button");b.textContent="Transmettre : "+c[0];b.onclick=()=>{if(c[1]){mode="win";stepEl(3);$("win").hidden=false}else toast("Conclusion rejetée : l’analyse ne montre ni vie ni absence d’eau. Réessaie.",5000)};d.appendChild(b)})};
+function reset(){E=1;mode="play";lock=false;ms=0;cpI=0;R.x=3;R.z=0;R.h=0;R.vx=R.vy=R.vz=0;R.y=f(3,0,1);gr=true;snap=1;lastHint=-1;trail.forEach(m=>GN.remove(m));trail=[];["s1","s2","s3"].forEach(i=>$(i).classList.remove("d"));$("res").textContent="";$("ch").hidden=true;$("win").hidden=true;applyEra()}
+$("go").onclick=()=>{$("intro").hidden=true;reset()};$("rp").onclick=reset;$("br").onclick=()=>{reset();$("br").blur()};
+$("ba").onclick=()=>{as=!as;$("ba").textContent="Aide timing : "+(as?"oui":"non")+" (H)";$("ba").setAttribute("aria-pressed",as);$("ba").blur();toast(as?"Aide : ralenti, jet plus long et plus large, saut tolérant.":"Aide désactivée.",2500)};
+$("eb").onclick=()=>{toggle();$("eb").blur()};
+// entrées
+const km={ArrowUp:"u",z:"u",w:"u",ArrowDown:"d",s:"d",ArrowLeft:"l",q:"l",a:"l",ArrowRight:"r",d:"r"," ":"j"};
+addEventListener("keydown",e=>{const k=e.key.length>1?e.key:e.key.toLowerCase();if(mode==="play"&&km[k]){K[km[k]]=1;e.preventDefault()}if((k==="e"||k==="Shift")&&!e.repeat)toggle();if(k==="h"&&!e.repeat)$("ba").click()});
+addEventListener("keyup",e=>{const k=e.key.length>1?e.key:e.key.toLowerCase();if(km[k]){K[km[k]]=0;if(mode==="play")e.preventDefault()}});
+document.querySelectorAll("#tc button").forEach(b=>{const k=b.dataset.k;b.addEventListener("pointerdown",e=>{K[k]=1;b.setPointerCapture(e.pointerId);e.preventDefault()});["pointerup","pointercancel"].forEach(t=>b.addEventListener(t,()=>K[k]=0))});
+addEventListener("blur",()=>Object.keys(K).forEach(k=>K[k]=0));
+function size(){rd.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}addEventListener("resize",size);size();applyEra();R.y=f(3,0,1);
+// boucle
+let last=performance.now(),th=0;
+function loop(t){requestAnimationFrame(loop);let dt=Math.min((t-last)/1000,.05);last=t;const T=t/1000;if(as)dt*=.65;gClk+=dt;
+ if(mode==="play"){const n=Math.ceil(dt/.01);for(let i=0;i<n&&mode==="play";i++)phys(dt/n);hint()}
+ else if(mode==="scrape"){sT+=dt;const c=Math.cos(R.h),n=Math.sin(R.h),d=Math.min(sT,3.2);R.x-=c*dt*1;R.z-=n*dt*1;R.y=f(R.x,R.z,1);spin-=dt*3;trail.forEach(m=>m.scale.x=Math.max(.01,d));
+  if(sT>3.4){mode="play";ms=1;stepEl(0)||0;toast("Le sol est gratté : un dépôt blanc apparaît. Lance l’analyse.")}}
+ // ambiance
+ const ph=gPh(),ge=!E&&ph.p>0;ring.visible=!E;ring.scale.setScalar(ph.p===1?1+.3*Math.sin(T*16):1);ring.material.color.set(ph.p===2?0xffd34d:0xffffff);colm.material.opacity=ph.p===2?.65:ph.p===1?.2:.08;colm.scale.y=ph.p===2?1:.6;
+ const al=$("al");if(!E&&mode==="play"&&R.x>20&&R.x<48){al.style.display="block";al.textContent=ph.p===2?"▲ JET ACTIF":ph.p===1?"⚠ JET DANS "+Math.ceil(ph.left)+" s":"Évent calme · prochain jet bientôt"}else al.style.display="none";
+ waters.forEach((m,j)=>{const p=m.geometry.attributes.position;for(let i=0;i<p.count;i++)p.setZ(i,Math.sin(p.getX(i)*.8+T*1.6+j)*.07+Math.cos(p.getY(i)*.9+T*1.2)*.07);p.needsUpdate=true});
+ for(let i=0;i<160;i++){let y=sp.getY(i)+dt*(1+(i<60&&ge?3:.5)*(.5+i%3*.3));if(y>(i<60?(ph.p===2?14:5):5)||(i<60&&ph.p===0&&y>4))y=0;sp.setY(i,y)}sp.needsUpdate=true;
+ const dp=dust.geometry.attributes.position;for(let i=0;i<160;i++){let x=dp.getX(i)+dt*2,y=dp.getY(i),z=dp.getZ(i)+dt*3;if(Math.abs(x-R.x)>20||Math.abs(z-R.z)>14||y<R.y-1||y>R.y+9){x=R.x-20+rn()*40;z=R.z-14+rn()*28;y=R.y+rn()*8}dp.setXYZ(i,x,y,z)}dp.needsUpdate=true;
+ // rover
+ const c=Math.cos(R.h),n=Math.sin(R.h);rv.position.set(R.x,R.y,R.z);rv.rotation.y=-R.h;
+ const tp=gr?cl(Math.atan2(f(R.x+c*.7,R.z+n*.7,E)-f(R.x-c*.7,R.z-n*.7,E),1.4),-.6,.6):cl(R.vy*.03,-.3,.3);pitch+=(tp-pitch)*.2;rv.rotation.z=pitch;
+ wh.forEach(w=>{if(mode==="scrape"&&w===stuckW){w.rotation.z=0;w.position.y=.27}else w.rotation.z=-spin});
+ // caméra : cadrage inchangé au changement d’époque
+ const tx=R.x-c*10,tz=cl(R.z-n*10,-5.6,5.6),ty=R.y+5.5,k=snap?1:1-Math.exp(-4*dt);snap=0;cam.position.x+=(tx-cam.position.x)*k;cam.position.y+=(ty-cam.position.y)*k;cam.position.z+=(tz-cam.position.z)*k;cam.lookAt(R.x+c*4,R.y+1,R.z+n*4);
+ if(t-th>100){th=t;$("tt").innerHTML="Distance "+Math.max(0,Math.round(R.x))+" / 106 m<br>Vitesse "+Math.hypot(R.vx,R.vz).toFixed(1)+" m/s<br>Reprise "+(cpI+1)+"/5";actUI()}
+ rd.render(sc,cam)}
+mode="intro";requestAnimationFrame(loop);
+</script></body></html>

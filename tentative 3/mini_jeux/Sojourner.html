@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mission Sojourner – Atterrissage sur Mars</title>
+<style>
+html,body{height:100%;margin:0;background:#000;overflow:hidden;font-family:'Courier New',monospace;color:#7ff;user-select:none;-webkit-user-select:none;touch-action:none}
+#c{position:fixed;inset:0;width:100%;height:100%}
+.p{position:fixed;background:rgba(0,22,32,.55);border:1px solid #2cc;box-shadow:0 0 14px #0cc4;padding:8px 10px;font-size:12px;letter-spacing:1px;backdrop-filter:blur(3px)}
+#tm{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));min-width:200px}
+#tm div{display:flex;justify-content:space-between;gap:14px;margin-top:3px}
+#tm i{font-style:normal;color:#fff}#tm i.w{color:#ff5a4a}
+#bar{height:8px;border:1px solid #2cc;margin-top:4px}#fb{display:block;height:100%;background:#2fd;width:100%}
+#rd{right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:4px;border-radius:50%}
+#rd canvas{display:block;border-radius:50%}
+#mk{position:fixed;left:0;top:0;color:#fe5;font-size:13px;text-shadow:0 0 6px #000;pointer-events:none;white-space:nowrap}
+.bt{background:#0a3a44;color:#7ff;border:1px solid #2cc;font:inherit;letter-spacing:2px;padding:10px 18px;cursor:pointer}
+.bt:hover{background:#0e5560}
+#top{position:fixed;left:50%;transform:translateX(-50%);top:max(10px,env(safe-area-inset-top));display:flex;gap:8px}
+#top button{padding:6px 10px;font-size:12px}
+#tc{display:none;position:fixed;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom));justify-content:space-between;padding:0 16px}
+#pad{display:grid;grid-template-columns:repeat(3,58px);gap:6px}
+#tc button{height:58px;font-size:22px;background:rgba(0,40,50,.6);color:#7ff;border:1px solid #2cc;border-radius:10px;touch-action:none}
+#bk{width:96px;align-self:end}
+#ov{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(#0006,#000c);padding:20px}
+#ov h1{font-size:clamp(28px,6vw,60px);letter-spacing:8px;margin:0;color:#fff;text-shadow:0 0 20px #0cc}
+#ov h2{font-weight:normal;letter-spacing:5px;font-size:clamp(13px,2.4vw,20px)}
+#ov p{max-width:560px;line-height:1.6;color:#cff}
+#ov.win h1{color:#5f9;text-shadow:0 0 24px #0f6}#ov.lose h1{color:#f65;text-shadow:0 0 24px #f30}
+small{opacity:.7;margin-top:18px;line-height:1.6}
+@media(max-width:700px){#tm{font-size:10px;min-width:150px;padding:5px 7px}#rd canvas{width:100px;height:100px}}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="hud" style="display:none">
+ <div id="tm" class="p"><b>◢ TÉLÉMÉTRIE ◣</b>
+  <div>ALTITUDE<i id="al"></i></div><div>VIT. VERTICALE<i id="vz"></i></div><div>VIT. HORIZ.<i id="vh"></i></div>
+  <div>DIST. CIBLE<i id="di"></i></div><div>INCLINAISON<i id="ti"></i></div>
+  <div>VENT<i><span id="wa" style="display:inline-block">➤</span> <span id="wv"></span></i></div>
+  <div>CARBURANT<i id="fu"></i></div><div id="bar" style="display:block"><b id="fb"></b></div></div>
+ <div id="rd" class="p"><canvas id="rc" width="140" height="140"></canvas></div>
+ <div id="top"><button class="bt" id="rs2">↻ RECOMMENCER</button><button class="bt" id="mu">♪</button></div>
+ <div id="mk">◎</div>
+ <div id="tc"><div id="pad"><button data-k="ArrowUp" style="grid-column:2">▲</button><button data-k="ArrowLeft" style="grid-row:2">◀</button><button data-k="ArrowDown" style="grid-row:2">▼</button><button data-k="ArrowRight" style="grid-row:2">▶</button></div><button id="bk" data-k="Space">FREIN</button></div>
+</div>
+<div id="ov"><h1 id="h1">MISSION SOJOURNER</h1><h2 id="h2">OPÉRATION : ATTERRISSAGE MARTIEN</h2><p id="msg">Pilotez les micro-propulseurs, anticipez l’inertie et le vent : le rover doit toucher le sol dans la cible, à vitesse réduite et bien à plat.</p><button class="bt" id="go">DÉMARRER LA MISSION</button>
+<small>← → ↑ ↓ : propulseurs (← = le rover accélère vers la gauche de l’écran) · ESPACE : freinage vertical · M : son<br>Carburant limité · cible = 2× la taille du rover</small></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+function atlasQuest(id){try{var q=JSON.parse(localStorage.getItem("atlasMarsQuests")||"{}");q[id]=true;localStorage.setItem("atlasMarsQuests",JSON.stringify(q))}catch(e){}}
+const $=i=>document.getElementById(i),R=(a,b)=>a+Math.random()*(b-a),PI=Math.PI,V3=THREE.Vector3,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+const G=3.71,VT=9,KH=.22,TH=2.4,BR=3.2,F0=85,A0=420,TR=2,VMAX=5,HMAX=6,TLIM=.34;
+const K={},mob=matchMedia('(pointer:coarse)').matches;
+const rend=new THREE.WebGLRenderer({canvas:$('c'),antialias:!mob});
+rend.setPixelRatio(Math.min(devicePixelRatio,mob?1.5:2));rend.shadowMap.enabled=true;rend.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xcf8d60,300,3000);
+const cam=new THREE.PerspectiveCamera(55,1,.1,6000);
+const U={sc:{value:1}};
+function cv(w,h,f){const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);return c}
+const tex=c=>new THREE.CanvasTexture(c);
+/* ---------- environnement ---------- */
+const gt=tex(cv(256,256,(x,w,h)=>{x.fillStyle='#b2573a';x.fillRect(0,0,w,h);for(let i=0;i<7000;i++){x.fillStyle=`hsla(${R(8,24)},${R(45,70)}%,${R(28,68)}%,${R(.1,.4)})`;const s=R(1,3.5);x.fillRect(R(0,w),R(0,h),s,s)}}));
+gt.wrapS=gt.wrapT=THREE.RepeatWrapping;gt.repeat.set(500,500);gt.anisotropy=8;
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(10000,10000).rotateX(-PI/2),new THREE.MeshStandardMaterial({map:gt,roughness:1}));ground.receiveShadow=true;scene.add(ground);
+const sky=new THREE.Mesh(new THREE.SphereGeometry(5000,24,16),new THREE.MeshBasicMaterial({map:tex(cv(4,256,(x,w,h)=>{const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#5a2f2c');g.addColorStop(.42,'#b8683f');g.addColorStop(.5,'#d99a6c');g.addColorStop(1,'#d99a6c');x.fillStyle=g;x.fillRect(0,0,w,h)})),side:THREE.BackSide,fog:false,depthWrite:false}));scene.add(sky);
+const mm=new THREE.MeshLambertMaterial({color:0x9a5237,flatShading:true});
+for(let i=0;i<50;i++){const h=R(120,380),a=i/50*2*PI+R(0,.1),r=R(1300,2000),m=new THREE.Mesh(new THREE.ConeGeometry(R(220,420),h,6,2),mm);m.position.set(Math.cos(a)*r,h/2-10,Math.sin(a)*r);m.rotation.y=R(0,6);scene.add(m)}
+scene.add(new THREE.HemisphereLight(0xffd0a8,0x8a4a30,.6));
+const sun=new THREE.DirectionalLight(0xfff0e0,1.15),SD=new V3(.5,.6,.5).normalize();
+sun.castShadow=true;sun.shadow.mapSize.set(mob?1024:2048,mob?1024:2048);Object.assign(sun.shadow.camera,{left:-35,right:35,top:35,bottom:-35,near:1,far:1000});sun.shadow.bias=-.001;sun.shadow.normalBias=.4;scene.add(sun,sun.target);
+const rocks=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,0),new THREE.MeshStandardMaterial({color:0x7a4632,roughness:1,flatShading:true}),300);rocks.castShadow=rocks.receiveShadow=true;rocks.frustumCulled=false;scene.add(rocks);
+const ct=tex(cv(128,128,(x,w,h)=>{const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(60,25,15,.55)');g.addColorStop(.7,'rgba(70,30,18,.35)');g.addColorStop(.82,'rgba(230,160,110,.45)');g.addColorStop(1,'rgba(230,160,110,0)');x.fillStyle=g;x.fillRect(0,0,w,h)}));
+const cmat=new THREE.MeshBasicMaterial({map:ct,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}),cgeo=new THREE.CircleGeometry(1,24).rotateX(-PI/2),craters=[];
+for(let i=0;i<70;i++){const m=new THREE.Mesh(cgeo,cmat);m.position.y=.03;scene.add(m);craters.push(m)}
+/* cible */
+const tgt=new THREE.Group();
+const tt=tex(cv(512,512,x=>{x.translate(256,256);const d=(r,c)=>{x.fillStyle=c;x.beginPath();x.arc(0,0,r,0,7);x.fill()};d(256,'#f4f4f4');d(200,'#d02a22');x.strokeStyle='#fff';x.lineWidth=9;x.beginPath();x.arc(0,0,130,0,7);x.stroke();x.lineWidth=12;x.beginPath();x.moveTo(-200,0);x.lineTo(200,0);x.moveTo(0,-200);x.lineTo(0,200);x.stroke();d(34,'#222')}));
+tgt.add(new THREE.Mesh(new THREE.CircleGeometry(TR,48).rotateX(-PI/2),new THREE.MeshBasicMaterial({map:tt,transparent:true,fog:false,polygonOffset:true,polygonOffsetFactor:-2})));
+const led=new THREE.Mesh(new THREE.SphereGeometry(.16,12,8),new THREE.MeshBasicMaterial({color:0x66ffcc,fog:false}));led.position.y=.15;tgt.add(led);
+const beam=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,140,10,1,true),new THREE.MeshBasicMaterial({color:0x44ffcc,transparent:true,opacity:.28,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,side:THREE.DoubleSide}));beam.position.y=70;tgt.add(beam);
+const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:tex(cv(64,64,x=>{const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(120,255,210,1)');g.addColorStop(1,'rgba(120,255,210,0)');x.fillStyle=g;x.fillRect(0,0,64,64)})),blending:THREE.AdditiveBlending,depthWrite:false,fog:false,sizeAttenuation:false}));gl.scale.setScalar(.05);gl.position.y=.5;tgt.add(gl);scene.add(tgt);
+const pm=new THREE.Mesh(new THREE.RingGeometry(.85,1,40).rotateX(-PI/2),new THREE.MeshBasicMaterial({color:0xffee55,transparent:true,opacity:.8,fog:false,side:THREE.DoubleSide}));scene.add(pm);
+/* ---------- rover Sojourner ---------- */
+const rover=new THREE.Group(),FL={};
+(function(){const M=(c,m,r)=>new THREE.MeshStandardMaterial({color:c,metalness:m,roughness:r}),body=M(0xd8d2c4,.6,.35),gold=M(0xc9a24a,.8,.3),dark=M(0x202226,.3,.7),sol=M(0x1b2f8b,.7,.15);
+const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d),add=(g,m,x,y,z)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;rover.add(o);return o};
+add(B(1.3,.6,2),body,0,.85,0);add(B(1.36,.1,2.06),gold,0,1.18,0);
+add(B(1.25,.05,1.9),sol,0,1.27,0).rotation.x=.1;add(B(1.3,.06,.08),gold,0,1.3,-.95);
+add(new THREE.CylinderGeometry(.025,.025,1.1,6),dark,.45,1.85,.7);add(new THREE.SphereGeometry(.05,8,6),gold,.45,2.42,.7);
+for(const s of[-1,1]){add(B(.2,.16,.14),dark,s*.3,.95,-1.04);add(new THREE.CylinderGeometry(.045,.045,.06,8).rotateX(PI/2),gold,s*.3,.95,-1.12)}
+const wg=new THREE.CylinderGeometry(.3,.3,.26,18).rotateZ(PI/2),hg=new THREE.CylinderGeometry(.14,.14,.3,10).rotateZ(PI/2);
+for(const s of[-1,1])for(const z of[-.8,0,.8]){add(wg,dark,s*.84,.3,z);add(hg,gold,s*.84,.3,z);add(B(.06,.42,.06),gold,s*.76,.52,z)}
+for(const s of[-1,1]){add(B(.08,.08,1.7),gold,s*.76,.72,0);add(B(.07,.07,.9),gold,s*.76,.55,-.4).rotation.x=.4;add(new THREE.CylinderGeometry(.09,.09,.1,8).rotateZ(PI/2),dark,s*.7,.78,.2)}
+const fm=new THREE.MeshBasicMaterial({color:0xffa040,transparent:true,opacity:.85,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}),fg=new THREE.ConeGeometry(.13,1,8,1,true).translate(0,.5,0);
+const fl=(k,x,y,z,rx,rz)=>{const n=add(B(.14,.14,.14),dark,x,y,z),m=new THREE.Mesh(fg,fm);m.position.set(x,y,z);m.rotation.set(rx,0,rz);m.visible=false;rover.add(m);FL[k]=m};
+fl('L',.72,.95,0,0,-PI/2);fl('R',-.72,.95,0,0,PI/2);fl('U',0,.95,1.04,PI/2,0);fl('D',0,.95,-1.04,-PI/2,0);fl('B',0,.55,0,0,PI);
+rover.castShadow=true;scene.add(rover)})();
+/* parachute */
+const chute=new THREE.Group(),canopy=(()=>{const t=tex(cv(256,8,x=>{for(let i=0;i<16;i++){x.fillStyle=i%2?'#ece6da':'#d8442a';x.fillRect(i*16,0,16,8)}})),g=new THREE.SphereGeometry(7,32,14,0,PI*2,0,PI/2),p=g.attributes.position;
+for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),f=1+.05*Math.cos(16*Math.atan2(z,x));p.setX(i,x*f);p.setZ(i,z*f)}g.computeVertexNormals();
+const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:t,side:THREE.DoubleSide,roughness:.9}));m.castShadow=true;chute.add(m);return m})();scene.add(chute);
+const LG=new THREE.BufferGeometry();LG.setAttribute('position',new THREE.BufferAttribute(new Float32Array(16*6),3));const lines=new THREE.LineSegments(LG,new THREE.LineBasicMaterial({color:0xf0ece0}));lines.frustumCulled=false;scene.add(lines);
+/* particules */
+const VS='attribute vec3 col;attribute float a;attribute float s;varying vec3 vc;varying float va;uniform float sc;void main(){vc=col;va=a;vec4 m=modelViewMatrix*vec4(position,1.);gl_PointSize=min(s*sc/-m.z,300.);gl_Position=projectionMatrix*m;}',FS='varying vec3 vc;varying float va;void main(){float d=length(gl_PointCoord-.5);if(d>.5)discard;gl_FragColor=vec4(vc,va*smoothstep(.5,.05,d));}';
+class PS{constructor(n,add,grow,drag){this.n=n;this.i=0;this.grow=grow;this.drag=drag;const A=()=>new Float32Array(n);this.p=A();this.p=new Float32Array(n*3);this.v=new Float32Array(n*3);this.c=new Float32Array(n*3);this.a=A();this.s=A();this.l=A();this.m=A();this.a0=A();this.s0=A();
+const g=new THREE.BufferGeometry();[['position',this.p,3],['col',this.c,3],['a',this.a,1],['s',this.s,1]].forEach(([k,v,z])=>g.setAttribute(k,new THREE.BufferAttribute(v,z)));this.g=g;
+this.o=new THREE.Points(g,new THREE.ShaderMaterial({uniforms:U,transparent:true,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending,vertexShader:VS,fragmentShader:FS}));this.o.frustumCulled=false;scene.add(this.o)}
+add(x,y,z,vx,vy,vz,life,size,c,a){const i=this.i++%this.n,k=i*3;this.p[k]=x;this.p[k+1]=y;this.p[k+2]=z;this.v[k]=vx;this.v[k+1]=vy;this.v[k+2]=vz;this.c[k]=c[0];this.c[k+1]=c[1];this.c[k+2]=c[2];this.l[i]=this.m[i]=life;this.a0[i]=a;this.s0[i]=size;this.a[i]=a;this.s[i]=size}
+clear(){this.l.fill(0);this.a.fill(0);this.g.attributes.a.needsUpdate=true}
+update(dt){const d=Math.max(0,1-this.drag*dt);for(let i=0;i<this.n;i++){if(this.l[i]<=0)continue;this.l[i]-=dt;if(this.l[i]<=0){this.a[i]=0;continue}const k=i*3,f=this.l[i]/this.m[i];this.p[k]+=this.v[k]*dt;this.p[k+1]+=this.v[k+1]*dt;this.p[k+2]+=this.v[k+2]*dt;this.v[k]*=d;this.v[k+1]*=d;this.v[k+2]*=d;this.a[i]=this.a0[i]*f;this.s[i]=this.s0[i]*(1+this.grow*(1-f))}
+const a=this.g.attributes;a.position.needsUpdate=a.a.needsUpdate=a.s.needsUpdate=a.col.needsUpdate=true}}
+const exh=new PS(500,true,-.5,1),dust=new PS(900,false,2.5,.9);
+/* ---------- audio ---------- */
+let AC,MG,thG,wG,muted=false;
+function audio(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+MG=AC.createGain();MG.gain.value=.8;MG.connect(AC.destination);
+const nb=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+const ns=(f,t)=>{const s=AC.createBufferSource();s.buffer=nb;s.loop=true;const fl=AC.createBiquadFilter();fl.type=t;fl.frequency.value=f;const g=AC.createGain();g.gain.value=0;s.connect(fl);fl.connect(g);g.connect(MG);s.start();return g};
+thG=ns(1100,'lowpass');wG=ns(260,'bandpass');
+const dl=AC.createDelay();dl.delayTime.value=.6;const fb=AC.createGain();fb.gain.value=.5;dl.connect(fb);fb.connect(dl);dl.connect(MG);
+[55,82.4,110,164.8].forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain(),l=AC.createOscillator(),lg=AC.createGain();o.frequency.value=f;o.detune.value=R(-6,6);g.gain.value=.035;l.frequency.value=.05+i*.03;lg.gain.value=.02;l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(MG);o.start();l.start()});
+const sc=[220,261.6,293.7,329.6,392,440,523.3];setInterval(()=>{if(muted)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type='triangle';o.frequency.value=sc[Math.random()*sc.length|0]*(Math.random()<.3?2:1);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.06,t+.3);g.gain.exponentialRampToValueAtTime(.0001,t+4);o.connect(g);g.connect(MG);g.connect(dl);o.start(t);o.stop(t+4.2)},2400)}
+const mute=()=>{muted=!muted;if(MG)MG.gain.value=muted?0:.8};
+/* ---------- physique ---------- */
+let S,W,mode='menu',snap=1,pred=[0,0];
+function wind(t,y,ng){const k=.55+.45*Math.min(1,y/120),m=ng?1:1+.3*Math.sin(t*.45+W.p1)+.2*Math.sin(t*1.1+W.p2),g=ng?0:Math.pow(Math.max(0,Math.sin(t*.31+W.p3)),6);return[(W.bx*m+W.gx*g)*k,(W.bz*m+W.gz*g)*k]}
+function predict(){let x=S.x,y=S.y,z=S.z,vx=S.vx,vy=S.vy,vz=S.vz,t=S.t;for(let i=0;i<600&&y>0;i++){const dt=.25,w=wind(t,y,1),d=Math.min(1,t/2.5),dd=d*d*(3-2*d),c=KH*(.1+.9*dd),q=vy/VT;vx+=c*(w[0]-vx)*dt;vz+=c*(w[1]-vz)*dt;vy+=(-G-dd*G*q*Math.abs(q))*dt;x+=vx*dt;y+=vy*dt;z+=vz*dt;t+=dt}return[x,z]}
+function newGame(){const wa=R(0,2*PI),sp=R(3,5.5),ga=R(0,2*PI),gs=R(1.5,3.5);
+W={bx:Math.cos(wa)*sp,bz:Math.sin(wa)*sp,gx:Math.cos(ga)*gs,gz:Math.sin(ga)*gs,p1:R(0,6),p2:R(0,6),p3:R(0,6)};
+const va=wa+R(-.5,.5),vs=R(2,5);
+S={t:0,x:0,y:A0,z:0,vx:Math.cos(va)*vs,vy:-20,vz:Math.sin(va)*vs,fuel:F0,thx:0,thz:0,thb:0,tx:0,tz:0,ux:0,uz:0,dd:0,wx:0,wz:0,end:0,cp:0,ang:0,res:null,shown:0,flip:0,tgx:0,tgz:0};
+const p=predict(),a=R(0,2*PI),m=R(35,85);S.tgx=p[0]+Math.cos(a)*m;S.tgz=p[1]+Math.sin(a)*m;
+tgt.position.set(S.tgx,.04,S.tgz);
+const o=new THREE.Object3D();for(let i=0;i<300;i++){const near=i<170,r=near?R(7,90):R(20,350),a=R(0,2*PI),s=R(.15,1.4)*(near?.7:1);o.position.set((near?S.tgx:0)+Math.cos(a)*r,s*.3,(near?S.tgz:0)+Math.sin(a)*r);o.scale.set(s*R(.8,1.5),s*R(.5,1),s*R(.8,1.5));o.rotation.set(R(0,3),R(0,6),R(0,3));o.updateMatrix();rocks.setMatrixAt(i,o.matrix)}rocks.instanceMatrix.needsUpdate=true;
+craters.forEach((c,i)=>{const near=i<40,r=near?R(8,100):R(30,350),a=R(0,2*PI),s=R(2,12);c.position.x=(near?S.tgx:0)+Math.cos(a)*r;c.position.z=(near?S.tgz:0)+Math.sin(a)*r;c.scale.setScalar(s)});
+exh.clear();dust.clear();snap=1}
+function step(dt){const s=S;s.t+=dt;const f=s.fuel>0,k=c=>K[c]?1:0;
+const ix=f?k('ArrowRight')-k('ArrowLeft'):0,iz=f?k('ArrowDown')-k('ArrowUp'):0,ib=f?k('Space'):0,r=Math.min(1,dt*6);
+s.thx+=(ix-s.thx)*r;s.thz+=(iz-s.thz)*r;s.thb+=(ib-s.thb)*r;
+s.fuel=Math.max(0,s.fuel-(Math.abs(s.thx)+Math.abs(s.thz))*3.2*dt-s.thb*5.5*dt);if(s.fuel<=0)s.thx=s.thz=s.thb=0;
+const d=Math.min(1,s.t/2.5),dd=s.dd=d*d*(3-2*d),w=wind(s.t,s.y);s.wx=w[0];s.wz=w[1];const c=KH*(.1+.9*dd);
+const ax=c*(w[0]-s.vx)+TH*s.thx,az=c*(w[1]-s.vz)+TH*s.thz,q=s.vy/VT,ay=-G-dd*G*q*Math.abs(q)+BR*s.thb;
+s.vx+=ax*dt;s.vy+=ay*dt;s.vz+=az*dt;s.x+=s.vx*dt;s.y+=s.vy*dt;s.z+=s.vz*dt;
+const T=s.t,fx=.05*ax+.07*Math.sin(T*1.9+W.p1)*Math.sin(T*.7),fz=.05*az+.07*Math.sin(T*2.3+W.p2)*Math.sin(T*.6+1);
+s.ux+=(-6*(s.tx-fx)-1.4*s.ux)*dt;s.uz+=(-6*(s.tz-fz)-1.4*s.uz)*dt;s.tx+=s.ux*dt;s.tz+=s.uz*dt;
+if(s.y<=0){s.y=0;land()}}
+function land(){const s=S,vv=-s.vy,vh=Math.hypot(s.vx,s.vz),tl=Math.hypot(s.tx,s.tz),dist=Math.hypot(s.x-s.tgx,s.z-s.tgz),deg=tl*180/PI;let win=false,why,crash=true;
+if(tl>.5){why='ROVER RETOURNÉ';s.flip=PI*(Math.random()<.5?1:-1)}
+else if(vv>VMAX)why=`VITESSE VERTICALE TROP ÉLEVÉE : ${vv.toFixed(1)} m/s (max ${VMAX})`;
+else if(vh>HMAX)why=`VITESSE HORIZONTALE TROP ÉLEVÉE : ${vh.toFixed(1)} m/s (max ${HMAX})`;
+else if(tl>TLIM)why=`INCLINAISON EXCESSIVE : ${deg.toFixed(0)}° (max ${(TLIM*180/PI).toFixed(0)}°)`;
+else if(dist>TR){why=`ATTERRISSAGE HORS DE LA CIBLE : ${dist.toFixed(1)} m du centre`;crash=false}else win=true;
+if(crash&&!win&&!s.flip)s.flip=R(-.7,.7);
+s.res={win,why,crash,dist,vv,vh,deg};s.end=.001;mode='end';
+const n=win?90:crash?200:110;for(let i=0;i<n;i++){const a=R(0,2*PI),v=R(2,win?7:12);dust.add(s.x,.3,s.z,Math.cos(a)*v,R(.5,win?3:6),Math.sin(a)*v,R(2,4.5),R(2,4.5),crash?[.55,.4,.32]:[.84,.55,.38],.55)}
+if(crash)for(let i=0;i<60;i++)exh.add(s.x,.5,s.z,R(-9,9),R(2,10),R(-9,9),R(.3,.9),.5,[1,.7,.3],.9)}
+/* ---------- affichage ---------- */
+const v1=new V3(),v2=new V3(),rc=$('rc').getContext('2d');
+function radar(){const x=rc,C=70,sc=62/250;x.clearRect(0,0,140,140);x.strokeStyle='#2cc7';x.lineWidth=1;for(const r of[20,41,62]){x.beginPath();x.arc(C,C,r,0,7);x.stroke()}
+x.beginPath();x.moveTo(C,8);x.lineTo(C,132);x.moveTo(8,C);x.lineTo(132,C);x.stroke();
+const a=performance.now()/600;x.strokeStyle='#3fc9';x.beginPath();x.moveTo(C,C);x.lineTo(C+62*Math.cos(a),C+62*Math.sin(a));x.stroke();
+const rel=(px,pz)=>{let dx=(px-S.x)*sc,dz=(pz-S.z)*sc,m=Math.hypot(dx,dz);if(m>60){dx*=60/m;dz*=60/m}return[C+dx,C+dz]};
+let p=rel(S.tgx,S.tgz);x.fillStyle='#f44';x.beginPath();x.arc(p[0],p[1],4,0,7);x.fill();x.strokeStyle='#fff';x.beginPath();x.arc(p[0],p[1],6,0,7);x.stroke();
+p=rel(pred[0],pred[1]);x.strokeStyle='#fe5';x.beginPath();x.moveTo(p[0]-3,p[1]-3);x.lineTo(p[0]+3,p[1]+3);x.moveTo(p[0]+3,p[1]-3);x.lineTo(p[0]-3,p[1]+3);x.stroke();
+const vm=Math.hypot(S.vx,S.vz),l=Math.min(40,vm*6);x.strokeStyle='#5ff';x.lineWidth=2;x.beginPath();x.moveTo(C,C);if(vm>.01)x.lineTo(C+S.vx/vm*l,C+S.vz/vm*l);x.stroke();x.lineWidth=1;
+x.fillStyle='#fff';x.beginPath();x.arc(C,C,3,0,7);x.fill()}
+function hud(){const s=S,vv=-s.vy,vh=Math.hypot(s.vx,s.vz),di=Math.hypot(s.x-s.tgx,s.z-s.tgz),tl=Math.hypot(s.tx,s.tz)*180/PI,ws=Math.hypot(s.wx,s.wz);
+const set=(i,t,w)=>{const e=$(i);e.textContent=t;e.className=w?'w':''};
+set('al',s.y.toFixed(1)+' m');set('vz',vv.toFixed(1)+' m/s',vv>VMAX&&s.y<60);set('vh',vh.toFixed(1)+' m/s',vh>HMAX&&s.y<60);set('di',di.toFixed(1)+' m');set('ti',tl.toFixed(1)+'°',tl>TLIM*180/PI);
+$('wv').textContent=ws.toFixed(1)+' m/s';$('wa').style.transform=`rotate(${Math.atan2(s.wz,s.wx)}rad)`;
+const fp=s.fuel/F0*100;set('fu',fp.toFixed(0)+' %',fp<20);$('fb').style.width=fp+'%';$('fb').style.background=fp<20?'#f54':'#2fd';
+const v=v1.set(s.tgx,0,s.tgz).project(cam);let mx=v.x,my=v.y;if(v.z>1){mx=-mx;my=-my}mx=cl(mx,-.9,.9);my=cl(my,-.88,.88);
+const mk=$('mk');mk.style.transform=`translate(${(mx+1)/2*innerWidth}px,${(1-my)/2*innerHeight}px) translate(-50%,-50%)`;mk.textContent=di>12?`◎ ${di.toFixed(0)} m`:'';radar()}
+function visuals(dt){const s=S,T=performance.now()/1000,lv=Math.max(Math.abs(s.thx),Math.abs(s.thz),s.thb),dd=mode==='menu'?1:s.dd,cp=s.end?Math.min(1,s.end/2.5):0;
+rover.position.set(s.x+(Math.random()-.5)*.05*lv,s.y+(Math.random()-.5)*.05*lv,s.z);
+rover.rotation.set(s.tz,.25*Math.sin(s.t*.4+W.p2),-s.tx+s.flip*Math.min(1,s.end*2),'YXZ');rover.updateMatrixWorld(true);
+const sx=cl(.3*(s.wx-s.vx),-2.5,2.5)+Math.sin(T*.9)*.7,sz=cl(.3*(s.wz-s.vz),-2.5,2.5)+Math.cos(T*.8)*.7,sc=.2+.8*dd;
+chute.scale.setScalar(sc);chute.position.set(s.x+sx*(1-cp)+cp*Math.sign(s.wx)*5,s.y+(11*sc)*(1-cp)+cp*.4,s.z+sz*(1-cp)+cp*Math.sign(s.wz)*3);
+chute.rotation.set(Math.atan2(sz,11)*(1-cp)+.03*Math.sin(T*1.3),0,-Math.atan2(sx,11)*(1-cp)+.03*Math.sin(T*1.1));
+canopy.scale.set(1+.04*Math.sin(T*3),(1-.85*cp)*(.93+.07*Math.sin(T*2.2+1)),1+.04*Math.cos(T*2.6));chute.updateMatrixWorld(true);
+const lp=LG.attributes.position.array,at=[[-.5,1.2,-.8],[.5,1.2,-.8],[.5,1.2,.8],[-.5,1.2,.8]];
+for(let i=0;i<16;i++){const a=i/16*2*PI;v1.set(7*Math.cos(a),0,7*Math.sin(a));canopy.localToWorld(v1);const q=at[i%4];v2.set(q[0],q[1],q[2]);rover.localToWorld(v2);lp.set([v1.x,v1.y,v1.z,v2.x,v2.y,v2.z],i*6)}LG.attributes.position.needsUpdate=true;
+const lev={L:Math.max(0,-s.thx),R:Math.max(0,s.thx),U:Math.max(0,-s.thz),D:Math.max(0,s.thz),B:s.thb};
+for(const k in FL){const f=FL[k],l=lev[k];f.visible=l>.05;if(f.visible){f.scale.set(1,(.4+l*1.3)*(.8+Math.random()*.4),1);if(mode==='fly'){f.getWorldPosition(v1);v2.set(0,1,0).transformDirection(f.matrixWorld);for(let i=0;i<2;i++)exh.add(v1.x,v1.y,v1.z,v2.x*9+R(-1,1)+s.vx,v2.y*9+R(-1,1)+s.vy,v2.z*9+R(-1,1)+s.vz,.4,.55,[1,.65,.25],.9)}}}
+if(mode==='fly'){if(Math.random()<dt*30)dust.add(s.x+R(-40,40),s.y+R(-25,10),s.z+R(-40,10),s.wx*.8,0,s.wz*.8,5,2.2,[.82,.55,.4],.2);
+if(s.y<15&&s.thb>.3)for(let i=0;i<2;i++)dust.add(s.x+R(-1,1),.3,s.z+R(-1,1),R(-5,5),R(0,1),R(-5,5),1.8,2.5,[.82,.52,.36],.5)}
+exh.update(dt);dust.update(dt);
+let off;if(mode==='menu')off=[Math.sin(T*.2)*40,18,Math.cos(T*.2)*40];else if(s.end){s.ang+=dt*.25;off=[Math.sin(s.ang)*16,7,Math.cos(s.ang)*16]}else off=[0,17,30];
+const want=v1.set(s.x+off[0],s.y+off[1],s.z+off[2]);if(snap){cam.position.copy(want);snap=0}else cam.position.lerp(want,1-Math.exp(-dt*(s.end?3:7)));
+cam.position.x+=(Math.random()-.5)*.12*lv;cam.position.y+=(Math.random()-.5)*.12*lv;
+cam.lookAt(s.x,s.y+(s.end?1:2),s.z-(s.end||mode==='menu'?0:6));sky.position.copy(cam.position);
+sun.target.position.set(s.x,s.y,s.z);sun.position.set(s.x,s.y,s.z).addScaledVector(SD,100);sun.target.updateMatrixWorld();
+if(mode==='fly'){pred=predict();pm.visible=true;pm.position.set(pred[0],.06,pred[1]);pm.scale.setScalar(1.5+.04*s.y)}else pm.visible=mode==='end'?false:false;
+const t2=performance.now()/300;led.scale.setScalar(1+.4*Math.sin(t2));beam.material.opacity=.22+.08*Math.sin(t2);
+if(AC){const t=AC.currentTime;thG.gain.setTargetAtTime(Math.min(.35,(Math.abs(s.thx)+Math.abs(s.thz))*.09+s.thb*.16),t,.05);wG.gain.setTargetAtTime(mode==='fly'?.02+Math.hypot(s.wx,s.wz)*.006:0,t,.2)}
+if(mode!=='menu')hud();
+if(mode==='end'){s.end+=dt;if(!s.shown&&s.end>1.6){s.shown=1;showEnd()}}}
+function showEnd(){const r=S.res,o=$('ov');o.className=r.win?'win':'lose';o.style.display='flex';$('h1').textContent=r.win?'MISSION RÉUSSIE !':'MISSION ÉCHOUÉE';$('h2').style.display='none';
+$('msg').innerHTML=r.win?`« Le rover Sojourner a atterri avec succès sur Mars. »<br><br>Écart au centre : ${r.dist.toFixed(2)} m · Vitesse verticale : ${r.vv.toFixed(1)} m/s · Inclinaison : ${r.deg.toFixed(1)}°`:`${r.crash?'CRASH':'DÉFAITE'} — ${r.why}`;
+if(r.win){atlasQuest('sojourner');if(!$('bkm')){const b=document.createElement('button');b.className='bt';b.id='bkm';b.textContent='RETOUR À ATLAS MARS';b.onclick=()=>{location.href='../index.html?done=sojourner'};$('ov').appendChild(b)}}else if($('bkm'))$('bkm').remove();
+$('go').textContent='RECOMMENCER';$('ov').querySelector('small').style.display='none'}
+function start(){audio();if(AC&&AC.state==='suspended')AC.resume();if(mode!=='menu'||S.t>0)newGame();$('ov').style.display='none';$('hud').style.display='block';mode='fly'}
+/* ---------- entrées & boucle ---------- */
+$('go').onclick=start;$('rs2').onclick=start;$('mu').onclick=mute;
+addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code)){K[e.code]=1;e.preventDefault()}if(e.code==='KeyM')mute()});
+addEventListener('keyup',e=>{K[e.code]=0});addEventListener('blur',()=>{for(const k in K)K[k]=0});
+document.querySelectorAll('[data-k]').forEach(b=>{b.addEventListener('pointerdown',e=>{K[b.dataset.k]=1;e.preventDefault()});['pointerup','pointercancel','pointerleave'].forEach(v=>b.addEventListener(v,()=>K[b.dataset.k]=0));b.addEventListener('contextmenu',e=>e.preventDefault())});
+if(mob)$('tc').style.display='flex';
+function rs(){rend.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();U.sc.value=innerHeight*rend.getPixelRatio()/(2*Math.tan(27.5*PI/180))}
+addEventListener('resize',rs);rs();newGame();S.t=0;
+let last=performance.now(),acc=0;
+(function frame(n){requestAnimationFrame(frame);const dt=Math.min(.05,(n-last)/1000);last=n;
+if(mode==='fly'){acc+=dt;while(acc>=1/120&&mode==='fly'){step(1/120);acc-=1/120}}
+visuals(dt);rend.render(scene,cam)})(last);
+</script></body></html>
