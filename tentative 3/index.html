@@ -162,7 +162,7 @@ canvas:active { cursor: grabbing; }
 
 /* Walkie-talkie, bottom-right */
 .radio { position: fixed; z-index: 3; right: var(--gutter); bottom: 3.4rem; display: flex; align-items: flex-end; gap: .8rem; pointer-events: none; }
-.radio-msg { max-width: 15.5rem; margin-bottom: 1.6rem; padding: .55rem .8rem; background: #150f13ee; border: 1px solid var(--line); border-inline-end: 2px solid var(--accent); font-size: .84rem; line-height: 1.35; }
+.radio-msg { max-width: 17rem; pointer-events: auto; cursor: pointer; margin-bottom: 1.6rem; padding: .55rem .8rem; background: #150f13ee; border: 1px solid var(--line); border-inline-end: 2px solid var(--accent); font-size: .84rem; line-height: 1.35; }
 .radio-msg small { display: block; margin-bottom: .15rem; font: .62rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
 .radio-msg.in { animation: radio-in 520ms ease-out both; }
 .radio-msg.out { animation: radio-out 240ms ease-in both; }
@@ -1085,32 +1085,181 @@ reducedMotion.addEventListener("change", event => {
   syncRotation();
 });
 
-/* ---------- Walkie-talkie: a random message every 15–30 seconds ---------- */
+/* ---------- Walkie-talkie: ambient chatter, Mars facts, and a debrief after each completed mission ---------- */
 const radioLines = ["Is it going well?", "How is it going?", "Keep going!", "We have just received the data you sent us."];
+const radioFacts = [
+  "A day on Mars, called a sol, lasts about 24 hours and 39 minutes.",
+  "A year on Mars lasts 687 Earth days, almost twice as long as ours.",
+  "Gravity on Mars is only about 38% of Earth’s. You would weigh a lot less here.",
+  "Olympus Mons is about 22 km high. It is the tallest volcano known in the solar system.",
+  "Valles Marineris is a canyon about 4,000 km long and up to 7 km deep.",
+  "Mars’s air is about 95% carbon dioxide, and its pressure is less than 1% of Earth’s.",
+  "The average temperature on Mars is around −60 °C. At noon near the equator it can reach about 20 °C.",
+  "Mars is red because its dust is rich in iron oxide. Basically, it is rust.",
+  "Mars has two small moons, Phobos and Deimos. Both are shaped like potatoes.",
+  "Phobos circles Mars about three times a day, and it slowly gets closer to the planet.",
+  "A radio signal takes between 3 and 22 minutes to go from Mars to Earth, depending on where the planets are.",
+  "Sunsets on Mars look blue, because the fine dust scatters sunlight differently than our air does.",
+  "Dust devils sweep across the Martian plains. Some are kilometers tall.",
+  "Global dust storms can wrap the whole planet for weeks. One of them ended the Opportunity rover’s mission.",
+  "Mars has about as much dry land as all of Earth’s continents together.",
+  "Both Martian poles are capped with water ice, covered by a seasonal layer of frozen carbon dioxide.",
+  "Mars has seasons like Earth, because its axis is tilted about 25°. They last about twice as long.",
+  "Mars is about half the size of Earth, with a diameter of roughly 6,800 km.",
+  "NASA’s InSight lander recorded more than 1,300 marsquakes before it fell silent in 2022.",
+  "Mariner 4 was the first spacecraft to fly by Mars, in 1965. Its twenty or so photos showed a cratered world."
+];
+// Debrief per mission: "report" talks about the mission just completed, "device" about the hardware just discovered.
+const radioScripts = {
+  "sojourner": {
+    report: [
+      "Debrief: Pathfinder bounced about fifteen times on its airbags before it came to a stop in Ares Vallis.",
+      "Sojourner was planned for 7 days. It worked for 83.",
+      "Its spectrometer analyzed rocks of an ancient flood plain, like the ones nicknamed Barnacle Bill and Yogi."
+    ],
+    device: [
+      "Sojourner weighs 10.6 kg and rolls on six wheels. It was the first wheeled vehicle to explore another planet.",
+      "It crawls at about 1 centimeter per second, and it never went more than about 12 meters from its lander.",
+      "A twelve-year-old girl, Valerie Ambroise, won the contest to name it, in honor of Sojourner Truth."
+    ]
+  },
+  "spirit": {
+    report: [
+      "Debrief: in 2007, a wheel that no longer turned dug a trench near Home Plate and exposed an almost pure silica soil.",
+      "On Earth, silica like this forms around hot springs and steam vents. Water was probably there.",
+      "Spirit was planned for 90 sols. It worked for more than six years and covered 7.73 km."
+    ],
+    device: [
+      "Spirit (MER-A) weighs 185 kg. It has six wheels and a mast that carries its panoramic cameras.",
+      "Its arm holds a rock abrasion tool, a small grinder that lets it look beneath the dusty surface of a rock.",
+      "Its twin, Opportunity, landed three weeks later on the other side of Mars and kept going for almost 15 years."
+    ]
+  },
+  "phoenix": {
+    report: [
+      "Debrief: when Phoenix’s arm dug its trench, bright chunks appeared. A few days later they had vanished.",
+      "That is how we know it was water ice: it evaporated in the thin air.",
+      "The soil also contains perchlorate, a salt that future explorers will need to keep in mind.",
+      "Planned for 90 sols, Phoenix lasted over five months, until the arctic winter took away its sunlight."
+    ],
+    device: [
+      "Phoenix is a lander of about 350 kg, standing on three legs. It touched down with thrusters, not airbags.",
+      "Its robotic arm reaches 2.35 m, far enough to dig and bring samples to its onboard instruments.",
+      "Its design was reused for InSight, the lander that listened to the marsquakes."
+    ]
+  },
+  "ingenuity": {
+    report: [
+      "Debrief: Ingenuity was a technology demonstration, planned for five flights over 30 days. It made 72.",
+      "In total: 128.8 minutes in the air, 17 km covered and an altitude of up to 24 meters.",
+      "It scouted the terrain for Perseverance, until its mission ended in January 2024."
+    ],
+    device: [
+      "Ingenuity weighs just 1.8 kg. Its two rotors turn in opposite directions, at around 2,500 rpm.",
+      "The air on Mars is about 1% as dense as on Earth, so the blades must spin very fast to get any lift.",
+      "It carried a tiny piece of fabric from the Wright brothers’ 1903 airplane, the first to fly on Earth."
+    ]
+  }
+};
+
 const radioBox = document.querySelector("#radio-msg");
 const radioText = document.querySelector("#radio-text");
+const radioLabel = radioBox.querySelector("small");
 const walkie = document.querySelector("#walkie");
-let radioLast = -1;
+const radioQueue = [];
+let radioBusy = false;
 let radioHide = 0;
+let radioFlash = 0;
+let radioLast = -1;
+const radioDeck = [];
+
+function nextFact() {
+  if (!radioDeck.length) {
+    radioDeck.push(...radioFacts);
+    for (let i = radioDeck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [radioDeck[i], radioDeck[j]] = [radioDeck[j], radioDeck[i]];
+    }
+  }
+  return radioDeck.pop();
+}
+function radioLength(text) { return Math.min(14000, Math.max(5500, 2800 + text.length * 60)); }
+
+// Shows the next queued line. A line ends by itself after a delay that depends on its length, or when it is clicked.
+function radioPump() {
+  if (radioBusy || !radioQueue.length) return;
+  const item = radioQueue.shift();
+  radioBusy = true;
+  radioLabel.textContent = item.label;
+  radioText.textContent = item.text;
+  radioBox.classList.remove("out");
+  radioBox.hidden = false;
+  radioBox.classList.remove("in"); void radioBox.offsetWidth; radioBox.classList.add("in");
+  walkie.classList.remove("rx"); void walkie.offsetWidth; walkie.classList.add("rx");
+  clearTimeout(radioFlash);
+  radioFlash = setTimeout(() => walkie.classList.remove("rx"), 2600);
+  clearTimeout(radioHide);
+  radioHide = setTimeout(radioEnd, radioLength(item.text));
+}
+function radioEnd() {
+  clearTimeout(radioHide);
+  radioBox.classList.add("out");
+  radioHide = setTimeout(() => { radioBox.hidden = true; radioBusy = false; radioPump(); }, radioQueue.length ? 500 : 260);
+}
+radioBox.addEventListener("click", () => { if (radioBusy && !radioBox.classList.contains("out")) radioEnd(); });
+
+// Ambient message every 15–30 seconds: a Mars fact or a short check-in. Skipped while a debrief is playing.
 function showRadio() {
-  let next;
-  do { next = Math.floor(Math.random() * radioLines.length); } while (next === radioLast);
-  radioLast = next;
-  const swap = () => {
-    radioText.textContent = radioLines[next];
-    radioBox.classList.remove("out");
-    radioBox.hidden = false;
-    radioBox.classList.remove("in"); void radioBox.offsetWidth; radioBox.classList.add("in");
-    walkie.classList.add("rx");
-    setTimeout(() => walkie.classList.remove("rx"), 2600);
-    clearTimeout(radioHide);
-    radioHide = setTimeout(() => { radioBox.classList.add("out"); setTimeout(() => { radioBox.hidden = true; }, 260); }, 10000);
-  };
-  if (!radioBox.hidden) { radioBox.classList.add("out"); setTimeout(swap, 260); } else swap();
+  if (!radioBusy && !radioQueue.length && !document.hidden) {
+    if (Math.random() < .55) {
+      radioQueue.push({ label: "Mars info", text: nextFact() });
+    } else {
+      let next;
+      do { next = Math.floor(Math.random() * radioLines.length); } while (next === radioLast);
+      radioLast = next;
+      radioQueue.push({ label: "Mission control", text: radioLines[next] });
+    }
+    radioPump();
+  }
   scheduleRadio();
 }
 function scheduleRadio() { setTimeout(showRadio, 15000 + Math.random() * 15000); }
 scheduleRadio();
+
+// Debrief after a completed mission: the mission, then the hardware that was discovered, then a Mars fact.
+const RADIO_SEEN_KEY = "atlasMarsRadioSeen";
+let radioSeen = {};
+try {
+  const stored = localStorage.getItem(RADIO_SEEN_KEY);
+  if (stored) radioSeen = JSON.parse(stored) || {};
+  else {
+    // First visit with this feature: missions that were already completed are not announced again.
+    const done = JSON.parse(localStorage.getItem("atlasMarsQuests") || "{}") || {};
+    for (const slug in done) if (done[slug]) radioSeen[slug] = true;
+    localStorage.setItem(RADIO_SEEN_KEY, JSON.stringify(radioSeen));
+  }
+} catch { radioSeen = {}; }
+
+function queueDebrief(mission, finale) {
+  const script = radioScripts[mission.slug];
+  const say = (label, text) => radioQueue.push({ label, text });
+  say("Mission control", "Transmission received. " + mission.name + " mission complete. Well done, explorer!");
+  if (script) {
+    script.report.forEach(text => say("Mission debrief", text));
+    script.device.forEach(text => say("Device found", text));
+  }
+  say("Mars info", nextFact());
+  if (finale) say("Mission control", "All " + missions.length + " landing sites explored. Mission control salutes you!");
+  radioPump();
+}
+function announceMissions() {
+  const fresh = missions.filter(mission => questState[mission.slug] && !radioSeen[mission.slug]);
+  if (!fresh.length) return;
+  fresh.forEach(mission => { radioSeen[mission.slug] = true; });
+  try { localStorage.setItem(RADIO_SEEN_KEY, JSON.stringify(radioSeen)); } catch {}
+  const allDone = missions.every(mission => questState[mission.slug]);
+  setTimeout(() => fresh.forEach((mission, i) => queueDebrief(mission, allDone && i === fresh.length - 1)), 1200);
+}
 
 /* ---------- Fiche d'identification au survol d'un point ---------- */
 // Données de la fiche, par mission. state : "abandoned" (matériel abandonné) ou "active".
@@ -1877,6 +2026,7 @@ function renderQuests(justDone) {
     if (done && mission.slug === justDone) { row.classList.remove("fresh"); void row.offsetWidth; row.classList.add("fresh"); }
   });
   questCount.textContent = count + " / " + missions.length + " completed";
+  announceMissions();
 }
 const doneParam = new URLSearchParams(location.search).get("done");
 if (doneParam && missions.some(mission => mission.slug === doneParam)) {
