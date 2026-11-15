@@ -134,7 +134,7 @@ function fit(){for(const k of['sc','sg']){const c=$(k);c.width=c.clientWidth*D()
 $('dtb').onpointerdown=e=>{e.preventDefault();det()};
 $('lfb').onclick=e=>{if(!LV)return;LV.fil^=1;e.currentTarget.classList.toggle('on',!!LV.fil)};
 $('lnew').onclick=()=>{liveNew();$('lfb').classList.remove('on')};
-$('lback').onclick=()=>{location.href='../index.html?done=phoenix'};
+$('lback').onclick=()=>{location.href='../accueil.html?done=phoenix'};
 addEventListener('resize',fit);
 let lastT=0;(function loop(n){requestAnimationFrame(loop);const dt=Math.min(.1,Math.max(0,(n-lastT)/1000));liveStep(dt);dSC();dLive();liveUI();lastT=n})(0);
 liveNew();hdr();fit();

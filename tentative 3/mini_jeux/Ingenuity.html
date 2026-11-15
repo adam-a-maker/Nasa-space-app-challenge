@@ -187,7 +187,7 @@ function lose(){state='over';shake=1.2;heli.visible=false;boom();$('fl').style.o
 for(let i=0;i<90;i++){const a=rnd(0,6.28),s=rnd(3,14);emit(hx,hy+1,0,Math.cos(a)*s,rnd(-3,9),Math.sin(a)*s,rnd(.8,1.6))}
 state_ui();setTimeout(()=>{if(state==='over'){$('lp').textContent='Collision after '+t.toFixed(1)+' s out of 90. Try again!';show('lose')}},1000)}
 function win(){state='win';atlasQuest('ingenuity');clearAst();fanfare();wA=0;state_ui();setTimeout(()=>{if(state==='win'){show('win');const b=()=>{for(let i=0;i<46;i++){const e=document.createElement('span'),a=rnd(0,6.28),d=rnd(150,520);e.className='cf';e.style.cssText=`--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d+120}px;background:hsl(${rnd(0,60)|0},100%,60%)`;$('win').appendChild(e);setTimeout(()=>e.remove(),2300)}};b();cfT=setInterval(b,900)}},500)}
-$('go').onclick=start;$('retry').onclick=start;$('again').onclick=start;$('back').onclick=()=>{clearInterval(cfT);location.href=(/\/mini_jeux\//i.test(location.pathname)?'../index.html':'index.html')+'?done=ingenuity'};
+$('go').onclick=start;$('retry').onclick=start;$('again').onclick=start;$('back').onclick=()=>{clearInterval(cfT);location.href=(/\/mini_jeux\//i.test(location.pathname)?'../accueil.html':'../accueil.html')+'?done=ingenuity'};
 
 function update(dt,now){
 const w=state==='over'?dt*.3:dt,T=now/1000;
