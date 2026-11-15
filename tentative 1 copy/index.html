@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d0b0d">
+  <meta name="description" content="Explore six sites d’atterrissage de la NASA en descendant de l’orbite jusqu’à la surface de Mars.">
+  <title>Atlas Mars — Les traces de l’exploration</title>
+  <link rel="stylesheet" href="style.css?v=descente-2">
+  <script src="app.js?v=descente-2" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Aller au contenu</a>
+  <header class="top">
+    <a class="brand" href="./" id="home-link" aria-label="Atlas Mars, accueil">
+      <span class="brand-icon" aria-hidden="true"></span> ATLAS <strong>MARS</strong>
+    </a>
+    <span class="edition">NASA SPACE APPS CHALLENGE</span>
+  </header>
+  <main id="main" tabindex="-1">
+    <section class="orbit-view" id="home" aria-labelledby="title">
+      <div class="stars" aria-hidden="true"></div>
+      <div class="globe-stage" id="globe-stage">
+        <div class="planet" id="planet">
+          <canvas id="globe" tabindex="0" aria-label="Globe de Mars. Utilise les quatre flèches du clavier pour le faire tourner."></canvas>
+          <div class="markers" id="markers"></div>
+        </div>
+      </div>
+
+      <div class="intro">
+        <p class="eyebrow"><i aria-hidden="true"></i> VUE ORBITALE</p>
+        <h1 id="title">Les traces<br> de <em>Mars.</em></h1>
+        <p>Choisis un point blanc pour descendre à la surface et découvrir la mission.</p>
+      </div>
+
+      <nav class="missions" aria-labelledby="mission-title">
+        <h2 id="mission-title">Sites d’atterrissage</h2>
+        <ul id="mission-list"></ul>
+      </nav>
+
+      <div class="orbit-footer">
+        <div class="coordinates"><span>Centre du globe</span><span id="longitude">9° N · 26° O</span></div>
+        <div class="controls">
+          <p>Glisse pour faire tourner Mars</p>
+          <button id="rotation" type="button">Pause</button>
+        </div>
+        <a class="credit" href="https://www.solarsystemscope.com/textures/">Texture · Solar System Scope (CC BY 4.0)</a>
+      </div>
+    </section>
+
+    <div class="arrival" id="arrival" aria-hidden="true" hidden>
+      <img id="arrival-landscape" class="landscape" alt="">
+    </div>
+    <section class="surface" id="surface" aria-labelledby="surface-title" hidden>
+      <img id="landscape" class="landscape" alt="">
+      <div class="surface-content">
+        <a class="back" id="back" href="./">← Retour au globe</a>
+        <div class="surface-copy">
+          <p class="eyebrow" id="surface-location"></p>
+          <h1 id="surface-title" tabindex="-1"></h1>
+          <article class="story">
+            <h2 id="story-title"></h2>
+            <p id="story-text"></p>
+            <a id="story-source" target="_blank" rel="noopener">Fiche NASA <span class="sr-only">(nouvel onglet)</span></a>
+          </article>
+          <p class="scene-credit">Décor provisoire · illustration</p>
+        </div>
+      </div>
+    </section>
+    <noscript><p class="no-script">Active JavaScript pour explorer le globe. <a href="https://science.nasa.gov/image-detail/45468-landingsitescontextmap-featperseverance/">Voir les sites d’atterrissage sur la carte de la NASA.</a></p></noscript>
+  </main>
+
+<style>
+  #launch-mission {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    padding: .85rem 1.4rem;
+    border: 1px solid #ff9c76;
+    border-radius: 4px;
+    background: #a94f35;
+    color: #fff4eb;
+    font: 700 .75rem/1.2 ui-monospace, monospace;
+    letter-spacing: .12em;
+    text-decoration: none;
+    text-transform: uppercase;
+    box-shadow: 0 0 22px #ff9c7640;
+    transition: background .18s ease, transform .18s ease;
+  }
+  #launch-mission:hover { background:#c26545; transform:translateY(-2px); }
+  #launch-mission[hidden] { display:none !important; }
+</style>
+<script>
+(function () {
+  const destinations = [
+    { match: /phoenix/i, href: "mini_jeux/Phoenix.html" },
+    { match: /spirit/i, href: "mini_jeux/Spirit.html" },
+    { match: /sojourner/i, href: "mini_jeux/Sojourner.html" },
+    { match: /ingenuity/i, href: "mini_jeux/Ingenuity.html" }
+  ];
+
+  function updateLaunchButton() {
+    const surface = document.getElementById("surface");
+    const title = document.getElementById("surface-title");
+    const copy = document.querySelector(".surface-copy");
+    if (!surface || !title || !copy) return;
+
+    let button = document.getElementById("launch-mission");
+    if (!button) {
+      button = document.createElement("a");
+      button.id = "launch-mission";
+      button.textContent = "LAUNCH";
+      button.hidden = true;
+      button.setAttribute("aria-label", "Lancer cette mission");
+      copy.appendChild(button);
+    }
+
+    const mission = destinations.find(item => item.match.test(title.textContent.trim()));
+    if (mission && !surface.hidden) {
+      button.href = mission.href;
+      button.hidden = false;
+    } else {
+      button.hidden = true;
+      button.removeAttribute("href");
+    }
+  }
+
+  const observer = new MutationObserver(updateLaunchButton);
+  document.addEventListener("DOMContentLoaded", function () {
+    const surface = document.getElementById("surface");
+    const title = document.getElementById("surface-title");
+    if (surface) observer.observe(surface, { attributes: true, attributeFilter: ["hidden"] });
+    if (title) observer.observe(title, { childList: true, characterData: true, subtree: true });
+    updateLaunchButton();
+  });
+})();
+</script>
+
+</body>
+</html>
