@@ -1,9 +1,10 @@
 const missions = [
-  {name:"Spirit", year:2004, site:"Cratère Gusev", lat:-14.57, lon:175.47, title:"Une roue révèle un sol riche en silice", story:"En 2007, une roue bloquée creuse une tranchée près de Home Plate. Spirit y met au jour un sol presque composé de silice pure, probablement formé dans un environnement où l’eau était présente.", source:"https://science.nasa.gov/resource/rovers-wheel-churns-up-bright-martian-soil/"},
-  {name:"Phoenix", year:2008, site:"Vastitas Borealis", lat:68.22, lon:-125.75, title:"De la glace sous la surface arctique", story:"Le bras robotique de Phoenix creuse le sol près du pôle nord martien. La mission confirme la présence de glace d’eau sous la surface et détecte aussi du perchlorate dans le sol.", source:"https://science.nasa.gov/mission/phoenix/"},
-  {name:"Sojourner", year:1997, site:"Ares Vallis", lat:19.13, lon:-33.22, title:"Le premier rover sur Mars", story:"Déployé par l’atterrisseur Pathfinder dans Ares Vallis, Sojourner examine des roches et des sols d’une ancienne plaine d’inondation. Ses observations contribuent à étudier l’histoire géologique et climatique de Mars.", source:"https://science.nasa.gov/mission/mars-pathfinder/"},
-  {name:"Ingenuity", year:2021, site:"Cratère Jezero", lat:18.44, lon:77.45, title:"Le premier vol motorisé sur une autre planète", story:"Transporté sous le rover Perseverance, Ingenuity réalise en 2021 le premier vol motorisé et contrôlé sur une autre planète. Prévu pour cinq vols, l’hélicoptère en effectue 72 avant la fin de sa mission en 2024.", source:"https://science.nasa.gov/mission/mars-2020-perseverance/ingenuity-mars-helicopter/"}
+  {name:"Spirit", year:2004, site:"Cratère Gusev", lat:-14.57, lon:175.47, title:"Une roue révèle un sol riche en silice", story:"En 2007, une roue bloquée creuse une tranchée près de Home Plate. Spirit y met au jour un sol presque composé de silice pure, probablement formé dans un environnement où l’eau était présente."},
+  {name:"Phoenix", year:2008, site:"Vastitas Borealis", lat:68.22, lon:-125.75, title:"De la glace sous la surface arctique", story:"Le bras robotique de Phoenix creuse le sol près du pôle nord martien. La mission confirme la présence de glace d’eau sous la surface et détecte aussi du perchlorate dans le sol."},
+  {name:"Sojourner", year:1997, site:"Ares Vallis", lat:19.13, lon:-33.22, title:"Le premier rover sur Mars", story:"Déployé par l’atterrisseur Pathfinder dans Ares Vallis, Sojourner examine des roches et des sols d’une ancienne plaine d’inondation. Ses observations contribuent à étudier l’histoire géologique et climatique de Mars."},
+  {name:"Ingenuity", year:2021, site:"Cratère Jezero", lat:18.44, lon:77.45, title:"Le premier vol motorisé sur une autre planète", story:"Transporté sous le rover Perseverance, Ingenuity réalise en 2021 le premier vol motorisé et contrôlé sur une autre planète. Prévu pour cinq vols, l’hélicoptère en effectue 72 avant la fin de sa mission en 2024."}
 ];
+
 
 const radians = Math.PI / 180;
 const size = 520;
@@ -35,7 +36,6 @@ const surfaceTitle = document.querySelector("#surface-title");
 const surfaceLocation = document.querySelector("#surface-location");
 const storyTitle = document.querySelector("#story-title");
 const storyText = document.querySelector("#story-text");
-const storySource = document.querySelector("#story-source");
 
 for (const mission of missions) {
   mission.slug = mission.name.toLowerCase().replaceAll(" ", "-");
@@ -76,9 +76,6 @@ const pins = missions.map((mission, index) => {
   marker.className = "marker";
   marker.hidden = true;
   marker.setAttribute("aria-label", mission.name + " sur le globe");
-  const label = document.createElement("span");
-  label.textContent = mission.name;
-  marker.append(label);
   marker.addEventListener("click", () => enterMission(index, marker));
   markerLayer.append(marker);
 
@@ -120,7 +117,6 @@ function showRoute() {
     surfaceTitle.textContent = mission.name;
     storyTitle.textContent = mission.title;
     storyText.textContent = mission.story;
-    storySource.href = mission.source;
     document.title = mission.name + " — Atlas Mars";
     window.scrollTo(0, 0);
     surfaceTitle.focus({ preventScroll: true });
@@ -137,6 +133,7 @@ function showRoute() {
 
 function enterMission(index, trigger) {
   if (descent) return;
+  hideDossier(true);
   const mission = missions[index];
   lastEntry = { trigger, scroll: window.scrollY };
   clearMomentum();
@@ -332,6 +329,7 @@ function draw() {
     pin.style.left = `${50+50*x}%`;
     pin.style.top = `${50-50*y}%`;
   });
+  syncDossier();
   const longitude = Math.round(Math.atan2(Math.sin(angle), Math.cos(angle)) / radians);
   const latitude = Math.round(tilt / radians);
   longitudeReadout.textContent = `${Math.abs(latitude)}° ${latitude < 0 ? "S" : "N"} · ${Math.abs(longitude)}° ${longitude < 0 ? "O" : "E"}`;
@@ -465,6 +463,205 @@ reducedMotion.addEventListener("change", event => {
   if (descent) completeDescent(descent);
   syncRotation();
 });
+
+/* ---------- Fiche d'identification au survol d'un point ---------- */
+// Données de la fiche, par mission. state : "abandoned" (matériel abandonné) ou "active".
+const dossierData = {
+  "spirit":     { object: "Spirit (MER-A)",         program: "Mars Exploration Rover", state: "abandoned" },
+  "phoenix":    { object: "Phoenix Mars Lander",    program: "Phoenix Scout Mission",  state: "abandoned" },
+  "sojourner":  { object: "Sojourner Rover",        program: "Mars Pathfinder",        state: "abandoned" },
+  "ingenuity":  { object: "Ingenuity Mars Helicopter", program: "Mars 2020",           state: "abandoned" }
+};
+const statusLabels = { abandoned: "Matériel abandonné", active: "En activité" };
+
+const svgNS = "http://www.w3.org/2000/svg";
+const leaderSvg = document.createElementNS(svgNS, "svg");
+leaderSvg.setAttribute("class", "dossier-line");
+leaderSvg.setAttribute("aria-hidden", "true");
+const leaderPath = document.createElementNS(svgNS, "path");
+const leaderRing = document.createElementNS(svgNS, "circle");
+leaderRing.setAttribute("r", "10");
+const leaderEnd = document.createElementNS(svgNS, "rect");
+leaderEnd.setAttribute("width", "6");
+leaderEnd.setAttribute("height", "6");
+leaderSvg.append(leaderPath, leaderRing, leaderEnd);
+
+const dossier = document.createElement("aside");
+dossier.className = "dossier";
+dossier.setAttribute("aria-live", "polite");
+dossier.innerHTML = `
+  <div class="dossier-head"><span data-field="id"></span><span>ARCHIVE · MARS</span></div>
+  <h3 data-field="object"></h3>
+  <dl>
+    <dt>Mission</dt><dd data-field="program"></dd>
+    <dt>Statut</dt><dd class="dossier-status"><i></i><span data-field="status"></span></dd>
+  </dl>`;
+const dossierFields = Object.fromEntries([...dossier.querySelectorAll("[data-field]")].map(el => [el.dataset.field, el]));
+home.append(leaderSvg, dossier);
+
+let activeDossier = null;
+let dossierTimer = 0;
+
+function relativeBox(element, homeBox) {
+  const box = element.getBoundingClientRect();
+  return { l: box.left - homeBox.left, t: box.top - homeBox.top, r: box.right - homeBox.left, b: box.bottom - homeBox.top };
+}
+function overlapArea(a, b) {
+  return Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l)) * Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t));
+}
+function markerCenter(index, homeBox) {
+  const box = pins[index].marker.getBoundingClientRect();
+  return { x: box.left + box.width / 2 - homeBox.left, y: box.top + box.height / 2 - homeBox.top };
+}
+
+// Cherche l'emplacement de la fiche qui gêne le moins : hors de l'écran interdit,
+// peu de recouvrement avec le texte, les autres points et la planète, et proche du point survolé.
+function placeDossier(index) {
+  const homeBox = home.getBoundingClientRect();
+  const w = dossier.offsetWidth;
+  const h = dossier.offsetHeight;
+  const planetBox = planet.getBoundingClientRect();
+  const cx = planetBox.left + planetBox.width / 2 - homeBox.left;
+  const cy = planetBox.top + planetBox.height / 2 - homeBox.top;
+  const r = planetBox.width / 2;
+  const { x: mx, y: my } = markerCenter(index, homeBox);
+
+  const margin = 12;
+  const headerBottom = document.querySelector(".top").getBoundingClientRect().bottom - homeBox.top;
+  const minX = margin;
+  const maxX = Math.max(minX, homeBox.width - margin - w);
+  const minY = Math.max(headerBottom, -homeBox.top, 0) + margin;
+  const maxY = Math.max(minY, Math.min(homeBox.height, innerHeight - homeBox.top) - margin - h);
+
+  const obstacles = [".intro", ".missions", ".coordinates", ".controls", ".credit"]
+    .map(selector => home.querySelector(selector)).filter(Boolean).map(el => relativeBox(el, homeBox));
+  const others = pins.map((pin, i) => i === index || pin.marker.hidden ? null : markerCenter(i, homeBox))
+    .filter(Boolean).map(p => ({ l: p.x - 15, t: p.y - 15, r: p.x + 15, b: p.y + 15 }));
+  const ownMarker = { l: mx - 16, t: my - 16, r: mx + 16, b: my + 16 };
+
+  const gap = 28;
+  const xs = [cx + r + gap, cx - r - gap - w, mx + 36, mx - 36 - w];
+  const ys = [my - 22, my - h / 2, my - h + 22, cy - r, cy - h / 2, cy + r - h];
+  const candidates = [];
+  for (const x of xs) for (const y of ys) candidates.push([x, y]);
+  candidates.push([mx - w / 2, cy - r - gap - h], [mx - w / 2, cy + r + gap]);
+
+  let best = null;
+  for (const [rawX, rawY] of candidates) {
+    const x = Math.max(minX, Math.min(maxX, rawX));
+    const y = Math.max(minY, Math.min(maxY, rawY));
+    const box = { l: x, t: y, r: x + w, b: y + h };
+    let cost = Math.hypot(x + w / 2 - mx, y + h / 2 - my) * .6;
+    for (const o of obstacles) cost += overlapArea(box, o) * 4;
+    for (const o of others) cost += overlapArea(box, o) * 30;
+    cost += overlapArea(box, ownMarker) * 2000;
+    const nearX = Math.max(box.l, Math.min(cx, box.r));
+    const nearY = Math.max(box.t, Math.min(cy, box.b));
+    const depth = r - Math.hypot(nearX - cx, nearY - cy);
+    if (depth > 0) cost += depth * 70;
+    if (!best || cost < best.cost) best = { cost, left: x, top: y, w, h };
+  }
+  return best;
+}
+
+// Trace la ligne : du centre du point, une diagonale, puis un court segment jusqu'au bord de la fiche.
+function drawLeader(restart) {
+  const homeBox = home.getBoundingClientRect();
+  const { x: mx, y: my } = markerCenter(activeDossier.index, homeBox);
+  const { left, top, w, h } = activeDossier;
+  const right = left + w;
+  const bottom = top + h;
+  let ax, ay, ex, ey;
+  if (left > mx - 6) {
+    ax = left; ay = top + 22;
+    ex = ax - Math.min(26, Math.abs(ax - mx) / 2); ey = ay;
+  } else if (right < mx + 6) {
+    ax = right; ay = top + 22;
+    ex = ax + Math.min(26, Math.abs(ax - mx) / 2); ey = ay;
+  } else {
+    const below = top > my;
+    ay = below ? top : bottom;
+    ax = Math.max(left + 18, Math.min(right - 18, mx));
+    ex = ax; ey = ay + (below ? -1 : 1) * Math.min(26, Math.abs(ay - my) / 2);
+  }
+  leaderPath.setAttribute("d", `M${mx} ${my}L${ex} ${ey}L${ax} ${ay}`);
+  leaderRing.setAttribute("cx", mx);
+  leaderRing.setAttribute("cy", my);
+  leaderEnd.setAttribute("x", ax - 3);
+  leaderEnd.setAttribute("y", ay - 3);
+  const length = leaderPath.getTotalLength();
+  leaderPath.style.transition = "none";
+  leaderPath.style.strokeDasharray = length;
+  leaderPath.style.strokeDashoffset = restart ? length : 0;
+  if (restart) {
+    leaderPath.getBoundingClientRect();
+    leaderPath.style.transition = "";
+    leaderPath.style.strokeDashoffset = 0;
+  }
+}
+
+function showDossier(index) {
+  if (descent || home.hidden || pins[index].marker.hidden) return;
+  clearTimeout(dossierTimer);
+  if (activeDossier?.index === index) return;
+  const mission = missions[index];
+  const info = dossierData[mission.slug];
+  dossierFields.id.textContent = "MARS-OBJ-" + String(index + 1).padStart(3, "0");
+  dossierFields.object.textContent = info.object;
+  dossierFields.program.textContent = info.program;
+  dossierFields.status.textContent = statusLabels[info.state];
+  dossier.dataset.state = info.state;
+
+  dossier.classList.remove("visible");
+  leaderSvg.classList.remove("visible");
+  markerLayer.classList.add("has-focus");
+  pins.forEach((pin, i) => pin.marker.classList.toggle("active", i === index));
+
+  const spot = placeDossier(index);
+  activeDossier = { index, ...spot };
+  dossier.style.left = spot.left + "px";
+  dossier.style.top = spot.top + "px";
+  const marker = markerCenter(index, home.getBoundingClientRect());
+  const towardMarker = spot.left > marker.x ? -1 : spot.left + spot.w < marker.x ? 1 : 0;
+  dossier.style.setProperty("--shift-x", towardMarker * 14 + "px");
+  dossier.style.setProperty("--shift-y", towardMarker === 0 ? (spot.top > marker.y ? -14 : 14) + "px" : "0px");
+  drawLeader(true);
+  dossier.getBoundingClientRect();
+  dossier.classList.add("visible");
+  leaderSvg.classList.add("visible");
+}
+
+function hideDossier(immediate) {
+  clearTimeout(dossierTimer);
+  const run = () => {
+    activeDossier = null;
+    dossier.classList.remove("visible");
+    leaderSvg.classList.remove("visible");
+    markerLayer.classList.remove("has-focus");
+    pins.forEach(pin => pin.marker.classList.remove("active"));
+  };
+  if (immediate) run();
+  else dossierTimer = setTimeout(run, 60);
+}
+
+// Appelé à chaque rendu : la ligne suit le point si le globe bouge encore.
+function syncDossier() {
+  if (!activeDossier) return;
+  if (pins[activeDossier.index].marker.hidden) hideDossier(true);
+  else drawLeader(false);
+}
+
+pins.forEach(({ marker }, index) => {
+  marker.addEventListener("pointerenter", event => {
+    if (event.pointerType !== "touch") showDossier(index);
+  });
+  marker.addEventListener("pointerleave", () => hideDossier());
+  marker.addEventListener("focus", () => {
+    if (marker.matches(":focus-visible")) showDossier(index);
+  });
+  marker.addEventListener("blur", () => hideDossier());
+});
+addEventListener("resize", () => hideDossier(true));
 
 syncRotation();
 showRoute();
