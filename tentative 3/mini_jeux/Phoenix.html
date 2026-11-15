@@ -2,163 +2,140 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Mars Seismic Lab – Become a seismologist</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark;--c:#5ff;--o:#ff7a3d;--bg:#04080f;--pn:#08121f;--ln:#17405a}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-html,body{height:100%;margin:0;background:var(--bg);color:#bfe;font:13px/1.45 'Segoe UI',system-ui,sans-serif}
-body{display:flex;flex-direction:column}
-header{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--ln);background:linear-gradient(90deg,#0a1626,#1a0d08)}
-h1{margin:0;font-size:17px;letter-spacing:4px;font-weight:600}h1 b{color:var(--o)}
-#hd{font-family:monospace;text-align:right;font-size:12px}#hd i{color:var(--o);font-style:normal}
-nav{display:flex;gap:4px;padding:6px 10px;overflow-x:auto;border-bottom:1px solid var(--ln)}
+:root{color-scheme:dark;--bg:#0b0d10;--pn:rgba(12,14,18,.84);--tx:#f2ede5;--mu:#aaa398;--ac:#ff7a3d;--wt:#6fd0e8;--ok:#8fe3a1;--ko:#e5483a;--ln:#3a3d44;--bt:#5b5f68}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:500 14px/1.4 "Chakra Petch",system-ui,sans-serif}
+body{display:flex;flex-direction:column;gap:8px;padding:max(10px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) max(10px,env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.pn,header,#sd{background:var(--pn);border:1px solid var(--ln);border-left:3px solid var(--ac);padding:8px 12px;backdrop-filter:blur(4px)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+h1{margin:0;font-size:18px;font-weight:700;letter-spacing:.08em}h1 b{color:var(--ac)}
+h2{margin:2px 0 0;font-size:12px;font-weight:500;letter-spacing:.08em;color:var(--wt)}
+#hd{text-align:right;font-size:12px;letter-spacing:.04em;line-height:1.5;color:var(--mu)}#hd i{color:var(--tx);font-style:normal;font-weight:700}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
 nav button{white-space:nowrap}
-button,select{background:#0a2a3a;color:var(--c);border:1px solid var(--ln);padding:6px 10px;font:inherit;cursor:pointer;border-radius:3px}
-button:hover{background:#0e4258}button.on{background:#0e5a70;border-color:var(--c);box-shadow:0 0 8px #5ff5}
-button.go{background:#5a2410;color:#ffd0b0;border-color:var(--o);font-weight:600;letter-spacing:1px}
-button:disabled{opacity:.35;cursor:not-allowed}
-#mn{flex:1;display:flex;min-height:0}
-#vz{flex:1;display:flex;flex-direction:column;gap:6px;padding:8px;min-width:0}
-canvas{flex:1;min-height:90px;width:100%;background:#050b14;border:1px solid var(--ln);touch-action:none;display:none}
-#sd{width:350px;overflow:auto;background:var(--pn);border-left:1px solid var(--ln);padding:12px}
-#sd h3{margin:0 0 6px;color:var(--o);letter-spacing:2px;font-size:14px}
-.r{display:flex;gap:6px;align-items:center;margin:6px 0;flex-wrap:wrap}.r input[type=range]{flex:1}
-.tg{font-family:monospace;color:#fff}.ok{color:#6f9}.ko{color:#f65}.sm{font-size:11px;opacity:.75}
-table{border-collapse:collapse;width:100%;font-family:monospace;font-size:11px}td,th{border-bottom:1px solid var(--ln);padding:2px 4px;text-align:right}th:first-child,td:first-child{text-align:left}
-textarea{width:100%;height:90px;background:#050b14;color:#cff;border:1px solid var(--ln);box-sizing:border-box}
-.bar{height:8px;border:1px solid var(--ln)}.bar i{display:block;height:100%;background:var(--o)}
-@media(max-width:820px){#mn{flex-direction:column}#sd{width:auto;border-left:0;border-top:1px solid var(--ln);max-height:48%}h1{font-size:13px;letter-spacing:2px}}
+button,select{font:inherit;color:var(--tx);background:#1b1e24;border:1px solid var(--bt);padding:8px 12px;min-height:40px;cursor:pointer;letter-spacing:.04em;border-radius:0}
+button:hover:not(:disabled){border-color:var(--ac)}button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #fff;outline-offset:2px}
+button.on{background:#2a1a10;border-color:var(--ac);color:var(--tx)}
+button.go{min-height:48px;font-weight:700;font-size:14px;background:#2a1a10;border:2px solid var(--ac)}
+button:disabled{opacity:.4;cursor:default}
+#mn{flex:1;display:flex;gap:8px;min-height:0}
+#vz{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+canvas{flex:1;min-height:90px;width:100%;background:var(--bg);border:1px solid var(--ln);border-left:3px solid var(--ac);touch-action:none;display:block}
+#sd{width:360px;overflow:auto;padding:12px 14px}
+#sd h3{margin:0 0 8px;color:var(--wt);font-weight:500;letter-spacing:.08em;font-size:14px}
+#sd p{margin:8px 0;line-height:1.5}
+.r{display:flex;gap:6px;align-items:center;margin:8px 0;flex-wrap:wrap}.r input[type=range]{flex:1;accent-color:var(--ac)}
+.tg{color:var(--tx);font-weight:700;font-variant-numeric:tabular-nums}.ok{color:var(--ok)}.ko{color:var(--ko)}.sm{font-size:12px;color:var(--mu)}
+table{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}td,th{border-bottom:1px solid var(--ln);padding:3px 5px;text-align:right}th{color:var(--mu);font-weight:500}th:first-child,td:first-child{text-align:left}
+textarea{width:100%;height:100px;font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--bt);padding:8px;user-select:text}
+.bar{height:8px;border:1px solid var(--bt)}.bar i{display:block;height:100%;background:var(--wt)}
+#sc{flex:.9}
+button.det{width:100%;min-height:84px;font-size:18px;letter-spacing:.12em;background:#3a1408}button.det:active{background:var(--ac);color:#14100c}
+@media(max-width:820px){#mn{flex-direction:column}#sd{width:auto;max-height:48%}h1{font-size:14px}h2{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
-<header><h1>MARS <b>SEISMIC</b> LAB</h1><div id="hd"></div></header>
-<nav id="nv"></nav>
-<div id="mn"><div id="vz"><canvas id="sg"></canvas><canvas id="pl"></canvas><canvas id="tt"></canvas></div><div id="sd"></div></div>
+<header><div><h1>MARS <b>SEISMIC</b> LAB</h1><h2>Live watch · detect the quake · InSight / SEIS</h2></div><div id="hd"></div></header>
+<div id="mn"><div id="vz"><canvas id="sc"></canvas><canvas id="sg"></canvas></div><div id="sd">
+<h3>LIVE WATCH</h3>
+<p>The seismometer is recording <b>live</b>. A quake shows a small, fast <b style="color:#6fd0e8">P</b> wave, then a larger, slower <b style="color:#ff7a3d">S</b> wave a few seconds later. Press <b>DETECT</b> the moment you spot one.</p>
+<div class="r"><button class="det go" id="dtb">◉ DETECT WAVE <span class="sm">[SPACE]</span></button></div>
+<div class="r"><button id="lfb" data-a="lf">HIGH-PASS FILTER</button></div>
+<table><tr><td>Quakes detected</td><td class="tg" id="l_h"></td></tr><tr><td>Missed</td><td class="tg" id="l_m"></td></tr><tr><td>False alarms</td><td class="tg" id="l_f"></td></tr><tr><td>Errors (max 5)</td><td class="tg" id="l_e"></td></tr><tr><td>Score</td><td class="tg" id="l_s"></td></tr></table>
+<div class="bar"><i id="l_b"></i></div><p id="lvm"></p>
+<div class="r"><button class="go" id="lnew" style="display:none">↻ WATCH AGAIN</button><button class="go" id="lback" style="display:none">BACK TO Mars Rovers</button></div>
+<p class="sm">Traps: wind swells and dust devils (slow bumps, no P→S sequence) — watch the camera, and try the filter. Hit = up to +12.5 pts (faster is better) · false alarm = −4 · 50+ to succeed · missed quakes and false alarms are errors: 5 errors and the mission is lost. The faint violet curve behind the signal is the wind speed. Simulated data, not from NASA.</p>
+</div></div>
 <script>
 function atlasQuest(id){try{var q=JSON.parse(localStorage.getItem("atlasMarsQuests")||"{}");q[id]=true;localStorage.setItem("atlasMarsQuests",JSON.stringify(q))}catch(e){}}
-const $=i=>document.getElementById(i),PI=Math.PI,FS=4,N=7200,RM=3390,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
-/* ---------- état + sauvegarde ---------- */
-const DEF={tab:0,cls:{},att:0,sc:{},hp:.05,lp:1.9,fon:0,ov:0,pk:{},echo:{},m:{h:70,vp:7.2,rc:1500},kept:0,rep:'',rv:0};
-let ST=Object.assign({},DEF);try{Object.assign(ST,JSON.parse(localStorage.getItem('msl')||'{}'))}catch(e){}
-const save=()=>{try{localStorage.setItem('msl',JSON.stringify(ST))}catch(e){}};
-/* ---------- données synthétiques ---------- */
+const $=i=>document.getElementById(i),PI=Math.PI,cl=(v,a,b)=>Math.max(a,Math.min(b,v)),D=()=>devicePixelRatio||1;
 function rnd(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const gauss=r=>Math.sqrt(-2*Math.log(r()+1e-9))*Math.cos(6.2832*r());
-function lp(x,fc){const a=Math.exp(-6.2832*fc/FS),y=new Float32Array(x.length);let s=0;for(let i=0;i<x.length;i++){s=(1-a)*x[i]+a*s;y[i]=s}return y}
-function hp(x,fc){const l=lp(lp(x,fc),fc);return x.map((v,i)=>v-l[i])}
-const flt=x=>hp(hp(lp(lp(x,ST.lp),ST.lp),ST.hp),ST.hp);
-/* modèle simplifié : rais droits, couches homogènes (croûte h, manteau vp, noyau rc), vp/vs=1,78 */
-function ph(m,th){const a=th*PI/180,vs=m.vp/1.78,L=2*RM*Math.sin(a/2),Lp=4*RM*Math.sin(a/4),Lc=2*Math.hypot(RM-m.rc*Math.cos(a/2),m.rc*Math.sin(a/2)),dP=m.h*(1/6-1/m.vp),dS=m.h*(1.78/6-1.78/m.vp);
-return{P:L/m.vp+dP,S:L/vs+dS,PP:Lp/m.vp+2*dP,SS:Lp/vs+2*dS,PcP:Lc/m.vp+2*dP,ScS:Lc/vs+2*dS}}
-const TM={h:40,vp:8.1,rc:1830};/* modèle caché utilisé pour fabriquer les données */
-function mk(n,dist,t0,amp,wa,seed){const r=rnd(seed),x=new Float32Array(N),wn=Float32Array.from({length:N},()=>gauss(r)),w=lp(lp(wn,.05),.05);let s=0;for(const v of w)s+=v*v;const sd=Math.sqrt(s/N)||1,b=lp(wn,.5),p0=r()*6,per=250+r()*150;
-for(let i=0;i<N;i++){const gu=1+.8*Math.pow(Math.max(0,Math.sin(6.283*i/FS/per+p0)),2);x[i]=wa*(w[i]/sd*(.7+.3*gu)+.15*b[i]*gu)+.08*gauss(r)}
-for(let k=0;k<3;k++){const i0=r()*N|0,sg=r()<.5?-1:1;for(let j=0;j<20&&i0+j<N;j++)x[i0+j]+=sg*2.5*Math.exp(-j/3)}
-let ob=null;if(dist){const T=ph(TM,dist);ob={};for(const k of['P','S','PcP','ScS'])ob[k]=t0+T[k]+gauss(r)*.5;
-for(const[k,a,f,tau]of[['P',.5,1,12],['S',1,.6,30],['PcP',.3,1,14],['ScS',.45,.6,26]])for(let i=Math.max(0,ob[k]*FS|0);i<N;i++){const d=i/FS-ob[k];if(d>tau*5)break;x[i]+=amp*a*Math.sin(6.283*f*d)*Math.exp(-d/tau)*(1-Math.exp(-d/2))}
-for(let i=ob.S*FS|0;i<N;i++)x[i]+=amp*.25*gauss(r)*Math.exp(-(i/FS-ob.S)/90)}
-return{n,x,f:x,ob,dist}}
-const REC=[mk('RECORDING A',28,300,1.6,.7,11),mk('RECORDING B',0,0,0,1.2,22),mk('RECORDING C',18,500,.9,1,33),mk('RECORDING D',62,250,1.2,.6,44)];
-const NM=['A','B','C','D'],EV=[{n:'A',d:28,i:0},{n:'C',d:18,i:2},{n:'D',d:62,i:3}];
-const refilter=()=>REC.forEach(r=>r.f=flt(r.x));
-function snr(r){if(!r.ob)return null;const a=ST.fon?r.f:r.x,q=(s,e)=>{let z=0,n=0;for(let i=s*FS|0;i<e*FS;i++){z+=a[i]*a[i];n++}return Math.sqrt(z/n)};return q(r.ob.S-5,r.ob.S+55)/q(20,r.ob.P-60)}
-function invDist(dt,m){let p=0;for(let t=.5;t<=120;t+=.1){const T=ph(m,t),v=T.S-T.P;if(v>=dt)return t;p=v}return null}
-function resid(){const o=[];for(const e of EV){const r=REC[e.i],T=ph(ST.m,e.d);for(const k of(e.n=='C'?['S']:['S','PcP','ScS']))o.push([e.n,k,T[k]-T.P,r.ob[k]-r.ob.P])}return o}
-const rms=()=>{const a=resid();return Math.sqrt(a.reduce((s,r)=>s+(r[2]-r[3])**2,0)/a.length)};
-/* ---------- vue sismogramme ---------- */
-const V={c:$('sg'),t0:0,t1:1800,rec:0,cmp:-1,mk:[]};let AN={t:0,on:0,ph:'P',ev:0},drag=null;
-const D=()=>devicePixelRatio||1;
-function plot(g,arr,col,al,W,H){const sp=V.t1-V.t0,i0=Math.max(0,V.t0*FS|0),i1=Math.min(N,Math.ceil(V.t1*FS));let m=0;for(let i=i0;i<i1;i++)m=Math.max(m,Math.abs(arr[i]));m=m*1.15||1;
-g.strokeStyle=col;g.globalAlpha=al;g.lineWidth=D();g.beginPath();
-if(i1-i0<W){for(let i=i0;i<i1;i++){const x=(i/FS-V.t0)/sp*W,y=H/2-arr[i]/m*H*.45;i==i0?g.moveTo(x,y):g.lineTo(x,y)}}
-else for(let px=0;px<W;px++){const a=i0+(px/W)*(i1-i0)|0,b=Math.max(a+1,i0+((px+1)/W)*(i1-i0)|0);let lo=1e9,hi=-1e9;for(let i=a;i<b&&i<N;i++){lo=Math.min(lo,arr[i]);hi=Math.max(hi,arr[i])}if(lo>hi)continue;g.moveTo(px,H/2-hi/m*H*.45);g.lineTo(px,H/2-lo/m*H*.45+1)}
-g.stroke();g.globalAlpha=1;return m}
-const PCOL={P:'#5ff',S:'#ff7a3d',PP:'#8af',SS:'#fb8',PcP:'#7f9',ScS:'#fd5'};
-function dSG(){const c=V.c,g=c.getContext('2d'),W=c.width,H=c.height,d=D(),r=REC[V.rec],sp=V.t1-V.t0,X=t=>(t-V.t0)/sp*W;
-g.fillStyle='#050b14';g.fillRect(0,0,W,H);g.font=10*d+'px monospace';
-const st=[1,2,5,10,20,30,60,120,300].find(s=>sp/s<9)||600;
-for(let t=Math.ceil(V.t0/st)*st;t<V.t1;t+=st){g.strokeStyle='#17405a66';g.beginPath();g.moveTo(X(t),0);g.lineTo(X(t),H);g.stroke();g.fillStyle='#6a9';g.fillText(t+' s',X(t)+3,H-5*d)}
-g.strokeStyle='#17405a';g.beginPath();g.moveTo(0,H/2);g.lineTo(W,H/2);g.stroke();
-if(V.cmp>=0&&V.cmp!=V.rec)plot(g,ST.fon?REC[V.cmp].f:REC[V.cmp].x,'#ff7a3d',.45,W,H);
-if(tab()==1&&ST.fon&&ST.ov)plot(g,r.x,'#8a6a5a',.5,W,H);
-const m=plot(g,ST.fon?r.f:r.x,'#5ff',1,W,H);
-g.fillStyle='#9cd';g.fillText(r.n+(ST.fon?'  [FILTERED '+ST.hp.toFixed(2)+'–'+ST.lp.toFixed(2)+' Hz]':'  [RAW]')+(V.cmp>=0&&V.cmp!=V.rec?'   orange: '+REC[V.cmp].n:'')+'   max amp. ±'+m.toFixed(2)+' a.u. · SIMULATED DATA',8*d,14*d);
-const L=(t,col,lab,dash)=>{g.strokeStyle=col;g.setLineDash(dash?[6*d,4*d]:[]);g.lineWidth=1.5*d;g.beginPath();g.moveTo(X(t),0);g.lineTo(X(t),H);g.stroke();g.setLineDash([]);g.fillStyle=col;g.fillText(lab,X(t)+4,26*d+(dash?(lab.length*3)%30*d:0))};
-V.mk.forEach(k=>L(k.o[k.k],k.col,k.k+' '+k.o[k.k].toFixed(1)+' s'));
-if(tab()==3){const T=ph(ST.m,62),ref=pkRef('D');for(const k in T)L(ref+T[k]-T.P,PCOL[k],k+'(model)',1)}}
-function pkRef(id){const p=ST.pk[id];return p?p.P:REC[3].ob.P}
-/* ---------- coupe de Mars ---------- */
-function dPL(){const c=$('pl'),g=c.getContext('2d'),W=c.width,H=c.height,d=D(),m=ST.m,cx=W/2,cy=H/2+4*d,k=(Math.min(W,H)/2-16*d)/RM,e=EV[AN.ev],T=ph(m,e.d);
-const P=(r,a)=>[cx+r*k*Math.sin(a*PI/180),cy-r*k*Math.cos(a*PI/180)];
-g.fillStyle='#050b14';g.fillRect(0,0,W,H);g.save();g.beginPath();g.arc(cx,cy,RM*k,0,7);g.clip();
-const disc=(r,c)=>{g.beginPath();g.arc(cx,cy,r*k,0,7);g.fillStyle=c;g.fill()};disc(RM,'#c07040');disc(RM-m.h*4,'#6e2f1c');disc(m.rc,'#ff9b4a');
-g.strokeStyle='#0008';g.lineWidth=d;[RM-m.h*4,m.rc].forEach(r=>{g.beginPath();g.arc(cx,cy,r*k,0,7);g.stroke()});
-const path=AN.ph=='P'||AN.ph=='S'?[[RM,0],[RM,e.d]]:AN.ph=='PP'||AN.ph=='SS'?[[RM,0],[RM,e.d/2],[RM,e.d]]:[[RM,0],[m.rc,e.d/2],[RM,e.d]],pts=path.map(p=>P(p[0],p[1])),col=PCOL[AN.ph];
-const ts=AN.t/6*T.S,s0=P(RM,0);
-if(AN.t>0){[[m.vp,'#5ff'],[m.vp/1.78,'#ff7a3d']].forEach(([v,c])=>{g.strokeStyle=c;g.globalAlpha=.7;g.lineWidth=2*d;g.beginPath();g.arc(s0[0],s0[1],v*ts*k,0,7);g.stroke()});g.globalAlpha=1}
+let BEST=0;try{BEST=+localStorage.getItem('mslBest')||0}catch(e){}
+const hdr=()=>{$('hd').innerHTML=`BEST SCORE <i>${BEST}</i> / 100<br><span class="sm">SIMULATED DATA (not NASA)</span>`};
+/* ---------- module LIVE : veille sismique en temps réel ---------- */
+const LF=25,LW=40,LN=LF*LW+8,LQ=8,LE=5,LAMP=[4,3.2,2.6,2.2,1.8,1.5,1.3,1.1];let LV=null,SCB=null;
+const LP=[];(()=>{const r=rnd(9);for(let i=0;i<110;i++)LP.push({x:r(),y:r(),s:.5+r()*1.5,a:.15+r()*.3})})();
+const lg=(ts,p)=>{const g=.5+.5*Math.sin(6.283*ts/31+p);return .35+.65*g*g};
+function liveNew(){const r=Math.random,dec=new Set();while(dec.size<2)dec.add(2+(r()*7|0));let t=9,qi=0;const ev=[];
+for(let i=0;i<LQ+2;i++){ev.push(dec.has(i)?{k:'d',t,a:1.8+r()*.8,rev:0}:{k:'q',t,dl:6+r()*6,a:LAMP[qi++],f1:1.9+r()*.8,f2:.85+r()*.3,ph:r()*6,hit:0,miss:0,rev:0});t+=13+r()*5}
+LV={T:0,k:0,raw:new Float32Array(LN),flt:new Float32Array(LN),ev,end:ev[ev.length-1].t+20,hit:0,miss:0,fa:0,sc:0,done:0,fil:0,mk:[],rip:[],msg:null,n1:0,l1:0,l2:0,ph:[r()*6,r()*6,r()*6],ws:4,html:'<span class="sm">Watching… the first wave will not take long.</span>',uh:null}}
+function liveSample(ts){const L=LV;let v=.9*lg(ts,L.ph[2])*(.6*Math.sin(6.283*ts/9.3+L.ph[0])+.4*Math.sin(6.283*ts/5.1+L.ph[1]));
+L.n1+=(gauss(Math.random)-L.n1)*.45;v+=.5*L.n1;
+for(const e of L.ev){const d=ts-e.t;if(e.k=='q'){if(d>=0&&d<16)v+=.5*e.a*Math.sin(6.283*e.f1*d)*Math.exp(-d/2.5)*(1-Math.exp(-d/.3));const s=d-e.dl;if(s>0&&s<40)v+=e.a*(Math.sin(6.283*e.f2*s+e.ph)+.4*Math.sin(6.283*e.f2*1.8*s))*Math.exp(-s/6)*(1-Math.exp(-s/.5))}
+else if(Math.abs(d)<5)v+=e.a*Math.exp(-d*d/2.56)*Math.cos(6.283*.3*d)}
+const a=Math.exp(-6.283*.5/LF);L.l1=(1-a)*v+a*L.l1;const y1=v-L.l1;L.l2=(1-a)*y1+a*L.l2;return[v,y1-L.l2]}
+function say(html,cls,banner){const L=LV;L.html=`<span class="${cls}">${html}</span>`;L.msg={txt:banner,col:cls,rt:performance.now()/1000}}
+function liveEnd(){const L=LV,p=Math.round(L.sc),over=L.miss+L.fa>=LE,w=!over&&p>=50;L.done=1;L.win=w;L.over=over;BEST=Math.max(BEST,p);try{localStorage.setItem('mslBest',BEST)}catch(e){}if(w)atlasQuest('phoenix');L.html=w?`<span class="ok">Watch complete: ${p}/100. Mission successful — you can detect quakes like a seismologist.</span>`:over?`<span class="ko">Mission failed: ${LE} errors reached (missed quakes + false alarms). Score ${p}/100 — try the high-pass filter and watch for the P wave.</span>`:`<span class="ko">Watch complete: ${p}/100. Reach 50 to succeed — try the high-pass filter and watch for the P wave.</span>`;hdr()}
+function liveStep(dt){const L=LV;if(!L||L.done||!dt)return;L.T+=dt;
+while(L.k/LF<=L.T){const v=liveSample(L.k/LF);L.raw[L.k%LN]=v[0];L.flt[L.k%LN]=v[1];L.k++}
+L.ws=2+9*lg(L.T,L.ph[2]);
+for(const e of L.ev){if(e.k=='q'&&!e.hit&&!e.miss&&L.T>e.t+e.dl+5){e.miss=1;e.rev=1;L.miss++;say('✖ Missed a quake (P wave at T+'+e.t.toFixed(0)+' s). Look for fast, small oscillations.','ko','QUAKE MISSED')}if(!e.rev&&L.T>e.t+(e.k=='q'?e.dl+5:5))e.rev=1}
+if(!L.done&&(L.miss+L.fa>=LE||L.T>=L.end))liveEnd()}
+function det(){const L=LV;if(!L||L.done)return;const t=L.T,q=L.ev.find(e=>e.k=='q'&&!e.hit&&t>=e.t+.15&&t<=e.t+e.dl+5);
+if(q){q.hit=1;q.rev=1;const rt=t-q.t,f=rt<=3?1:rt<=q.dl?.75:.5,p=12.5*f;q.pts=p;L.hit++;L.sc+=p;L.mk.push({t,ok:1});L.rip.push({rt:performance.now()/1000});say('✔ Quake detected · reaction '+rt.toFixed(1)+' s · +'+p.toFixed(1)+' pts','ok','QUAKE CONFIRMED')}
+else if(!L.ev.some(e=>e.k=='q'&&e.hit&&t>=e.t&&t<=e.t+e.dl+5)){const dv=L.ev.find(e=>e.k=='d'&&Math.abs(t-e.t)<5);L.fa++;L.sc=Math.max(0,L.sc-4);L.mk.push({t,ok:0});say(dv?'✖ False alarm: a dust devil (slow bump, no P→S sequence) · −4':'✖ False alarm: no wave arrival here · −4','ko','FALSE ALARM');if(L.miss+L.fa>=LE)liveEnd()}}
+function liveUI(){const L=LV;if(!L)return;const s=(i,t)=>{const e=$(i);if(e&&e.textContent!==t)e.textContent=t};s('l_h',L.hit+' / '+LQ);s('l_m',''+L.miss);s('l_f',''+L.fa);s('l_e',(L.miss+L.fa)+' / '+LE);s('l_s',Math.round(L.sc)+' / 100');
+const b=$('l_b');if(b)b.style.width=Math.min(100,L.T/L.end*100)+'%';const m=$('lvm');if(m&&L.html!==L.uh){m.innerHTML=L.html;L.uh=L.html}const n=$('lnew');if(n)n.style.display=L.done?'':'none';const bk=$('lback');if(bk)bk.style.display=L.done&&L.win?'':'none'}
+const FN='"Chakra Petch",monospace';
+function dLive(){const c=$('sg'),g=c.getContext('2d'),W=c.width,H=c.height,d=D(),L=LV;if(!L||!W)return;
+g.fillStyle='#0b0d10';g.fillRect(0,0,W,H);g.font='500 '+10*d+'px '+FN;g.textBaseline='alphabetic';g.textAlign='left';
+const T=L.T,t0=T-LW,X=t=>(t-t0)/LW*W,A=5.5;
+for(let t=Math.ceil(Math.max(0,t0)/5)*5;t<=T;t+=5){g.strokeStyle='#3a3d4466';g.lineWidth=d;g.beginPath();g.moveTo(X(t),0);g.lineTo(X(t),H);g.stroke();g.fillStyle='#aaa398';g.fillText(t+' s',X(t)+3*d,H-5*d)}
+g.strokeStyle='#3a3d44';g.beginPath();g.moveTo(0,H/2);g.lineTo(W,H/2);g.stroke();
+{const base=H-16*d,hh=H*.5,wy=t=>base-(2+9*lg(Math.max(0,t),L.ph[2]))/12*hh,x0=Math.max(0,X(0));
+g.beginPath();g.moveTo(x0,base);for(let x=x0;x<=W;x+=5*d)g.lineTo(x,wy(t0+x/W*LW));g.lineTo(W,wy(T));g.lineTo(W,base);g.closePath();g.fillStyle='rgba(180,140,255,.07)';g.fill();
+g.beginPath();for(let x=x0;x<=W;x+=5*d){const y=wy(t0+x/W*LW);x==x0?g.moveTo(x,y):g.lineTo(x,y)}g.lineTo(W,wy(T));g.strokeStyle='rgba(180,140,255,.35)';g.lineWidth=1.5*d;g.stroke();
+g.fillStyle='rgba(180,140,255,.55)';g.textAlign='right';g.fillText('WIND SPEED '+L.ws.toFixed(1)+' m/s',W-10*d,28*d);g.textAlign='left'}
+for(const e of L.ev){if(!e.rev)continue;const q=e.k=='q',xs=[[e.t,q?'#6fd0e8':'#aaa398',q?'P':'dust devil']];if(q)xs.push([e.t+e.dl,'#ff7a3d','S']);
+xs.forEach(([t,col,lab],i)=>{const x=X(t);if(x<0||x>W)return;g.strokeStyle=col;g.setLineDash([5*d,4*d]);g.lineWidth=1.3*d;g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();g.setLineDash([]);g.fillStyle=col;g.fillText(lab,x+4*d,26*d)});
+if(q){const x=X(e.t);if(x>-200*d&&x<W){g.fillStyle=e.hit?'#8fe3a1':'#e5483a';g.fillText(e.hit?'✔ detected +'+e.pts.toFixed(1):'✖ missed',x+4*d,40*d)}}}
+const arr=L.fil?L.flt:L.raw,k1=L.k-1,k0=Math.max(0,k1-LF*LW);g.strokeStyle='#6fd0e8';g.lineWidth=1.4*d;g.beginPath();
+for(let k=k0;k<=k1;k++){const x=X(k/LF),y=cl(H/2-arr[k%LN]/A*H*.46,2,H-2);k==k0?g.moveTo(x,y):g.lineTo(x,y)}g.stroke();
+for(const m of L.mk){const x=X(m.t);if(x<0)continue;g.fillStyle=m.ok?'#8fe3a1':'#e5483a';g.beginPath();g.moveTo(x,H-26*d);g.lineTo(x-6*d,H-14*d);g.lineTo(x+6*d,H-14*d);g.fill();g.textAlign=x>W-60*d?'right':'left';g.fillText(m.ok?'DETECT':'FALSE',x>W-60*d?x+6*d:x-16*d,H-30*d);g.textAlign='left'}
+g.strokeStyle='#ff7a3d';g.lineWidth=2*d;g.beginPath();g.moveTo(W-1,0);g.lineTo(W-1,H);g.stroke();
+if(k1>=0){g.fillStyle='#ff7a3d';g.beginPath();g.arc(W-2*d,cl(H/2-arr[k1%LN]/A*H*.46,2,H-2),3.5*d,0,7);g.fill()}
+g.fillStyle='#f2ede5';g.fillText('LIVE · '+(L.fil?'HIGH-PASS 0.5 Hz':'RAW')+' · SIMULATED DATA · press DETECT when a P wave appears',8*d,14*d)}
+function sceneBg(W,H,d){const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d'),hz=H*.5,r=rnd(5),s=H/500;
+let q=g.createLinearGradient(0,0,0,hz);q.addColorStop(0,'#7d5238');q.addColorStop(.65,'#c98a5c');q.addColorStop(1,'#d29a68');g.fillStyle=q;g.fillRect(0,0,W,hz+2);
+q=g.createRadialGradient(W*.78,hz*.5,0,W*.78,hz*.5,H*.16);q.addColorStop(0,'rgba(255,235,200,.95)');q.addColorStop(1,'rgba(255,235,200,0)');g.fillStyle=q;g.fillRect(0,0,W,hz);
+for(const[col,hh,off]of[['#9a6648',.11,1],['#7a4c38',.07,5]]){g.fillStyle=col;g.beginPath();g.moveTo(0,hz);for(let x=0;x<=W;x+=6)g.lineTo(x,hz-H*hh*(.5+.3*Math.sin(x/W*9+off)+.2*Math.sin(x/W*23+off*2)));g.lineTo(W,hz);g.fill()}
+q=g.createLinearGradient(0,hz,0,H);q.addColorStop(0,'#9a6340');q.addColorStop(1,'#5a3622');g.fillStyle=q;g.fillRect(0,hz,W,H-hz);
+for(let j=0;j<5;j++){const y0=hz+(H-hz)*(j+1)/6;g.fillStyle='rgba(60,30,18,'+(.1+.05*j)+')';g.beginPath();g.moveTo(0,H);for(let x=0;x<=W;x+=8)g.lineTo(x,y0+(6+4*j)*d*Math.sin(x/W*(5+j)+j));g.lineTo(W,H);g.fill()}
+for(let i=0;i<46;i++){const p=Math.pow(r(),1.7),y=hz+4*d+(H-hz-8*d)*p,x=r()*W,rx=(2+16*p)*s;g.fillStyle='rgba(30,14,8,.3)';g.beginPath();g.ellipse(x+rx*.3,y+rx*.35,rx*1.1,rx*.3,0,0,7);g.fill();g.fillStyle='#5a3a28';g.beginPath();g.ellipse(x,y,rx,rx*.6,0,0,7);g.fill();g.fillStyle='#a06f4c';g.beginPath();g.ellipse(x-rx*.25,y-rx*.2,rx*.55,rx*.28,0,0,7);g.fill()}
+const lx=W*.68,ly=hz+(H-hz)*.3,e=(x,y,a,b,col,st)=>{g.beginPath();g.ellipse(x,y,a,b,0,0,7);g.fillStyle=col;g.fill();if(st){g.strokeStyle=st;g.lineWidth=1.5*d;g.stroke()}};
+e(lx+10*s,ly+2*s,60*s,8*s,'rgba(30,14,8,.3)');g.strokeStyle='#4a4d54';g.lineWidth=2.2*d;g.beginPath();for(const fx of[-34,34,4]){g.moveTo(lx+fx*.3*s,ly-26*s);g.lineTo(lx+fx*s,ly+(fx==4?6:0)*s)}g.stroke();
+e(lx-58*s,ly-34*s,36*s,11*s,'#1c2a55','#c9a24a');e(lx+58*s,ly-34*s,36*s,11*s,'#1c2a55','#c9a24a');
+g.fillStyle='#d8d4ca';g.fillRect(lx-22*s,ly-42*s,44*s,16*s);g.fillStyle='#c9a24a';g.fillRect(lx-22*s,ly-30*s,44*s,4*s);e(lx,ly-42*s,22*s,5*s,'#e8e4da');
+g.strokeStyle='#d8d4ca';g.lineWidth=1.5*d;g.beginPath();g.moveTo(lx+12*s,ly-44*s);g.lineTo(lx+12*s,ly-62*s);g.stroke();e(lx+12*s,ly-63*s,3*s,3*s,'#c9a24a');
+const dx=W*.4,dy=H*.84,u=H/260;g.strokeStyle='#2a2d33';g.lineWidth=2*d;g.beginPath();g.moveTo(dx+30*u,dy-4*u);g.quadraticCurveTo(W*.55,H*.97,lx-10*s,ly);g.stroke();
+e(dx,dy+6*u,46*u,11*u,'rgba(30,14,8,.35)');e(dx,dy,40*u,11*u,'#cfc9bd','#8d8a82');g.fillStyle='#c9a24a';g.beginPath();g.ellipse(dx,dy-2*u,22*u,20*u,0,Math.PI,0);g.fill();e(dx,dy-2*u,22*u,5*u,'#a8832f');e(dx-7*u,dy-14*u,7*u,4*u,'rgba(255,240,200,.5)');
+return c}
+function dSC(){const c=$('sc'),g=c.getContext('2d'),W=c.width,H=c.height,d=D(),L=LV;if(!L||!W)return;
+if(!SCB||SCB.W!=W||SCB.H!=H)SCB={W,H,c:sceneBg(W,H,d)};
+const now=performance.now()/1000,dt=Math.min(.05,now-(SCB.t||now)),hz=H*.5;SCB.t=now;
+let sx=0,sy=0;for(const q of L.rip){const a=now-q.rt;if(a<2.5){const m=(1-a/2.5)*3*d;sx+=(Math.random()-.5)*2*m;sy+=(Math.random()-.5)*2*m}}
+g.fillStyle='#0b0d10';g.fillRect(0,0,W,H);g.save();g.translate(sx,sy);g.drawImage(SCB.c,0,0);g.textBaseline='middle';g.textAlign='left';
+const wv=L.ws*W*.02;g.fillStyle='rgb(222,172,122)';
+for(const p of LP){const py=hz+(H-hz)*(.04+.96*p.y),dep=(py-hz)/(H-hz),sp=wv*(.35+1.1*dep)*p.s;if(!L.done)p.x+=sp*dt/W;if(p.x>1.02)p.x=-.02;g.globalAlpha=p.a*(.5+.5*dep)*cl(L.ws/6,.35,1);g.fillRect(p.x*W,py+Math.sin(now*2+p.y*40)*2*d,(2+sp*.03)*d,(1+1.6*dep)*d)}g.globalAlpha=1;
+for(const e of L.ev){if(e.k!='d')continue;const u=(L.T-e.t+6)/12;if(u>0&&u<1){const bx=W*(1.05-.8*u),by=hz+(H-hz)*(.3+.25*Math.sin(PI*u)),p=(by-hz)/(H-hz),hh=H*.2*(.5+p);for(let i=0;i<16;i++){const f=i/15,w=(5+26*f)*(.5+p)*d*1.3,o=Math.sin(now*5+f*6)*8*d*f;g.fillStyle='rgba(205,150,105,'+.5*(1-f*.55)+')';g.beginPath();g.ellipse(bx+o,by-f*hh,w,w*.28,0,0,7);g.fill()}}}
+g.save();g.beginPath();g.rect(0,hz,W,H-hz);g.clip();for(const q of L.rip){const a=now-q.rt;if(a>=4)continue;for(let j=0;j<3;j++){const a2=a-j*.35;if(a2<=0)continue;const rx=a2*W*.2;g.strokeStyle='rgba(111,208,232,'+(1-a/4)*.8+')';g.lineWidth=2*d;g.beginPath();g.ellipse(W*.25,hz+(H-hz)*.5,rx,rx*.3,0,0,7);g.stroke()}}g.restore();
 g.restore();
-g.strokeStyle=col;g.lineWidth=2.5*d;g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();
-if(AN.t>0){let f=cl(ts/T[AN.ph],0,1),tot=0,seg=[];for(let i=1;i<pts.length;i++){const l=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);seg.push(l);tot+=l}let q=f*tot,i=0;while(i<seg.length-1&&q>seg[i]){q-=seg[i];i++}const u=seg[i]?q/seg[i]:0;g.fillStyle='#fff';g.beginPath();g.arc(pts[i][0]+(pts[i+1][0]-pts[i][0])*u,pts[i][1]+(pts[i+1][1]-pts[i][1])*u,5*d,0,7);g.fill()}
-g.fillStyle='#fff';g.font=11*d+'px monospace';g.fillText('★ source',s0[0]+8*d,s0[1]+4*d);const rc=P(RM,e.d);g.fillText('▲ station (Δ='+e.d+'°)',rc[0]+8*d,rc[1]+4*d);
-g.fillStyle='#fc9';g.fillText('Crust (thickness ×4) · Mantle · Core '+m.rc+' km',8*d,14*d);g.fillText(AN.ph+' : '+T[AN.ph].toFixed(0)+' s after origin (model)',8*d,28*d)}
-/* ---------- diagramme temps de trajet ---------- */
-function dTT(){const c=$('tt'),g=c.getContext('2d'),W=c.width,H=c.height,d=D(),m=ST.m,ml=40*d,mb=22*d,X=a=>ml+a/100*(W-ml-8*d),Y=t=>H-mb-t/600*(H-mb-18*d);
-g.fillStyle='#050b14';g.fillRect(0,0,W,H);g.font=10*d+'px monospace';g.fillStyle='#6a9';g.strokeStyle='#17405a66';
-for(let a=0;a<=100;a+=20){g.beginPath();g.moveTo(X(a),Y(0));g.lineTo(X(a),Y(600));g.stroke();g.fillText(a+'°',X(a)-6*d,H-6*d)}
-for(let t=0;t<=600;t+=100){g.beginPath();g.moveTo(X(0),Y(t));g.lineTo(X(100),Y(t));g.stroke();g.fillText(t,4*d,Y(t)+3*d)}
-const ks=tab()==2?['S']:['S','PcP','ScS'];g.fillStyle='#fc9';g.fillText('Time after P (s) vs. distance — current model curves',ml,12*d);
-for(const k of ks){g.strokeStyle=PCOL[k];g.lineWidth=2*d;g.beginPath();for(let a=2;a<=100;a+=1){const T=ph(m,a);a==2?g.moveTo(X(a),Y(T[k]-T.P)):g.lineTo(X(a),Y(T[k]-T.P))}g.stroke();g.fillStyle=PCOL[k];g.fillText(k+'−P',X(80),Y(ph(m,80)[k]-ph(m,80).P)-5*d)}
-if(tab()==2){for(const id of['A','C','D']){const p=ST.pk[id];if(!p)continue;const dt=p.S-p.P,dd=invDist(dt,m);g.strokeStyle='#fff';g.setLineDash([4*d,4*d]);g.beginPath();g.moveTo(X(0),Y(dt));g.lineTo(dd?X(dd):X(100),Y(dt));g.stroke();g.setLineDash([]);g.fillStyle='#fff';g.fillText(id+' : Δt='+dt.toFixed(0)+' s'+(dd?' → '+dd.toFixed(1)+'°':''),X(2),Y(dt)-4*d);if(dd){g.beginPath();g.arc(X(dd),Y(dt),4*d,0,7);g.fill()}}}
-else for(const e of EV){const r=REC[e.i];for(const k of(e.n=='C'?['S']:ks)){g.fillStyle='#fff';g.beginPath();g.arc(X(e.d),Y(r.ob[k]-r.ob.P),4*d,0,7);g.fill()}g.fillStyle='#fff';g.fillText(e.n,X(e.d)-3*d,Y(0)-4*d)}}
-/* ---------- interface ---------- */
-const tab=()=>ST.tab,ok=i=>i==0||(i<4?ST.sc[i]!=null:i==4?ST.sc[3]!=null:!!ST.kept);
-const TN=['1 · DATA','2 · FILTERS','3 · P/S PICKS','4 · ECHOES','5 · MODEL','6 · REPORT'];
-const tot=()=>Object.values(ST.sc).reduce((a,b)=>a+b,0),rank=()=>{const t=tot();return t<150?'Intern':t<300?'Technician':t<450?'Analyst':t<560?'Seismologist':'Mission Lead'};
-const sel=(a,opts,v)=>`<select data-a="${a}">${opts.map((o,i)=>`<option value="${i}" ${i==v?'selected':''}>${o}</option>`).join('')}</select>`;
-const evPh=()=>`<div class="r">Event ${sel('ev',EV.map(e=>e.n+' ('+e.d+'°)'),AN.ev)} ${['P','S','PP','SS','PcP','ScS'].map(p=>`<button class="${AN.ph==p?'on':''}" data-a="phs" data-v="${p}">${p}</button>`).join('')}</div><div class="r"><button class="go" data-a="play">▶ START PROPAGATION</button></div>`;
-const zb=`<div class="r">${[['−',1.5],['+',.67]].map(z=>`<button data-a="z" data-v="${z[1]}">zoom ${z[0]}</button>`).join('')}<button data-a="sp" data-v="30">30 s</button><button data-a="sp" data-v="120">2 min</button><button data-a="sp" data-v="600">10 min</button><button data-a="sp" data-v="1800">all</button><button data-a="pn" data-v="-1">◀</button><button data-a="pn" data-v="1">▶</button></div><div class="sm">Scroll = zoom · drag = move</div>`;
-function side(){const t=tab(),r=REC[V.rec];let h='';
-if(t==0)h=`<h3>MODULE 1 · ANALYSIS</h3><p>Inspect each recording (zoom, move, compare). A quake shows distinct arrivals (P then S); wind produces structureless noise.</p>${REC.map((x,i)=>`<div class="r"><button class="${V.rec==i?'on':''}" data-a="rec" data-i="${i}">${NM[i]}</button><button class="${ST.cls[i]=='s'?'on':''}" data-a="cl" data-i="${i}" data-v="s">QUAKE</button><button class="${ST.cls[i]=='w'?'on':''}" data-a="cl" data-i="${i}" data-v="w">WIND</button></div>`).join('')}<div class="r">Compare with ${sel('cmp',['—',...NM],V.cmp+1)}</div>${zb}<div class="r"><button class="go" data-a="v1">VALIDATE CLASSIFICATION</button></div><p id="fb"></p>`;
-if(t==1)h=`<h3>MODULE 2 · PROCESSING</h3><p>Wind mostly pollutes low frequencies. Set a band-pass filter to bring out the weak event C (target: signal-to-noise ratio ≥ 2.2).</p><div class="r">${REC.map((x,i)=>`<button class="${V.rec==i?'on':''}" data-a="rec" data-i="${i}">${NM[i]}</button>`).join('')}</div><div class="r"><button class="${ST.fon?'on':''}" data-a="fon">FILTER ${ST.fon?'ACTIVE':'INACTIVE'}</button><button class="${ST.ov?'on':''}" data-a="ov">overlay raw</button></div><div class="r">High-pass <input type="range" data-r="hp" min=".01" max="1.2" step=".01" value="${ST.hp}"><span class="tg" id="o_hp"></span></div><div class="r">Low-pass <input type="range" data-r="lp" min=".4" max="1.9" step=".05" value="${ST.lp}"><span class="tg" id="o_lp"></span></div><div class="r">SNR (S window / noise) : <span class="tg" id="o_snr"></span></div><div class="bar"><i id="o_bar"></i></div><p id="o_g"></p>${zb}`;
-if(t==2){const p=ST.pk[NM[V.rec]]||{P:0,S:0},dd=invDist(p.S-p.P,ST.m);h=`<h3>MODULE 3 · P / S PICKS</h3><p>Drag the <b style="color:#5ff">P</b> and <b style="color:#ff7a3d">S</b> markers to the start of each wave (use the filter! module 2).</p><div class="r">${[0,2,3].map(i=>`<button class="${V.rec==i?'on':''}" data-a="rec" data-i="${i}">${NM[i]}</button>`).join('')}</div><div class="r">Δt = S−P = <span class="tg" id="o_dt">${(p.S-p.P).toFixed(1)} s</span></div><div class="r">Estimated distance (current model) : <span class="tg" id="o_ds">${dd?dd.toFixed(1)+'°':'—'}</span></div>${zb}<div class="r"><button class="go" data-a="v3">VALIDATE PICKS</button></div><p id="fb">${ST.sc[3]!=null?'<span class="ok">Picks validated: '+ST.sc[3]+'/100</span>':''}</p><p class="sm">The chart below compares your Δt with the theoretical S−P curve: the intersection gives the distance.</p>`}
-if(t==3){h=`<h3>MODULE 4 · INTERNAL ECHOES</h3><p>Watch the paths: waves reflected off the core (PcP, ScS) arrive after P and S. On recording D, the dotted markers show the arrivals predicted by <b>your model</b> (module 5). Adjust the model until they match the observed echoes.</p>${evPh()}${zb}<div class="r"><button class="go" data-a="v4">VALIDATE ECHOES (D)</button></div><p id="fb">${ST.sc[4]!=null?'<span class="ok">Points: '+ST.sc[4]+'/100</span>':''}</p>`}
-if(t==4)h=`<h3>MODULE 5 · MODEL LAB</h3><p>Modify the structure: the paths are recomputed. Minimize the RMS misfit between theoretical (curves) and observed (points) times.</p><div class="r">Crust <input type="range" data-r="h" min="10" max="100" step="1" value="${ST.m.h}"><span class="tg" id="o_h"></span></div><div class="r">Mantle Vp <input type="range" data-r="vp" min="6.5" max="9.5" step=".05" value="${ST.m.vp}"><span class="tg" id="o_vp"></span></div><div class="r">Core radius <input type="range" data-r="rc" min="1400" max="2200" step="10" value="${ST.m.rc}"><span class="tg" id="o_rc"></span></div><div class="sm">Vs = Vp / 1.78 · crust velocities: Vp 6 km/s</div><div class="r">RMS misfit : <span class="tg" id="o_rms"></span></div><div class="bar"><i id="o_mb"></i></div><div id="o_tb"></div>${evPh()}<div class="r"><button class="go" data-a="keep">KEEP THIS MODEL</button></div><p id="fb">${ST.kept?'<span class="ok">Model kept ('+ST.sc[5]+'/200)</span>':''}</p>`;
-if(t==5){const m=ST.kept||ST.m,real=ST.rv;h=`<h3>SCIENTIFIC REPORT</h3><p class="sm">Simulated data — not from NASA.</p><table><tr><th>Classification</th><th colspan=4>${NM.map((n,i)=>n+':'+(ST.cls[i]=='s'?'quake':'wind')).join(' ')}</th></tr>${['A','C','D'].map(id=>{const p=ST.pk[id];return p?`<tr><td>Pick ${id}</td><td>P ${p.P.toFixed(1)}</td><td>S ${p.S.toFixed(1)}</td><td>Δt ${(p.S-p.P).toFixed(1)} s</td><td>${invDist(p.S-p.P,m)?.toFixed(1)}°</td></tr>`:''}).join('')}<tr><td>Filter</td><td colspan=4>${ST.hp}–${ST.lp} Hz</td></tr><tr><td>Echoes (offset)</td><td colspan=4>PcP ${ST.echo.PcP?.toFixed(1)} s · ScS ${ST.echo.ScS?.toFixed(1)} s</td></tr><tr><td>Selected model</td><td colspan=4>crust ${m.h} km · Vp ${m.vp} · core ${m.rc} km</td></tr></table><p>Your conclusions:</p><textarea data-a="rep" placeholder="E.g.: Mars’s core has a radius of about … km because the ScS echo arrives …">${ST.rep}</textarea><div class="r"><button class="go" data-a="rv">COMPARE WITH INSIGHT RESULTS</button></div>${real?`<div class="r"><button class="go" data-a="back">BACK TO Mars Rovers</button></div><table><tr><th></th><th>Your model</th><th>InSight (published)</th></tr><tr><td>Core radius</td><td>${m.rc} km</td><td>≈ 1830 ± 40 km</td></tr><tr><td>Core state</td><td>—</td><td>liquid</td></tr><tr><td>Crust thickness</td><td>${m.h} km</td><td>≈ 24–72 km (site)</td></tr></table><p class="sm">InSight (2018–2022), SEIS seismometer: more than 1,300 Martian quakes detected, including one of magnitude ≈ 4.7 (May 2022), and meteorite impacts. Waves reflected/converted at the core (Stähler et al., 2021) revealed a liquid core larger and less dense than expected, and therefore rich in light elements. The crust was constrained by receiver functions (Knapmeyer-Endrun et al., 2021) and the mantle by direct P/S waves. Here: a simplified straight-ray model with synthetic data — real results require velocity-gradient models and years of data.</p>`:''}`}
-$('sd').innerHTML=h;info()}
-function info(){const s=(i,v)=>{const e=$(i);if(e)e.textContent=v};s('o_hp',ST.hp.toFixed(2)+' Hz');s('o_lp',ST.lp.toFixed(2)+' Hz');s('o_h',ST.m.h+' km');s('o_vp',ST.m.vp.toFixed(2)+' km/s');s('o_rc',ST.m.rc+' km');
-if($('o_snr')){const q=snr(REC[V.rec]);s('o_snr',q==null?'— (no event)':q.toFixed(2));$('o_bar').style.width=Math.min(100,(q||0)/3*100)+'%';const c=snr(REC[2]);if(ST.fon&&c>=2.2&&ST.sc[2]==null){ST.sc[2]=100;save();s('o_g','');$('o_g').innerHTML='<span class="ok">✔ Event C revealed (SNR '+c.toFixed(2)+') · +100 pts</span>';nav()}else if(ST.sc[2]!=null)$('o_g').innerHTML='<span class="ok">✔ Objective reached</span>'}
-if($('o_rms')){const r=rms();s('o_rms',r.toFixed(2)+' s');$('o_mb').style.width=Math.max(0,100-r*5)+'%';$('o_tb').innerHTML='<table><tr><th>Evt/phase</th><th>model</th><th>obs.</th><th>residual</th></tr>'+resid().map(a=>`<tr><td>${a[0]} ${a[1]}−P</td><td>${a[2].toFixed(1)}</td><td>${a[3].toFixed(1)}</td><td class="${Math.abs(a[2]-a[3])<2?'ok':'ko'}">${(a[2]-a[3]).toFixed(1)}</td></tr>`).join('')+'</table>'}
-if($('o_dt')){const p=ST.pk[NM[V.rec]];if(p){s('o_dt',(p.S-p.P).toFixed(1)+' s');const d=invDist(p.S-p.P,ST.m);s('o_ds',d?d.toFixed(1)+'°':'—')}}
-$('hd').innerHTML=`SCORE <i>${tot()}</i> / 600 · GRADE <i>${rank()}</i><br><span class="sm">SIMULATED DATA (not NASA)</span>`}
-function nav(){$('nv').innerHTML=TN.map((n,i)=>`<button class="${ST.tab==i?'on':''}" data-t="${i}" ${ok(i)?'':'disabled'}>${ok(i)?'':'🔒 '}${n}</button>`).join('');info()}
-function setMk(){V.mk=[];if(tab()==2){const id=NM[V.rec];if(!REC[V.rec].ob)V.rec=0;const i=NM[V.rec],p=ST.pk[i]||(ST.pk[i]={P:100,S:160});V.mk=[{k:'P',col:'#5ff',o:p},{k:'S',col:'#ff7a3d',o:p}]}}
-function show(){const t=tab(),vis={sg:t<4&&t!=5||t==3,pl:t==3||t==4,tt:t==2||t==4};for(const k in vis)$(k).style.display=vis[k]?'block':'none';$('vz').style.display=t==5?'none':'flex';if(t==3)V.rec=3;if(t==2&&!REC[V.rec].ob)V.rec=0;setMk();if(t==0||t==1||t==3)V.mk=[];side();nav();fit();save()}
-function fit(){for(const k of['sg','pl','tt']){const c=$(k);if(c.style.display!='none'){c.width=c.clientWidth*D();c.height=c.clientHeight*D()}}draw()}
-function draw(){if($('sg').style.display!='none')dSG();if($('pl').style.display!='none')dPL();if($('tt').style.display!='none')dTT()}
-/* ---------- actions ---------- */
-$('nv').onclick=e=>{const b=e.target.closest('[data-t]');if(b&&!b.disabled){ST.tab=+b.dataset.t;show()}};
-$('sd').onclick=e=>{const b=e.target.closest('[data-a]');if(!b||b.tagName=='SELECT'||b.tagName=='TEXTAREA')return;const a=b.dataset.a,i=+b.dataset.i,v=b.dataset.v,fb=$('fb');
-if(a=='rec'){V.rec=i;setMk();side()}
-if(a=='cl'){ST.cls[i]=v;side()}
-if(a=='fon'){ST.fon^=1;side()}if(a=='ov'){ST.ov^=1;side()}
-if(a=='z'){const c=(V.t0+V.t1)/2,s=(V.t1-V.t0)*v/2;V.t0=Math.max(0,c-s);V.t1=Math.min(1800,c+s);if(V.t1-V.t0<8)V.t1=V.t0+8}
-if(a=='sp'){const s=+v,c=(V.t0+V.t1)/2;V.t0=cl(c-s/2,0,1800-s);V.t1=V.t0+s}
-if(a=='pn'){const s=V.t1-V.t0,d=s*.4*v;V.t0=cl(V.t0+d,0,1800-s);V.t1=V.t0+s}
-if(a=='phs'){AN.ph=v;AN.t=0;AN.on=1;side()}
-if(a=='play'){AN.t=.01;AN.on=1}
-if(a=='v1'){if(Object.keys(ST.cls).length<4){fb.innerHTML='<span class="ko">Classify all 4 recordings.</span>';return}const sol=['s','w','s','s'],n=sol.filter((s,k)=>ST.cls[k]==s).length;ST.att++;fb.innerHTML=n==4?'<span class="ok">✔ Exact classification.</span>':`<span class="ko">${n}/4 correct. Review the recordings (hint: a weak signal may hide beneath the wind → module 2).</span>`;if(n==4||ST.att>=3){const p=Math.max(0,n*25-Math.min(ST.att-1,3)*5);ST.sc[1]=Math.max(ST.sc[1]||0,p);if(n<4)fb.innerHTML+=' <span class="ok">Mission continues (partial classification) · '+p+' pts</span>';else fb.innerHTML+=' +'+p+' pts';nav()}}
-if(a=='v3'){let t=0;for(const id of['A','D']){const p=ST.pk[id],r=REC[id=='A'?0:3];if(!p){fb.innerHTML='<span class="ko">Also pick A and D.</span>';return}t+=25*Math.max(0,1-Math.abs(p.P-r.ob.P)/8)+25*Math.max(0,1-Math.abs(p.S-r.ob.S)/15)}t=Math.round(t);ST.sc[3]=Math.max(ST.sc[3]||0,t);fb.innerHTML=t>=70?`<span class="ok">Good picks: ${t}/100</span>`:`<span class="ko">${t}/100 : refine (zoom, filter) then revalidate.</span>`;nav();info()}
-if(a=='v4'){const T=ph(ST.m,62),ref=pkRef('D');let t=0;for(const k of['PcP','ScS']){const er=Math.abs(ref+T[k]-T.P-REC[3].ob[k]);ST.echo[k]=er;t+=50*Math.max(0,1-er/20)}t=Math.round(t);ST.sc[4]=Math.max(ST.sc[4]||0,t);fb.innerHTML=`Offsets: PcP ${ST.echo.PcP.toFixed(1)} s · ScS ${ST.echo.ScS.toFixed(1)} s → <b>${t}/100</b>${t<80?' — adjust the model (module 5) then revalidate.':''}`;info();save()}
-if(a=='keep'){const r=rms(),p=Math.round(200*Math.max(0,1-r/15));ST.sc[5]=Math.max(ST.sc[5]||0,p);if(r<4){ST.kept={...ST.m};fb.innerHTML=`<span class="ok">Model kept · RMS ${r.toFixed(2)} s · ${p}/200</span>`}else fb.innerHTML='<span class="ko">RMS too high ('+r.toFixed(1)+' s): the model does not reproduce the data (target < 4 s).</span>';nav()}
-if(a=='rv'){ST.rv=1;atlasQuest('phoenix');side()}if(a=='back'){location.href='../index.html?done=phoenix';return}
-draw();save();info()};
-$('sd').oninput=e=>{const t=e.target,r=t.dataset.r,a=t.dataset.a;if(r){const v=+t.value;if(r=='hp'||r=='lp'){ST[r]=v;refilter()}else{ST.m[r]=v;ST.kept=0}save();info();draw();if(r=='hp'||r=='lp')nav()}};
-$('sd').onchange=e=>{const t=e.target,a=t.dataset.a;if(a=='cmp'){V.cmp=+t.value-1}if(a=='ev'){AN.ev=+t.value;AN.t=0;AN.on=1}if(a=='rep'){ST.rep=t.value;save()}draw()};
-$('sd').addEventListener('input',e=>{if(e.target.dataset.a=='rep'){ST.rep=e.target.value;save()}});
-/* marqueurs, déplacement, zoom */
-const sg=$('sg'),tOf=e=>V.t0+e.offsetX*D()/sg.width*(V.t1-V.t0);
-sg.onpointerdown=e=>{sg.setPointerCapture(e.pointerId);const t=tOf(e),px=(V.t1-V.t0)/sg.width*D()*14;let mk=V.mk.find(k=>Math.abs(k.o[k.k]-t)<px);drag=mk?{mk}:{x:e.clientX,t0:V.t0,t1:V.t1}};
-sg.onpointermove=e=>{if(!drag)return;if(drag.mk){drag.mk.o[drag.mk.k]=cl(tOf(e),0,1800);info()}else{const s=V.t1-V.t0,dt=(e.clientX-drag.x)/sg.clientWidth*s;V.t0=cl(drag.t0-dt,0,1800-s);V.t1=V.t0+s}dSG();if(tab()==2)dTT()};
-sg.onpointerup=()=>{drag=null;save()};
-sg.onwheel=e=>{e.preventDefault();const f=e.deltaY>0?1.25:.8,tc=tOf(e),s=cl((V.t1-V.t0)*f,8,1800);V.t0=cl(tc-(tc-V.t0)*s/(V.t1-V.t0),0,1800-s);V.t1=V.t0+s;dSG()};
+g.font='500 '+11*d+'px '+FN;g.textAlign='left';g.fillStyle='rgba(12,14,18,.75)';g.fillRect(8*d,8*d,262*d,22*d);g.fillRect(W-214*d,8*d,206*d,22*d);g.fillRect(8*d,H-30*d,96*d,22*d);
+g.fillStyle='#f2ede5';g.fillText('STATION CAM · ELYSIUM PLANITIA · SIM',16*d,19*d);g.fillText('WIND '+L.ws.toFixed(1)+' m/s',W-206*d,19*d);
+g.fillStyle='#3a3d44';g.fillRect(W-98*d,15*d,84*d,8*d);g.fillStyle='#6fd0e8';g.fillRect(W-98*d,15*d,84*d*cl(L.ws/11,0,1),8*d);
+const ts=Math.floor(L.T);g.fillStyle='#f2ede5';g.fillText('T+ '+String(ts/60|0).padStart(2,'0')+':'+String(ts%60).padStart(2,'0'),16*d,H-19*d);
+const m=L.msg;if(m&&now-m.rt<2.6){const w=300*d,x=W/2-w/2,y=H*.16;g.globalAlpha=Math.min(1,(2.6-(now-m.rt))*2);g.fillStyle='rgba(12,14,18,.92)';g.fillRect(x,y,w,34*d);g.fillStyle=m.col=='ok'?'#8fe3a1':'#e5483a';g.fillRect(x,y,4*d,34*d);g.textAlign='center';g.font='700 '+15*d+'px '+FN;g.fillText(m.txt,W/2,y+17*d);g.globalAlpha=1}
+if(L.done){const w=Math.min(W*.9,420*d),h=96*d,x=W/2-w/2,y=H*.25;g.textAlign='center';g.fillStyle='rgba(12,14,18,.92)';g.fillRect(x,y,w,h);g.fillStyle=L.win?'#8fe3a1':'#e5483a';g.fillRect(x,y,w,4*d);g.font='700 '+20*d+'px '+FN;g.fillText(L.over?'TOO MANY ERRORS':'WATCH COMPLETE',W/2,y+28*d);g.font='500 '+12*d+'px '+FN;g.fillStyle='#f2ede5';g.fillText('Detected '+L.hit+'/'+LQ+' · errors '+(L.miss+L.fa)+'/'+LE+' · score '+Math.round(L.sc)+'/100',W/2,y+54*d);g.fillStyle=L.win?'#8fe3a1':'#e5483a';g.fillText(L.win?'MISSION SUCCESSFUL':L.over?'Mission failed — try again':'Score 50+ needed — try again',W/2,y+74*d)}}
+addEventListener('keydown',e=>{if(e.repeat||e.code!='Space')return;const el=document.activeElement;if(el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))return;e.preventDefault();det()});
+
+function fit(){for(const k of['sc','sg']){const c=$(k);c.width=c.clientWidth*D();c.height=c.clientHeight*D()}dSC();dLive()}
+$('dtb').onpointerdown=e=>{e.preventDefault();det()};
+$('lfb').onclick=e=>{if(!LV)return;LV.fil^=1;e.currentTarget.classList.toggle('on',!!LV.fil)};
+$('lnew').onclick=()=>{liveNew();$('lfb').classList.remove('on')};
+$('lback').onclick=()=>{location.href='../index.html?done=phoenix'};
 addEventListener('resize',fit);
-let lastT=0;(function loop(n){requestAnimationFrame(loop);if(AN.on){AN.t+=(n-lastT)/1000;if(AN.t>9)AN.on=0;if($('pl').style.display!='none')dPL()}lastT=n})(0);
-refilter();show();
+let lastT=0;(function loop(n){requestAnimationFrame(loop);const dt=Math.min(.1,Math.max(0,(n-lastT)/1000));liveStep(dt);dSC();dLive();liveUI();lastT=n})(0);
+liveNew();hdr();fit();
 </script></body></html>
