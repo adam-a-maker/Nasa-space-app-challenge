@@ -1,0 +1,18 @@
+SPIRIT — LES TRACES DE L’EAU
+Mini-jeu 3D · NASA Space Apps
+
+Extrais tout le contenu du ZIP dans un dossier.
+
+Dans VS Code, ouvre ce dossier et lance index.html avec Live Server
+si l’extension est installée (clic droit, « Open with Live Server »).
+
+Si tu as Python sur Windows, tu peux aussi ouvrir le terminal dans
+le dossier du jeu et taper :
+    py -m http.server 8000 --bind 127.0.0.1
+Ouvre ensuite http://localhost:8000 dans ton navigateur.
+Pour fermer le serveur, appuie sur Ctrl+C dans le terminal.
+
+Flèches : avancer, reculer et tourner.
+Espace : passer du présent au passé et inversement.
+C : changer de caméra.
+Sur mobile, utilise les commandes affichées à l’écran.
