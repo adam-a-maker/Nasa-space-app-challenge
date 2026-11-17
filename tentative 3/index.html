@@ -122,7 +122,7 @@ var $=function(id){return document.getElementById(id)};
 var reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
 setTimeout(function(){document.body.classList.remove("intro")},5800);
 var cfg={sound:true,vol:60};
-try{var s=JSON.parse(localStorage.getItem("mars-settings")||"null");if(s){cfg.sound=!!s.sound;cfg.vol=+s.vol||0}}catch(e){}
+try{var s=JSON.parse(localStorage.getItem("mars-settings")||"null");if(s){cfg.sound=!!s.sound;if(isFinite(parseFloat(s.vol)))cfg.vol=Math.max(0,Math.min(100,+s.vol))}}catch(e){}
 function save(){try{localStorage.setItem("mars-settings",JSON.stringify(cfg))}catch(e){}}
 
 /* Après l'animation de lancement, ouvrir la page principale */
@@ -143,7 +143,7 @@ $("bStay").onclick=function(){back();show("menu","bQuit")};
 $("bYes").onclick=function(){$("sBye").hidden=false;$("bBack2").focus();fade(0)};
 $("bBack2").onclick=function(){$("sBye").hidden=true;show("menu","bPlay");fade(1)};
 document.addEventListener("keydown",function(e){
- if(e.key==="Escape"&&!panels.menu.hidden===false){show("menu","bSet")}
+ if(e.key==="Escape"&&panels.menu.hidden){var f=panels.quit.hidden?"bSet":"bQuit";back();show("menu",f)}
  if(e.key!=="ArrowDown"&&e.key!=="ArrowUp")return;
  var p=Object.keys(panels).map(function(k){return panels[k]}).filter(function(x){return !x.hidden})[0];
  var items=[].slice.call(p.querySelectorAll("button,input"));

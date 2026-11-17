@@ -533,7 +533,7 @@ function placeDossier(index) {
   const minY = Math.max(headerBottom, -homeBox.top, 0) + margin;
   const maxY = Math.max(minY, Math.min(homeBox.height, innerHeight - homeBox.top) - margin - h);
 
-  const obstacles = [".intro", ".missions", ".coordinates", ".controls", ".credit"]
+  const obstacles = [".intro", ".missions", ".quests", ".coordinates", ".controls", ".credit"]
     .map(selector => home.querySelector(selector)).filter(Boolean).map(el => relativeBox(el, homeBox));
   const others = pins.map((pin, i) => i === index || pin.marker.hidden ? null : markerCenter(i, homeBox))
     .filter(Boolean).map(p => ({ l: p.x - 15, t: p.y - 15, r: p.x + 15, b: p.y + 15 }));
